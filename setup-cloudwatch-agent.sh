@@ -20,3 +20,4 @@ ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo /opt/aws/amazon-cloudwatch-agen
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
 
 # the config wizard is at /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard
+# the instance needs to be associated with an IAM role containing the "CloudwatchAgentServerPolicy" policy
