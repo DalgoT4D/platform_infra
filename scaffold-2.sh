@@ -20,7 +20,7 @@ fi
 if [ "x${PROD}" == "x" ]; then
   DDP_PUBLICKEYFILE="${DDPUSER}.pub"
   DDP_PRIVATEKEYFILE="${DDPUSER}.key"
-  if [ -f ${DDP_PUBLICKEYFILE} ]; then
+  if [ -f secrets/${DDP_PUBLICKEYFILE} ]; then
     ssh-keygen -f ${DDPUSER} <<< "y"
   else
     ssh-keygen -f ${DDPUSER} 
