@@ -15,7 +15,7 @@ if [ "x${DDPUSER}" == "x" ]; then
 fi
 
 if [ "x${PROD}" == "x" ]; then
-  DDP_PRIVATEKEYFILE="${DDPUSER}"
+  DDP_PRIVATEKEYFILE="secrets/${DDPUSER}"
   if [ ! -f ${DDP_PRIVATEKEYFILE} ]; then
     echo "Private key missing for ${DDPUSER} please run scaffold-2"
     exit 1
@@ -30,8 +30,8 @@ else
 fi
 
 echo "Downloading Airbyte"
-# giturl="https://github.com/DevDataPlatform/airbyte.git"
-giturl="https://github.com/airbytehq/airbyte.git"
+giturl="https://github.com/DevDataPlatform/airbyte.git"
+# giturl="https://github.com/airbytehq/airbyte.git"
 ssh -i ${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "git clone -b ${GITBRANCH} --single-branch ${giturl}"
 
 
