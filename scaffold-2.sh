@@ -14,20 +14,19 @@ fi
 if [ "x${DDPUSER}" == "x" ]; then
   DDPUSER="ddp"
 fi
-
 # run ssh-keygen on local machine for development builds
 # for production we need a stronger guarantee that we won't be locked out, so we re-use a known key pair
 if [ "x${PROD}" == "x" ]; then
   DDP_PUBLICKEYFILE="${DDPUSER}.pub"
-  DDP_PRIVATEKEYFILE="${DDPUSER}.key"
+  DDP_PRIVATEKEYFILE="${DDPUSER}"
   if [ -f secrets/${DDP_PUBLICKEYFILE} ]; then
-    ssh-keygen -f ${DDPUSER} <<< "y"
+    ssh-keygen -f secrets/${DDPUSER} <<< "y"
   else
-    ssh-keygen -f ${DDPUSER} 
+    ssh-keygen -f secrets/${DDPUSER} 
   fi
 else
-  DDP_PUBLICKEYFILE="ddp.id_rsa.pub"
-  DDP_PRIVATEKEYFILE="ddp.id_rsa"
+  DDP_PUBLICKEYFILE="ddp.pub"
+  DDP_PRIVATEKEYFILE="ddp"
 fi
 
 echo "Creating ddp user"

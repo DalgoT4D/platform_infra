@@ -17,7 +17,7 @@ ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt upgrade -y
 
 echo "Installing docker"
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt install docker.io -y
-ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64" -o /usr/local/bin/docker-compose
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo curl -L "https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-Linux-x86_64" -o /usr/local/bin/docker-compose
 # ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo snap install docker
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo chmod +x /usr/local/bin/docker-compose 
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt install unzip -y 
