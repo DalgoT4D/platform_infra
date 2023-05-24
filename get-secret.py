@@ -20,7 +20,7 @@ if args.list:
 
     sys.exit(0)
 
-if args.name is None or args.name not in secrets:
+if args.name is None:
     parser.print_usage()
     sys.exit(0)
 
