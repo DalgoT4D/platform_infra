@@ -22,7 +22,7 @@ ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo curl -L "https://github.com/doc
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo chmod +x /usr/local/bin/docker-compose 
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt install unzip -y 
 
-echo "Installing venv for python 3.10 (for prefect)"
+echo "Installing venv for python 3.10"
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} "sudo apt install python3.10-venv -y"
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} "sudo apt install pip -y"
 
