@@ -47,7 +47,7 @@ ssh -i secrets/${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo chmod 600 /home/${DDPUS
 # create venv
 echo "Creating python3 venv"
 ssh -i secrets/${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "python3 -m venv venv"
-ssh -i secrets/${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "venv/bin/pip install jupyter"
+ssh -i secrets/${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "venv/bin/pip install jupyter httpie"
 
 # reboot 
 echo "Restarting machine"
