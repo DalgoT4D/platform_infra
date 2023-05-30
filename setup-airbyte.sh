@@ -32,8 +32,11 @@ fi
 echo "Downloading Airbyte"
 giturl="https://github.com/DevDataPlatform/airbyte.git"
 # giturl="https://github.com/airbytehq/airbyte.git"
-ssh -i ${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "git clone -b ${GITBRANCH} --single-branch ${giturl}"
+ssh -i ${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "git clone ${giturl}"
 
+ssh -i ${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "cd airbyte"
+ssh -i ${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "sed -i 's/docker compose/docker-compose/g' airbyte/run-ab-platform.sh"
+ssh -i ${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "cd airbyte && ./run-ab-platform.sh"
 
 DATABASE_USER=`grep AIRBYTE_DATABASE_USER dbcreds.txt | cut -d "=" -f 2`
 DATABASE_PASSWORD=`grep AIRBYTE_DATABASE_PASSWORD dbcreds.txt | cut -d "=" -f 2`
