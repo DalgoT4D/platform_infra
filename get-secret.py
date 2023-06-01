@@ -12,6 +12,7 @@ args = parser.parse_args()
 secrets = {
     "ddp-airbyte.pem": "ddp-airbyte PEM",
     "ddp-ui-95e38-c45763654680.json": "google service account",
+    "dbsecrets": "rds databases users and passwords",
 }
 
 if args.list:
