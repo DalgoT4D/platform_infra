@@ -12,7 +12,6 @@ else
                        -L 9082:localhost:8082 \
                        -L 9083:localhost:8083 \
                        -L 9000:localhost:9000 \
-                       -L 3000:localhost:3000 \
                        -L 5555:localhost:5555 \
                        -L 4200:localhost:4200 \
     ddp@${MACHINE_IP}

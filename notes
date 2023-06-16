@@ -1,0 +1,6 @@
+bitwarden:
+visit https://bitwarden.projecttech4dev.org
+to update, run `./bitwarden.sh updateself` and then `./bitwarden.sh update`
+
+creating a swapfile
+https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-20-04
