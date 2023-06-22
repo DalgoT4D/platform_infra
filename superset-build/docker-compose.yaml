@@ -1,26 +1,33 @@
 version: "3.8"
 
+networks:
+  app-network:
+    driver: bridge
+
 services:
   superset:
-    environment:
-      SUPSERSET_SECRET_KEY: ${SUPSERSET_SECRET_KEY}
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_STARTTLS: ${SMTP_STARTTLS}
-      SMTP_SSL: ${SMTP_SSL}
-      SMTP_USER: ${SMTP_USER}
-      SMTP_PORT: ${SMTP_PORT}
-      SMTP_PASSWORD: ${SMTP_PASSWORD}
-      SMTP_MAIL_FROM: ${SMTP_MAIL_FROM}
+    env_file:
+      - superset.env
     image: "ddp-superset:0.1"
+    networks:
+      - app-network
+    depends_on:
+      - db
+      - superset_cache
+    command: >
+      sh -c  "celery --app=superset.tasks.celery_app:app worker --pool=prefork -O fair -c 4 &&
+              celery --app=superset.tasks.celery_app:app beat &&
+              celery --app=superset.tasks.celery_app:app flower
+              "
 
-  celery_worker:
-    command: celery --app=superset.tasks.celery_app:app worker --pool=prefork -O fair -c 4
-
-  celery_beat:
-    command: celery --app=superset.tasks.celery_app:app beat
-
-  celery_flower:
-    command: celery --app=superset.tasks.celery_app:app flower
+  db:
+    image: postgres
+    env_file:
+      - db.env
+    networks:
+      - app-network
 
   superset_cache:
     image: redis
+    networks:
+      - app-network

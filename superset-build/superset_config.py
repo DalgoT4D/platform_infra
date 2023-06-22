@@ -1116,13 +1116,13 @@ FLASK_APP_MUTATOR = None
 
 # smtp server configuration
 EMAIL_NOTIFICATIONS = False  # all the emails are sent using dryrun
-SMTP_HOST = os.environ("SMTP_HOST")
-SMTP_STARTTLS = os.environ("SMTP_STARTTLS")
-SMTP_SSL = os.environ("SMTP_SSL")
-SMTP_USER = os.environ("SMTP_USER")
-SMTP_PORT = os.environ("SMTP_PORT")
-SMTP_PASSWORD = os.environ("SMTP_PASSWORD")
-SMTP_MAIL_FROM = os.environ("SMTP_MAIL_FROM")
+SMTP_HOST = os.environ["SMTP_HOST"]
+SMTP_STARTTLS = os.environ["SMTP_STARTTLS"]
+SMTP_SSL = os.environ["SMTP_SSL"]
+SMTP_USER = os.environ["SMTP_USER"]
+SMTP_PORT = os.environ["SMTP_PORT"]
+SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
+SMTP_MAIL_FROM = os.environ["SMTP_MAIL_FROM"]
 # If True creates a default SSL context with ssl.Purpose.CLIENT_AUTH using the
 # default system root CA certificates.
 SMTP_SSL_SERVER_AUTH = False

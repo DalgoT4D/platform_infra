@@ -30,3 +30,4 @@ RUN pip install --no-cache gevent psycopg2 redis flower
 # Switching back to using the `superset` user
 USER superset
 
+COPY superset_config.py /app/superset/config.py
