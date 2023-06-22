@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  superset:
+    environment:
+      SUPSERSET_SECRET_KEY: ${SUPSERSET_SECRET_KEY}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_STARTTLS: ${SMTP_STARTTLS}
+      SMTP_SSL: ${SMTP_SSL}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_MAIL_FROM: ${SMTP_MAIL_FROM}
+    image: "ddp-superset:0.1"
+
+  celery_worker:
+    command: celery --app=superset.tasks.celery_app:app worker --pool=prefork -O fair -c 4
+
+  celery_beat:
+    command: celery --app=superset.tasks.celery_app:app beat
+
+  celery_flower:
+    command: celery --app=superset.tasks.celery_app:app flower
+
+  superset_cache:
+    image: redis
