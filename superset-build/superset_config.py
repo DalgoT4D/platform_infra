@@ -187,7 +187,8 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = os.environ.get("SUPERSET_SECRET_KEY") or CHANGE_ME_SECRET_KEY
 
 # The SQLAlchemy connection string.
-SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(DATA_DIR, "superset.db")
+SQLALCHEMY_DATABASE_URI = os.environ("SQLALCHEMY_DATABASE_URI")
+# SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(DATA_DIR, "superset.db")
 # SQLALCHEMY_DATABASE_URI = 'mysql://myapp@localhost/myapp'
 # SQLALCHEMY_DATABASE_URI = 'postgresql://root:password@localhost/myapp'
 
@@ -682,17 +683,17 @@ CACHE_DEFAULT_TIMEOUT = int(timedelta(days=1).total_seconds())
 
 # Default cache for Superset objects
 CACHE_CONFIG: CacheConfig = {
-    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=90).total_seconds()),
+    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=1).total_seconds()),
     # should the timeout be reset when retrieving a cached value
     "REFRESH_TIMEOUT_ON_RETRIEVAL": True,
     "CACHE_TYPE": "RedisCache",
-    "CACHE_KEY_PREFIX": "superset_cache",
+    "CACHE_KEY_PREFIX": "superset_results",
     "CACHE_REDIS_URL": "redis://localhost:6379/0",
 }
 
 # Cache for datasource metadata and query results
 DATA_CACHE_CONFIG: CacheConfig = {
-    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=90).total_seconds()),
+    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=1).total_seconds()),
     # should the timeout be reset when retrieving a cached value
     "REFRESH_TIMEOUT_ON_RETRIEVAL": True,
     "CACHE_TYPE": "RedisCache",
@@ -703,7 +704,7 @@ DATA_CACHE_CONFIG: CacheConfig = {
 # Cache for dashboard filter state (`CACHE_TYPE` defaults to `SimpleCache` when
 #  running in debug mode unless overridden)
 FILTER_STATE_CACHE_CONFIG: CacheConfig = {
-    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=90).total_seconds()),
+    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=1).total_seconds()),
     # should the timeout be reset when retrieving a cached value
     "REFRESH_TIMEOUT_ON_RETRIEVAL": True,
     "CACHE_TYPE": "RedisCache",
@@ -714,7 +715,7 @@ FILTER_STATE_CACHE_CONFIG: CacheConfig = {
 # Cache for explore form data state (`CACHE_TYPE` defaults to `SimpleCache` when
 #  running in debug mode unless overridden)
 EXPLORE_FORM_DATA_CACHE_CONFIG: CacheConfig = {
-    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=7).total_seconds()),
+    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=1).total_seconds()),
     # should the timeout be reset when retrieving a cached value
     "REFRESH_TIMEOUT_ON_RETRIEVAL": True,
     "CACHE_TYPE": "RedisCache",
