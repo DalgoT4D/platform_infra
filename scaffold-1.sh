@@ -31,6 +31,18 @@ ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} curl "https://awscli.amazonaws.com/a
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} unzip awscliv2.zip
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo ./aws/install
 
+# yarn
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt update
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt install -y yarn
+
+# redis
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt install -y redis-server
+
+# nginx
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt install -y nginx
+
 echo "Restarting machine"
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo reboot
 

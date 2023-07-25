@@ -49,6 +49,15 @@ echo "Creating python3 venv"
 ssh -i secrets/${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "python3 -m venv venv"
 ssh -i secrets/${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "venv/bin/pip install jupyter httpie"
 
+# pm2
+ssh -i secrets/${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "yarn global add pm2"
+
+ssh -i secrets/${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "pm2 install pm2-logrotate"
+ssh -i secrets/${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "pm2 set pm2-logrotate:compress true"
+
+# nvm
+ssh -i secrets/${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash "
+
 # reboot 
 echo "Restarting machine"
 ssh -i secrets/${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo reboot
