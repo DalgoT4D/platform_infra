@@ -37,11 +37,29 @@ ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} echo "deb https://dl.yarnpkg.com/deb
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt update
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt install -y yarn
 
+# postgres and psql
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt install -y postgresql postgresql-contrib
+
 # redis
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt install -y redis-server
 
 # nginx
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt install -y nginx
+
+# docker compose v2
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo apt-get update
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo apt-get install ca-certificates curl gnupg
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo install -m 0755 -d /etc/apt/keyrings
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo chmod a+r /etc/apt/keyrings/docker.gpg
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  'echo   "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" |   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo apt-get update
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo apt-get install docker-compose-plugin
+
+# certbot
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo snap install --classic certbot
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo ln -s /snap/bin/certbot /usr/bin/certbot
+
 
 echo "Restarting machine"
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo reboot

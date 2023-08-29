@@ -1,0 +1,18 @@
+server {
+
+    server_name dashboard.dalgo.in;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        include proxy_params;
+    }
+}
+server {
+
+    server_name api.dalgo.in;
+
+    location / {
+        proxy_pass http://localhost:8002;
+        include proxy_params;
+    }
+}

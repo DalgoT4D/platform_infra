@@ -61,6 +61,11 @@ echo "Setting in airbyte/.env: DATABASE_URL=${DATABASE_URL}"
 cmd_setdb="sed -i 's|DATABASE_URL=jdbc:postgresql://db:5432/airbyte|DATABASE_URL=${DATABASE_URL}|' airbyte/.env"
 ssh -i ${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} ${cmd_setdb}
 
+# we also need to add at the bottom:
+# SECRET_PERSISTENCE=GOOGLE_SECRET_MANAGER
+# SECRET_STORE_GCP_PROJECT_ID=<project id>
+# SECRET_STORE_GCP_CREDENTIALS='<json as single-line string>'
+
 scp -i ${DDP_PRIVATEKEYFILE} _startairbyte.sh ddp@${MACHINE_IP}:/home/${DDPUSER}/startairbyte.sh
 
 # nohup ssh -i ${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "sh startairbyte.sh" 
