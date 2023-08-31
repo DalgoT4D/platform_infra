@@ -3,12 +3,12 @@ module.exports = {
     {
       max_restarts: 5,
       name: 'prefect-agent',
-      script: '/home/ddp/prefect/venv/bin/prefect agent start -q ddp',
+      script: '/home/ddp/prefect-proxy/venv/bin/prefect agent start -q ddp --pool default-agent-pool --limit 1',
     },
     {
       max_restarts: 5,
       name: 'prefect-server',
-      script: 'source /home/ddp/prefect/venv/bin/activate && GOOGLE_APPLICATION_CREDENTIALS="/home/ddp/secrets/dummy.json" prefect server start',
+      script: 'source /home/ddp/prefect-proxy/venv/bin/activate && GOOGLE_APPLICATION_CREDENTIALS="/home/ddp/secrets/dummy.json" prefect server start',
     },
     {
       max_restarts: 5,
