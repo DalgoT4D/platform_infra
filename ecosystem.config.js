@@ -26,6 +26,13 @@ module.exports = {
     },
     {
       max_restarts: 5,
+      name: 'django-celery-beat',
+      cwd: '/home/ddp/DDP_backend',
+      script:
+        '/home/ddp/DDP_backend/venv/bin/celery -A ddpui beat --pidfile /home/ddp/DDP_backend/celerybeat.pid',
+    },
+    {
+      max_restarts: 5,
       name: 'django-backend',
       cwd: '/home/ddp/DDP_backend',
       script:
