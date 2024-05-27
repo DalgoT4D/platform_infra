@@ -1,2 +1,5 @@
-secrets/
-machineip.txt
+**secrets/
+**machineip.txt
+
+.env
+**airbyte/
