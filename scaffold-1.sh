@@ -49,9 +49,9 @@ ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo apt-get install ca-certificate
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo install -m 0755 -d /etc/apt/keyrings
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo chmod a+r /etc/apt/keyrings/docker.gpg
-ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  'echo   "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" |   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo apt-get update
-ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo apt-get install docker-compose-plugin
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # certbot
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo snap install --classic certbot
