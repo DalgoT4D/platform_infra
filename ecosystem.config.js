@@ -2,19 +2,20 @@ module.exports = {
   apps: [
     {
       max_restarts: 5,
-      name: 'prefect-agent',
-      script: '/home/ddp/prefect-proxy/venv/bin/prefect agent start -q ddp --pool default-agent-pool --limit 1',
+      name: 'prefect-worker-ddp-1',
+      script: '/home/ddp/prefect-proxy/venv/bin/prefect worker start --work-queue ddp --pool prod_dalgo_work_pool --limit 1',
     },
     {
       max_restarts: 5,
-      name: 'prefect-agent',
-      script: '/home/ddp/prefect-proxy/venv/bin/prefect agent start -q ddp --pool default-agent-pool --limit 1',
+      name: 'prefect-worker-ddp-2',
+      script: '/home/ddp/prefect-proxy/venv/bin/prefect worker start --work-queue ddp --pool prod_dalgo_work_pool --limit 1',
     },
     {
       max_restarts: 5,
-      name: 'prefect-agent',
-      script: '/home/ddp/prefect-proxy/venv/bin/prefect agent start -q manual-dbt --pool default-agent-pool --limit 1',
+      name: 'prefect-worker-manual-dbt',
+      script: '/home/ddp/prefect-proxy/venv/bin/prefect worker start --work-queue manual-dbt --pool prod_dalgo_work_pool --limit 1',
     },
+
     {
       max_restarts: 5,
       name: 'prefect-server',
