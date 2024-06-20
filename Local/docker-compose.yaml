@@ -158,3 +158,7 @@ volumes:
   prefect:
   postgres:
   redis_data:
+
+networks:
+  dalgo_network:
+    driver: bridge
