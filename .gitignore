@@ -3,3 +3,18 @@
 
 .env
 **airbyte/
+
+**.DS_Store
+.tfstate
+**terraform.tfstate
+**terraform.tfstate.backup
+**.auto.tfvars
+**terraform.tfvars
+***.tfvars
+**.terraform/
+**.terraform.lock.hcl
+**.terraformrc
+**.terraform-version
+**.terraform.d/
+
+cloudbuild.yaml
