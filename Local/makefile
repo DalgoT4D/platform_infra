@@ -24,3 +24,9 @@ compose-up:
 compose-down:
 	docker-compose -f docker-compose.yaml down --volumes
 
+start-dalgo:
+	chmod +x run-dalgo.sh
+	./run-dalgo.sh start
+stop-dalgo:
+	chmod +x run-dalgo.sh
+	./run-dalgo.sh stop

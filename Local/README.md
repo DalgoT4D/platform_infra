@@ -17,7 +17,13 @@ To install the package, follow this [instructions](https://github.com/airbytehq/
 
 username is foo and password is bar
 
-### Step 3: Make sure you have built the images of all the services
+### Step 3: Start Dalgo
+If you only want to demo how Dalgo works locally
+
+- `make start-dalgo`
+
+Note: If frontend gives api server error, make sure `NEXTAUTH_SECRET` is set with valid value.
+###  Working with local images
 
 #### For Developers who want to test Dalgo for the first time without cloning other repos
 
@@ -29,12 +35,5 @@ For developers who are actively working on dalgo code and have atleast one image
 
 - `make image-backend`
 
-### Step 4: Run docker compose
-
-- `make compose-up`
-
-### Step 5: Stop Containers
-
-- `make container-down`
 
 
