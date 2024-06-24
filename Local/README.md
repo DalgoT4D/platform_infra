@@ -23,6 +23,11 @@ If you only want to demo how Dalgo works locally
 - `make start-dalgo`
 
 Note: If frontend gives api server error, make sure `NEXTAUTH_SECRET` is set with valid value.
+
+### Step 4: Stop Dalgo
+If you only want to demo how Dalgo works locally
+
+- `make stop-dalgo`
 ###  Working with local images
 
 #### For Developers who want to test Dalgo for the first time without cloning other repos
