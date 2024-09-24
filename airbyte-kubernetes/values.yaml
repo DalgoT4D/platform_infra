@@ -24,12 +24,12 @@ global:
   logs:
     accessKey:
       password: ""
-      existingSecret: "airbyte-logs-secrets"
-      existingSecretKey: "AWS_KEY"
+      existingSecret: airbyte-logs-secrets
+      existingSecretKey: AWS_KEY
     secretKey:
       password: ""
-      existingSecret: "airbyte-logs-secrets"
-      existingSecretKey: "AWS_SECRET_KEY"
+      existingSecret: airbyte-logs-secrets
+      existingSecretKey: AWS_SECRET_KEY
 
   # -- Auth configuration
   auth:
@@ -73,14 +73,14 @@ global:
     type: "external" # "external"
 
     # -- Secret name where database credentials are stored
-    secretName: "db-secrets"
-    secretValue: "DATABASE_PASSWORD"
+    passwordSecretKey: "DATABASE_PASSWORD"
+    #secretValue: "DATABASE_PASSWORD"
 
     # -- The database host
     host: airbyte-eks.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
 
     # -- The database port
-    port: 5432
+    port: "5432"
 
     # -- The database name
     database: airbyte
@@ -91,15 +91,17 @@ global:
     #userSecretKey: "" # e.g. "database-user"
 
     # -- The database password
-    password: "93d2o3idjkperf"
     # -- The key within `secretName` where the password is stored
-    #passwordSecretKey: "" # e.g."database-password"
+    passwordSecretKey: "DATABASE_PASSWORD" # e.g."database-password"
+    secretName: "db-secrets"
+    #secretValue: "DATABASE_PASSWORD"
 
   storage:
     # -- The storage backend type. Supports s3, gcs, minio (default)
     type: "S3" # default storage used
     # -- Secret name where storage provider credentials are stored
-    storageSecretName: "airbyte-logs-secrets"
+    storageSecretName: "airbyte-config-secrets"
+    secretName: "airbyte-logs-secrets"
 
     # S3
     bucket: ## S3 bucket names that you've created. We recommend storing the following all in one bucket.
@@ -389,33 +391,43 @@ webapp:
   extraInitContainers: []
 
   ## Example: (With default env vars and values taken from generated config map)
-  # extraEnv:
-  #   - name: POSTGRES_USER
-  #     valueFrom:
-  #       secretKeyRef:
-  #         name: airbyte-secrets
-  #         key: DATABASE_USER
-  #   - name: POSTGRES_PWD
-  #     valueFrom:
-  #       secretKeyRef:
-  #         name: airbyte-secrets
-  #         key: DATABASE_PASSWORD
-  #   - name: DYNAMIC_CONFIG_FILE_PATH
-  #     value: "config/dynamicconfig/development.yaml"
-  #   - name: DB
-  #     value: "postgresql"
-  #   - name: DB_PORT
-  #     valueFrom:
-  #       configMapKeyRef:
-  #         name: airbyte-env
-  #         key: DATABASE_PORT
-  #   - name: POSTGRES_SEEDS
-  #     valueFrom:
-  #       configMapKeyRef:
-  #         name: airbyte-env
-  #         key: DATABASE_HOST
+  extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: airbyte-logs-secrets
+          key: AWS_KEY
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: airbyte-logs-secrets
+          key: AWS_SECRET_KEY
+    - name: POSTGRES_USER
+      valueFrom:
+        secretKeyRef:
+          name: db-secrets
+          key: DATABASE_USER
+    - name: POSTGRES_PWD
+      valueFrom:
+        secretKeyRef:
+          name: db-secrets
+          key: DATABASE_PASSWORD
+    - name: DYNAMIC_CONFIG_FILE_PATH
+      value: "config/dynamicconfig/development.yaml"
+    - name: DB
+      value: "postgresql"
+    - name: DB_PORT
+      valueFrom:
+        secretKeyRef:
+          name: db-secrets
+          key: DATABASE_PORT
+    - name: POSTGRES_SEEDS
+      valueFrom:
+        secretKeyRef:
+          name: db-secrets
+          key: DATABASE_HOST
   # -- Supply extra env variables to main container using full notation
-  extraEnv: []
+  #extraEnv: []
   ## Example:
   ## secrets:
   ##   DATABASE_PASSWORD: strong-password
@@ -636,7 +648,7 @@ server:
 
   log:
     # -- The log level to log at
-    level: "DEBUG"
+    level: "INFO"
 
   ## Examples (when using `server.containerSecurityContext.readOnlyRootFilesystem=true`):
   ## extraVolumeMounts:
@@ -706,16 +718,16 @@ server:
   ##
   # -- Supply extra env variables to main container using full notation
   extraEnv:
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-logs-secrets
-          key: AWS_KEY
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-logs-secrets
-          key: AWS_SECRET_KEY
+    # - name: AWS_ACCESS_KEY_ID
+    #   valueFrom:
+    #     secretKeyRef:
+    #       key: s3-access-key-id
+    #       name: airbyte-logs-secrets
+    # - name: AWS_SECRET_ACCESS_KEY
+    #   valueFrom:
+    #     secretKeyRef:
+    #       key: s3-secret-access-key
+    #       name: airbyte-logs-secrets
     - name: STATE_STORAGE_S3_ACCESS_KEY
       valueFrom:
         secretKeyRef:
@@ -748,7 +760,9 @@ server:
   ##   DATABASE_HOST: airbyte-db
   ##   DATABASE_PORT: 5432
   # -- Supply extra env variables to main container using simplified notation
-  env_vars: {}
+  env_vars: 
+    DATABASE_HOST: airbyte-eks.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
+    DATABASE_PORT: "5432"
 
 ## @section Worker Parameters
 
@@ -859,13 +873,13 @@ worker:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
-          key: AWS_KEY
+          key: s3-access-key-id
+          name: airbyte-config-secrets
     - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
-          key: AWS_SECRET_KEY
+          key: s3-secret-access-key
+          name: airbyte-config-secrets
     - name: STATE_STORAGE_S3_ACCESS_KEY
       valueFrom:
         secretKeyRef:
@@ -1026,7 +1040,17 @@ workload-launcher:
   ## - name: JOB_KUBE_TOLERATIONS
   ##   value: "key=airbyte-server,operator=Equals,value=true,effect=NoSchedule"
   # -- Additional env vars for workload launcher pods
-  extraEnv: []
+  extraEnv: 
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          key: s3-access-key-id
+          name: airbyte-config-secrets
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          key: s3-secret-access-key
+          name: airbyte-config-secrets
 
   ## Examples (when using `workload launcher.containerSecurityContext.readOnlyRootFilesystem=true`):
   ## extraVolumeMounts:
@@ -1319,7 +1343,7 @@ airbyte-bootloader:
 ## TODO: Move to consuming temporal from a dedicated helm chart
 
 temporal:
-  enabled: false
+  enabled: true
   # -- The number of temporal replicas to deploy
   replicaCount: 1
 
@@ -1400,7 +1424,31 @@ temporal:
   ## - name: SAMPLE_ENV_VAR
   ##   value: "key=sample-value"
   # -- Additional env vars for temporal pod(s).
-  extraEnv: []
+  extraEnv:
+    - name: POSTGRES_USER
+      valueFrom:
+        secretKeyRef:
+          name: db-secrets
+          key: DATABASE_USER
+    - name: POSTGRES_PWD
+      valueFrom:
+        secretKeyRef:
+          name: db-secrets
+          key: DATABASE_PASSWORD
+    - name: DYNAMIC_CONFIG_FILE_PATH
+      value: "config/dynamicconfig/development.yaml"
+    - name: DB
+      value: "postgresql"
+    - name: DB_PORT
+      valueFrom:
+        secretKeyRef:
+          name: db-secrets
+          key: DATABASE_PORT
+    - name: POSTGRES_SEEDS
+      valueFrom:
+        secretKeyRef:
+          name: db-secrets
+          key: DATABASE_HOST
 
   ## Examples (when using `temporal.containerSecurityContext.readOnlyRootFilesystem=true`):
   ## extraVolumeMounts:
@@ -1526,7 +1574,25 @@ temporal-ui:
   ## - name: SAMPLE_ENV_VAR
   ##   value: "key=sample-value"
   # -- Additional env vars for temporal-ui pod(s).
-  extraEnv: []
+  extraEnv:
+    - name: SKIP_DB_CREATE
+      value: "true"
+    - name: DBNAME
+      value: temporal_db
+    - name: VISIBILITY_DBNAME
+      value: temporal_visibility_db
+    - name: POSTGRES_TLS_ENABLED
+      value: "true"
+    - name: POSTGRES_TLS_DISABLE_HOST_VERIFICATION
+      value: "true"
+    - name: SQL_TLS
+      value: "true"
+    - name: SQL_TLS_DISABLE_HOST_VERIFICATION
+      value: "true"
+    - name: SQL_TLS_ENABLED
+      value: "true"
+    - name: SQL_HOST_VERIFICATION
+      value: "true"
 
   ## Examples (when using `temporal.containerSecurityContext.readOnlyRootFilesystem=true`):
   ## extraVolumeMounts:
@@ -1579,11 +1645,11 @@ postgresql:
   image:
     repository: airbyte/db
   # -- Airbyte Postgresql username
-  postgresqlUsername: postgres
+  postgresqlUsername: airbyte
   # -- Airbyte Postgresql password
-  postgresqlPassword: 8AkhdnFVvKYZu2JeLHLn
+  postgresqlPassword: airbyte
   # -- Airbyte Postgresql database
-  postgresqlDatabase: dalgo-airbyte-eks
+  postgresqlDatabase: db-airbyte
   # fullnameOverride: *db-hostname
   ## This secret is used in case of postgresql.enabled=true and we would like to specify password for newly created postgresql instance
   # -- Name of an existing secret containing the PostgreSQL password ('postgresql-password' key)
@@ -1627,11 +1693,11 @@ externalDatabase:
   # -- non-root Username for Airbyte Database
   user: airbyte
   # -- Database password
-  password: 93d2o3idjkperf
+  password: ""
   # -- Name of an existing secret resource containing the DB password
-  existingSecret: ""
+  existingSecret: "db-secrets"
   # -- Name of an existing secret key containing the DB password
-  existingSecretPasswordKey: ""
+  existingSecretPasswordKey: DATABASE_PASSWORD
   # -- Database name
   database: airbyte
   # -- Database port number
