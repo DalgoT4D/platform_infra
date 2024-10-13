@@ -42,12 +42,19 @@ module.exports = {
       script:
         '/home/ddp/DDP_backend/venv/bin/celery -A ddpui beat --pidfile /home/ddp/DDP_backend/celerybeat.pid',
     },
+    // {
+    //   max_restarts: 5,
+    //   name: 'django-backend',
+    //   cwd: '/home/ddp/DDP_backend',
+    //   script:
+    //     '/home/ddp/DDP_backend/venv/bin/gunicorn -b localhost:8002 ddpui.wsgi --capture-output --log-config /home/ddp/DDP_backend/gunicorn-log.conf --timeout 60',
+    // },
     {
       max_restarts: 5,
-      name: 'django-backend',
+      name: 'django-backend-asgi',
       cwd: '/home/ddp/DDP_backend',
       script:
-        '/home/ddp/DDP_backend/venv/bin/gunicorn -b localhost:8002 ddpui.wsgi --capture-output --log-config /home/ddp/DDP_backend/gunicorn-log.conf --timeout 60',
+        '/home/ddp/DDP_backend/venv/bin/uvicorn ddpui.asgi:application --workers 4 --host 0.0.0.0 --port 8002 --timeout-keep-alive 60',
     },
     {
       max_restarts: 5,
