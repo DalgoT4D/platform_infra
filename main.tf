@@ -205,6 +205,7 @@ resource "aws_eks_node_group" "my_node_group" {
   node_role_arn   = aws_iam_role.eks_node_group_role.arn
   subnet_ids      = aws_subnet.my_subnet[*].id
   instance_types  = ["t4g.large"]
+  ami_type          = "AL2023_ARM_64_STANDARD"
 
   scaling_config {
     desired_size = 2
