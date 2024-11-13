@@ -49,20 +49,6 @@ resource "aws_subnet" "my_subnet" {
 
 data "aws_availability_zones" "available" {}
 
-resource "aws_eks_node_group" "my_node_group" {
-  cluster_name    = aws_eks_cluster.my_cluster.name
-  node_group_name = "my-node-group"
-  node_role_arn   = aws_iam_role.eks_node_group_role.arn
-  subnet_ids      = aws_subnet.my_subnet[*].id
-
-  scaling_config {
-    desired_size = 2
-    max_size     = 3
-    min_size     = 1
-  }
-
-  depends_on = [aws_eks_cluster.my_cluster]
-}
 
 resource "aws_iam_role" "eks_node_group_role" {
   name = "eks_node_group_role"
@@ -96,3 +82,151 @@ resource "aws_iam_role_policy_attachment" "eks_registry_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = aws_iam_role.eks_node_group_role.name
 }
+
+
+# EKS Cluster Security Group
+resource "aws_security_group" "eks_cluster" {
+  name        = "eks-cluster-sg"
+  description = "Security group for EKS cluster"
+  vpc_id      = aws_vpc.my_vpc.id
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "eks-cluster-sg"
+  }
+}
+
+# Worker Nodes Security Group
+resource "aws_security_group" "eks_nodes" {
+  name        = "eks-nodes-sg"
+  description = "Security group for worker nodes"
+  vpc_id      = aws_vpc.my_vpc.id
+
+  tags = {
+    Name = "eks-nodes-sg"
+    "kubernetes.io/cluster/my-eks-cluster" = "owned"
+  }
+}
+
+# Worker Node Security Group Rules
+
+# Allow inbound traffic from the cluster security group
+resource "aws_security_group_rule" "nodes_inbound_cluster" {
+  description              = "Allow worker nodes to receive communication from the cluster control plane"
+  from_port               = 0
+  protocol                = "-1"
+  security_group_id       = aws_security_group.eks_nodes.id
+  source_security_group_id = aws_security_group.eks_cluster.id
+  to_port                 = 65535
+  type                    = "ingress"
+}
+
+# Allow all outbound traffic
+resource "aws_security_group_rule" "nodes_outbound" {
+  description       = "Allow all outbound traffic"
+  from_port         = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.eks_nodes.id
+  cidr_blocks       = ["0.0.0.0/0"]
+  to_port           = 65535
+  type              = "egress"
+}
+
+# Allow nodes to communicate with each other
+resource "aws_security_group_rule" "nodes_internal" {
+  description              = "Allow nodes to communicate with each other"
+  from_port               = 0
+  protocol                = "-1"
+  security_group_id       = aws_security_group.eks_nodes.id
+  source_security_group_id = aws_security_group.eks_nodes.id
+  to_port                 = 65535
+  type                    = "ingress"
+}
+
+# Allow worker nodes to access the cluster API Server
+resource "aws_security_group_rule" "cluster_inbound" {
+  description              = "Allow worker nodes to communicate with the cluster API Server"
+  from_port               = 443
+  protocol                = "tcp"
+  security_group_id       = aws_security_group.eks_cluster.id
+  source_security_group_id = aws_security_group.eks_nodes.id
+  to_port                 = 443
+  type                    = "ingress"
+}
+
+# Common ports needed for worker nodes
+resource "aws_security_group_rule" "nodes_kubelet" {
+  description       = "Allow kubelet API"
+  from_port         = 10250
+  protocol          = "tcp"
+  security_group_id = aws_security_group.eks_nodes.id
+  cidr_blocks       = [aws_vpc.my_vpc.cidr_block]
+  to_port           = 10250
+  type              = "ingress"
+}
+
+resource "aws_security_group_rule" "nodes_kubeproxy" {
+  description       = "Allow kube-proxy"
+  from_port         = 10256
+  protocol          = "tcp"
+  security_group_id = aws_security_group.eks_nodes.id
+  cidr_blocks       = [aws_vpc.my_vpc.cidr_block]
+  to_port           = 10256
+  type              = "ingress"
+}
+
+resource "aws_security_group_rule" "nodes_nodeports" {
+  description       = "Allow NodePort Services"
+  from_port         = 30000
+  protocol          = "tcp"
+  security_group_id = aws_security_group.eks_nodes.id
+  cidr_blocks       = ["0.0.0.0/0"]
+  to_port           = 32767
+  type              = "ingress"
+}
+
+# Update EKS Node Group to use the security group
+resource "aws_eks_node_group" "my_node_group" {
+  cluster_name    = aws_eks_cluster.my_cluster.name
+  node_group_name = "my-node-group"
+  node_role_arn   = aws_iam_role.eks_node_group_role.arn
+  subnet_ids      = aws_subnet.my_subnet[*].id
+  instance_types  = ["t4g.large"]
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 3
+    min_size     = 1
+  }
+
+  # Add the security group to the node group
+  remote_access {
+    ec2_ssh_key = "your-key-pair-name"  # Optional: Replace with your SSH key pair name if needed
+    source_security_group_ids = [aws_security_group.eks_nodes.id]
+  }
+
+  tags = {
+    Environment = "production"
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_node_group_policy,
+    aws_iam_role_policy_attachment.eks_cni_policy,
+    aws_iam_role_policy_attachment.eks_registry_policy
+  ]
+}
+
+# Rest of the configuration remains the same...
