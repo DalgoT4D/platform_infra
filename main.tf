@@ -11,6 +11,7 @@ resource "aws_eks_cluster" "my_cluster" {
   }
 
   depends_on = [aws_iam_role_policy_attachment.eks_cluster_policy]
+  enabled_cluster_log_types = ["audit", "api", "authenticator","scheduler", "controllerManager"]
 }
 
 resource "aws_iam_role" "eks_cluster_role" {
@@ -48,6 +49,36 @@ resource "aws_subnet" "my_subnet" {
 }
 
 data "aws_availability_zones" "available" {}
+
+# Create the NAT Gateway
+resource "aws_nat_gateway" "nat_gateway" {
+  subnet_id    = aws_subnet.my_subnet[0].id  # Use a public subnet for the NAT Gateway
+
+  tags = {
+    Name = "nat-gateway"
+  }
+}
+
+# Create a route table for the private subnet
+resource "aws_route_table" "private_route_table" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat_gateway.id
+  }
+
+  tags = {
+    Name = "private-route-table"
+  }
+}
+
+# Associate the private subnet with the route table
+resource "aws_route_table_association" "private_subnet_association" {
+  count          = 2  # Assuming you have 2 private subnets
+  subnet_id      = aws_subnet.my_subnet[count.index].id
+  route_table_id = aws_route_table.private_route_table.id
+}
 
 
 resource "aws_iam_role" "eks_node_group_role" {
@@ -205,13 +236,15 @@ resource "aws_eks_node_group" "my_node_group" {
   node_role_arn   = aws_iam_role.eks_node_group_role.arn
   subnet_ids      = aws_subnet.my_subnet[*].id
   instance_types  = ["t4g.large"]
-  ami_type          = "AL2023_ARM_64_STANDARD"
 
   scaling_config {
     desired_size = 2
     max_size     = 3
     min_size     = 1
   }
+
+  ami_type = "AL2023_ARM_64_STANDARD" 
+
 
   # Add the security group to the node group
   remote_access {
@@ -230,4 +263,3 @@ resource "aws_eks_node_group" "my_node_group" {
   ]
 }
 
-# Rest of the configuration remains the same...
