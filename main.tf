@@ -2,6 +2,52 @@ provider "aws" {
   region = "ap-south-1"  # Change to your desired region
 }
 
+provider "kubernetes" {
+  # Specify the version of the Kubernetes provider
+  version = "~> 2.0"  # Adjust the version as needed
+  config_path = "~/.kube/config"  # Path to your kubeconfig file
+}
+
+# Create a ClusterRole for accessing nodes and pods
+resource "kubernetes_cluster_role" "node_pod_access" {
+  metadata {
+    name = "node-pod-access"
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["pods", "nodes"]
+    verbs      = ["get", "list", "watch"]
+  }
+}
+
+# Create a ServiceAccount
+resource "kubernetes_service_account" "my_service_account" {
+  metadata {
+    name      = "my-service-account"  
+    namespace = "default" 
+  }
+}
+
+# Create a ClusterRoleBinding to bind the ClusterRole to a ServiceAccount
+resource "kubernetes_cluster_role_binding" "node_pod_access_binding" {
+  metadata {
+    name = "node-pod-access-binding"
+  }
+
+  role_ref {
+    kind     = "ClusterRole"
+    name     = kubernetes_cluster_role.node_pod_access.metadata[0].name
+    api_group = "rbac.authorization.k8s.io"
+  }
+
+  subject {
+    kind      = "ServiceAccount"
+    name      = "my-service-account"  # Replace with your service account name
+    namespace = "default"              # Replace with the appropriate namespace
+  }
+}
+
 resource "aws_eks_cluster" "my_cluster" {
   name     = "my-eks-cluster"
   role_arn = aws_iam_role.eks_cluster_role.arn
@@ -93,6 +139,14 @@ resource "aws_iam_role" "eks_node_group_role" {
         Action = "sts:AssumeRole"
         Principal = {
           Service = "ec2.amazonaws.com"
+        }
+        Effect = "Allow"
+        Sid    = ""
+      },
+      {
+        Action = "sts:AssumeRole"
+        Principal = {
+          Service = "eks.amazonaws.com"  # Allows EKS to assume this role
         }
         Effect = "Allow"
         Sid    = ""
