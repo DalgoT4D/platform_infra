@@ -77,7 +77,7 @@ resource "aws_route_table" "private_route_table" {
 # Associate the private subnet with the route table
 resource "aws_route_table_association" "private_subnet_association" {
   count          = 1  
-  subnet_id      = aws_subnet.my_subnet[0].id
+  subnet_id      = aws_subnet.my_subnet[1].id
   route_table_id = aws_route_table.private_route_table.id
 }
 
@@ -249,7 +249,7 @@ resource "aws_eks_node_group" "my_node_group" {
 
   # Add the security group to the node group
   remote_access {
-    ec2_ssh_key = "your-key-pair-name"  # Optional: Replace with your SSH key pair name if needed
+    ec2_ssh_key = "dalgo-eks-ec2-key-pair"  # Optional: Replace with your SSH key pair name if needed
     source_security_group_ids = [aws_security_group.eks_nodes.id]
   }
 
