@@ -53,6 +53,7 @@ data "aws_availability_zones" "available" {}
 # Create the NAT Gateway
 resource "aws_nat_gateway" "nat_gateway" {
   subnet_id    = aws_subnet.my_subnet[0].id  # Use a public subnet for the NAT Gateway
+  allocation_id = "eipalloc-0e7a381fa74a8787c" # using elastic ip airbyte-001-eip-ap-south-1a
 
   tags = {
     Name = "nat-gateway"
