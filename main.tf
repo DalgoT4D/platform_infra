@@ -75,8 +75,8 @@ resource "aws_route_table" "private_route_table" {
 
 # Associate the private subnet with the route table
 resource "aws_route_table_association" "private_subnet_association" {
-  count          = 2  # Assuming you have 2 private subnets
-  subnet_id      = aws_subnet.my_subnet[count.index].id
+  count          = 1  
+  subnet_id      = aws_subnet.my_subnet[0].id
   route_table_id = aws_route_table.private_route_table.id
 }
 
@@ -263,3 +263,33 @@ resource "aws_eks_node_group" "my_node_group" {
   ]
 }
 
+# Create an Internet Gateway
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  tags = {
+    Name = "my-internet-gateway"
+  }
+}
+
+# Create a route table for the public subnet
+resource "aws_route_table" "public_route_table" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  tags = {
+    Name = "public-route-table"
+  }
+}
+
+
+# Associate the public subnet with the route table
+resource "aws_route_table_association" "public_subnet_association" {
+  count          = 1  
+  subnet_id      = aws_subnet.my_subnet[0].id 
+  route_table_id = aws_route_table.public_route_table.id
+}
