@@ -67,13 +67,18 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
   role       = aws_iam_role.eks_cluster_role.name
 }
 
-resource "aws_vpc" "my_vpc" {
-  cidr_block = "10.0.0.0/16"
+resource "aws_vpc" "staging_vpc" {
+  tags = {
+    Name: "staging_vpc"
+  }
+  lifecycle {
+    prevent_destroy = true // Prevent VPC deletion
+  }
 }
 
 resource "aws_subnet" "my_subnet" {
   count                   = 2
-  vpc_id                  = aws_vpc.my_vpc.id
+  vpc_id                  = aws_vpc.staging_vpc.id
   cidr_block              = "10.0.${count.index}.0/24"
   availability_zone       = element(data.aws_availability_zones.available.names, count.index)
   map_public_ip_on_launch = true
@@ -93,7 +98,7 @@ resource "aws_nat_gateway" "nat_gateway" {
 
 # Create a route table for the private subnet
 resource "aws_route_table" "private_route_table" {
-  vpc_id = aws_vpc.my_vpc.id
+  vpc_id = aws_vpc.staging_vpc.id
 
   route {
     cidr_block     = "0.0.0.0/0"
@@ -159,7 +164,7 @@ resource "aws_iam_role_policy_attachment" "eks_registry_policy" {
 resource "aws_security_group" "eks_cluster" {
   name        = "eks-cluster-sg"
   description = "Security group for EKS cluster"
-  vpc_id      = aws_vpc.my_vpc.id
+  vpc_id      = aws_vpc.staging_vpc.id
 
   ingress {
     from_port   = 443
@@ -184,7 +189,7 @@ resource "aws_security_group" "eks_cluster" {
 resource "aws_security_group" "eks_nodes" {
   name        = "eks-nodes-sg"
   description = "Security group for worker nodes"
-  vpc_id      = aws_vpc.my_vpc.id
+  vpc_id      = aws_vpc.staging_vpc.id
 
   tags = {
     Name                                   = "eks-nodes-sg"
@@ -244,7 +249,7 @@ resource "aws_security_group_rule" "nodes_kubelet" {
   from_port         = 10250
   protocol          = "tcp"
   security_group_id = aws_security_group.eks_nodes.id
-  cidr_blocks       = [aws_vpc.my_vpc.cidr_block]
+  cidr_blocks       = [aws_vpc.staging_vpc.cidr_block]
   to_port           = 10250
   type              = "ingress"
 }
@@ -254,7 +259,7 @@ resource "aws_security_group_rule" "nodes_kubeproxy" {
   from_port         = 10256
   protocol          = "tcp"
   security_group_id = aws_security_group.eks_nodes.id
-  cidr_blocks       = [aws_vpc.my_vpc.cidr_block]
+  cidr_blocks       = [aws_vpc.staging_vpc.cidr_block]
   to_port           = 10256
   type              = "ingress"
 }
@@ -305,7 +310,7 @@ resource "aws_eks_node_group" "my_node_group" {
 
 # Create an Internet Gateway
 resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.my_vpc.id
+  vpc_id = aws_vpc.staging_vpc.id
 
   tags = {
     Name = "my-internet-gateway"
@@ -314,7 +319,7 @@ resource "aws_internet_gateway" "igw" {
 
 # Create a route table for the public subnet
 resource "aws_route_table" "public_route_table" {
-  vpc_id = aws_vpc.my_vpc.id
+  vpc_id = aws_vpc.staging_vpc.id
 
   route {
     cidr_block = "0.0.0.0/0"
