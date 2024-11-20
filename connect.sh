@@ -81,7 +81,7 @@ done
 MACHINE_IP=`cat machineip.txt`
 echo "Machine IP: $MACHINE_IP"
 # Your basic SSH command
-ssh_command="ssh -i ddp.pem ddp@$MACHINE_IP"
+ssh_command="ssh -i secrets/ddp ddp@$MACHINE_IP"
 
 # Combine the SSH command with the port mappings
 full_command="$ssh_command $port_mappings"
