@@ -6,6 +6,9 @@
 ROOT_PEMFILE="secrets/ddp-airbyte.pem"
 MACHINE_IP=`cat machineip.txt`
 
+ARCH=`ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} uname -m`
+echo "Architecture is: ${ARCH}"
+
 if [ "x${MACHINE_IP}" == "x" ]; then
   echo "Please set MACHINE_IP before running this script"
   exit 1
@@ -24,7 +27,7 @@ ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} "sudo apt install python3.10-venv -y
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} "sudo apt install pip -y"
 
 echo "Installing AWS CLI"
-ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} curl "https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip" -o "awscliv2.zip"
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} unzip awscliv2.zip
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo ./aws/install
 
@@ -42,6 +45,11 @@ ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt install -y redis-server
 
 # nginx
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt install -y nginx
+
+# pyenv
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt install -y libssl-dev liblzma-dev libbz2-dev libncurses-dev libncursesw-dev 
+ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo apt install -y libffi-dev git build-essential libreadline-dev libsqlite3-dev
+
 
 # docker compose v2
 ssh -i ${ROOT_PEMFILE} ubuntu@${MACHINE_IP}  sudo apt-get update

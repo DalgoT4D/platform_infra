@@ -44,6 +44,10 @@ ssh -i secrets/${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo chown -R ${DDPUSER} /ho
 ssh -i secrets/${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo chmod 700 /home/${DDPUSER}/.ssh
 ssh -i secrets/${ROOT_PEMFILE} ubuntu@${MACHINE_IP} sudo chmod 600 /home/${DDPUSER}/.ssh/authorized_keys
 
+# pyenv
+echo "Installing pyenv"
+ssh -i secrets/${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "pyenv install 3.10.12"
+
 # create venv
 echo "Creating python3 venv"
 ssh -i secrets/${DDP_PRIVATEKEYFILE} ddp@${MACHINE_IP} "python3 -m venv venv"
