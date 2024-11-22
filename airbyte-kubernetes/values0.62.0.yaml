@@ -156,13 +156,17 @@ global:
       ##    memory: 256Mi
       ##    cpu: 250m
       # -- Job resource requests
-      requests: {}
+      requests:
+        memory: 512Mi
+        cpu: 250m
       ## Example:
       ## limits:
       ##    cpu: 200m
       ##    memory: 1Gi
       # -- Job resource limits
-      limits: {}
+      limits:
+        cpu: 250m
+        memory: 1Gi
 
     kube:
       ## JOB_KUBE_ANNOTATIONS
