@@ -554,7 +554,7 @@ pod-sweeper:
 server:
   enabled: true
   # -- Number of server replicas
-  replicaCount: 1
+  replicaCount: 2
 
   image:
     # -- The repository to use for the airbyte server image.
@@ -771,7 +771,7 @@ server:
 worker:
   enabled: true
   # -- Number of worker replicas
-  replicaCount: 1
+  replicaCount: 2
 
   image:
     # -- The repository to use for the airbyte worker image.
