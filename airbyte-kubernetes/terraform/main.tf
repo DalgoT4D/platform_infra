@@ -33,7 +33,7 @@ provider "kubernetes" {
   host                   = aws_eks_cluster.my_cluster.endpoint
   cluster_ca_certificate = base64decode(aws_eks_cluster.my_cluster.certificate_authority[0].data)
   exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
+    api_version = "client.authentication.k8s.io/v1"
     args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.my_cluster.name]
     command     = "aws"
   }
@@ -68,6 +68,7 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 }
 
 resource "aws_vpc" "staging_vpc" {
+  cidr_block = "10.0.0.0/16"
   tags = {
     Name: "staging_vpc"
   }
@@ -367,12 +368,12 @@ data "aws_iam_policy_document" "eks_cluster_autoscaler_assume_role_policy" {
   }
 }
 
-resource "aws_iam_role" "eks_cluster_autoscaler" {
+resource "aws_iam_role" "eks_cluster_autoscaler_role" {
   assume_role_policy = data.aws_iam_policy_document.eks_cluster_autoscaler_assume_role_policy.json
   name               = "eks-cluster-autoscaler"
 }
 
-resource "aws_iam_policy" "eks_cluster_autoscaler" {
+resource "aws_iam_policy" "eks_cluster_autoscaler_iam_policy" {
   name = "eks-cluster-autoscaler"
 
   policy = jsonencode({
@@ -384,20 +385,247 @@ resource "aws_iam_policy" "eks_cluster_autoscaler" {
                 "autoscaling:DescribeTags",
                 "autoscaling:SetDesiredCapacity",
                 "autoscaling:TerminateInstanceInAutoScalingGroup",
-                "ec2:DescribeLaunchTemplateVersions"
+                "autoscaling:DescribeScalingActivities",
+                "ec2:DescribeLaunchTemplateVersions",
+                "ec2:DescribeImages",
+                "ec2:DescribeInstanceTypes",
+                "ec2:GetInstanceTypesFromInstanceRequirements",
+                "eks:DescribeNodegroup"
             ]
       Effect   = "Allow"
-      Resource = "*"
+      Resource = "*",
+      Condition = {
+        StringEquals = {
+          "aws:ResourceTag/k8s.io/cluster-autoscaler/enabled" = "true",
+          "aws:ResourceTag/k8s.io/cluster-autoscaler/<my-cluster>" = "owned"
+        }
+      }
     }]
     Version = "2012-10-17"
   })
 }
 
 resource "aws_iam_role_policy_attachment" "eks_cluster_autoscaler_attach" {
-  role       = aws_iam_role.eks_cluster_autoscaler.name
-  policy_arn = aws_iam_policy.eks_cluster_autoscaler.arn
+  role       = aws_iam_role.eks_cluster_autoscaler_role.name
+  policy_arn = aws_iam_policy.eks_cluster_autoscaler_iam_policy.arn
 }
 
-output "eks_cluster_autoscaler_arn" {
-  value = aws_iam_role.eks_cluster_autoscaler.arn
+# output "eks_cluster_autoscaler_arn" {
+#   value = aws_iam_role.eks_cluster_autoscaler_role.eks_cluster_autoscaler.arn
+# }
+
+resource "kubernetes_service_account" "cluster_autoscaler" {
+  metadata {
+    name      = "cluster-autoscaler"
+    namespace = "kube-system"
+    annotations = {
+      "eks.amazonaws.com/role-arn" = aws_iam_role.eks_cluster_autoscaler_role.arn
+    }
+  }
+}
+
+# autoscaler
+resource "kubernetes_deployment" "cluster_autoscaler" {
+  metadata {
+    name      = "cluster-autoscaler"
+    namespace = "kube-system"
+    labels = {
+      app = "cluster-autoscaler"
+    }
+  }
+
+  spec {
+    replicas = 1
+
+    selector {
+      match_labels = {
+        app = "cluster-autoscaler"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "cluster-autoscaler"
+        }
+      }
+
+      spec {
+        service_account_name = kubernetes_service_account.cluster_autoscaler.metadata[0].name
+        # system:serviceaccount:kube-system:cluster-autoscaler
+
+        container {
+          name  = "cluster-autoscaler"
+          image = "k8s.gcr.io/autoscaling/cluster-autoscaler:v1.27.8"
+
+          command = [
+            "./cluster-autoscaler",
+            "--v=4",
+            "--stderrthreshold=info",
+            "--cloud-provider=aws",
+            "--skip-nodes-with-local-storage=false",
+            "--expander=least-waste",
+            "--nodes=1:5:my-eks-cluster"
+          ]
+
+          env {
+            name  = "AWS_REGION"
+            value = "ap-south-1"
+          }
+
+          resources {
+            requests = {
+              cpu    = "100m"
+              memory = "500Mi"  # Increase the memory request
+            }
+            limits = {
+              cpu    = "200m"   # Increase the CPU limit
+              memory = "1Gi"    # Increase the memory limit
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_cluster_role" "cluster_autoscaler_kube_cluster_role" {
+  metadata {
+    name = "cluster-autoscaler"
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["events", "endpoints"]
+    verbs      = ["create", "patch"]
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["pods/eviction"]
+    verbs      = ["create"]
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["pods/status"]
+    verbs      = ["update"]
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["endpoints"]
+    resource_names = ["cluster-autoscaler"]
+    verbs      = ["get", "update"]
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["nodes"]
+    verbs      = ["watch", "list", "get", "update"]
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["namespaces", "pods", "services", "replicationcontrollers", "persistentvolumeclaims", "persistentvolumes"]
+    verbs      = ["watch", "list", "get"]
+  }
+
+  rule {
+    api_groups = ["extensions"]
+    resources  = ["replicasets", "daemonsets"]
+    verbs      = ["watch", "list", "get"]
+  }
+
+  rule {
+    api_groups = ["policy"]
+    resources  = ["poddisruptionbudgets"]
+    verbs      = ["watch", "list"]
+  }
+
+  rule {
+    api_groups = ["apps"]
+    resources  = ["statefulsets", "replicasets", "daemonsets"]
+    verbs      = ["watch", "list", "get"]
+  }
+
+  rule {
+    api_groups = ["storage.k8s.io"]
+    resources  = ["storageclasses", "csinodes", "csidrivers", "csistoragecapacities"]
+    verbs      = ["watch", "list", "get"]
+  }
+
+  rule {
+    api_groups = ["batch", "extensions"]
+    resources  = ["jobs"]
+    verbs      = ["get", "list", "watch", "patch"]
+  }
+
+  rule {
+    api_groups = ["coordination.k8s.io"]
+    resources  = ["leases"]
+    verbs      = ["create"]
+  }
+
+  rule {
+    api_groups = ["coordination.k8s.io"]
+    resource_names = ["cluster-autoscaler"]
+    resources = ["leases"]
+    verbs      = ["get", "update"]
+  }
+}
+
+resource "kubernetes_cluster_role_binding" "cluster_autoscaler_kube_cluster_role_binding" {
+  metadata {
+    name = "cluster-autoscaler"
+  }
+
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name = kubernetes_cluster_role.cluster_autoscaler_kube_cluster_role.metadata[0].name
+  }
+
+  subject {
+    kind      = "ServiceAccount"
+    name      = kubernetes_service_account.cluster_autoscaler.metadata[0].name
+    namespace = kubernetes_service_account.cluster_autoscaler.metadata[0].namespace
+  }
+}
+
+resource "kubernetes_role" "cluster_autoscaler" {
+  metadata {
+    name      = "cluster-autoscaler"
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["configmaps"]
+    verbs      = ["create", "list", "watch"]
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["configmaps"]
+    resource_names = ["cluster-autoscaler-status", "cluster-autoscaler-priority-expander"]
+    verbs      = ["delete", "get", "update", "watch"]
+  }
+}
+
+resource "kubernetes_role_binding" "cluster_autoscaler" {
+  metadata {
+    name      = "cluster-autoscaler"
+  }
+
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "Role"
+    name      = kubernetes_role.cluster_autoscaler.metadata[0].name
+  }
+
+  subject {
+    kind      = "ServiceAccount"
+    name      = kubernetes_service_account.cluster_autoscaler.metadata[0].name
+    namespace = kubernetes_service_account.cluster_autoscaler.metadata[0].namespace
+  }
 }
