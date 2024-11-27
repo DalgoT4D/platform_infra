@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "aws_eks_cluster" "my_cluster" {
-  name     = "my-eks-cluster"
+  name     = "dalgo-staging-cluster"
   role_arn = aws_iam_role.eks_cluster_role.arn
   access_config {
     authentication_mode                         = "API_AND_CONFIG_MAP"
@@ -80,7 +80,7 @@ resource "aws_vpc" "staging_vpc" {
 resource "aws_subnet" "my_subnet" {
   count                   = 2
   vpc_id                  = aws_vpc.staging_vpc.id
-  cidr_block              = "10.0.${count.index}.0/24"
+  cidr_block              = cidrsubnet("10.0.0.0/16", 8, count.index) # make sure the prefix matches the vpc cidr block
   availability_zone       = element(data.aws_availability_zones.available.names, count.index)
   map_public_ip_on_launch = true
 }
@@ -90,7 +90,7 @@ data "aws_availability_zones" "available" {}
 # Create the NAT Gateway
 resource "aws_nat_gateway" "nat_gateway" {
   subnet_id     = aws_subnet.my_subnet[0].id   # Use a public subnet for the NAT Gateway
-  allocation_id = "eipalloc-0e7a381fa74a8787c" # using elastic ip airbyte-001-eip-ap-south-1a
+  allocation_id = "eipalloc-0e91c89e2a8d46942" # using elastic ip dalgo-staging-cluster
 
   tags = {
     Name = "nat-gateway"
@@ -194,7 +194,7 @@ resource "aws_security_group" "eks_nodes" {
 
   tags = {
     Name                                   = "eks-nodes-sg"
-    "kubernetes.io/cluster/my-eks-cluster" = "owned"
+    "kubernetes.io/cluster/dalgo-staging-cluster" = "owned"
   }
 }
 
@@ -278,7 +278,7 @@ resource "aws_security_group_rule" "nodes_nodeports" {
 # Update EKS Node Group to use the security group
 resource "aws_eks_node_group" "my_node_group" {
   cluster_name    = aws_eks_cluster.my_cluster.name
-  node_group_name = "my-node-group"
+  node_group_name = "staging-node-group"
   node_role_arn   = aws_iam_role.eks_node_group_role.arn
   subnet_ids      = aws_subnet.my_subnet[*].id
   instance_types  = ["t4g.large"]
@@ -314,7 +314,7 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.staging_vpc.id
 
   tags = {
-    Name = "my-internet-gateway"
+    Name = "staging-internet-gateway"
   }
 }
 
@@ -394,12 +394,12 @@ resource "aws_iam_policy" "eks_cluster_autoscaler_iam_policy" {
             ]
       Effect   = "Allow"
       Resource = "*",
-      Condition = {
-        StringEquals = {
-          "aws:ResourceTag/k8s.io/cluster-autoscaler/enabled" = "true",
-          "aws:ResourceTag/k8s.io/cluster-autoscaler/<my-cluster>" = "owned"
-        }
-      }
+      # Condition = {
+      #   StringEquals = {
+      #     "aws:ResourceTag/k8s.io/cluster-autoscaler/enabled" = "true",
+      #     "aws:ResourceTag/k8s.io/cluster-autoscaler/dalgo-staging-cluster" = "owned"
+      #   }
+      # }
     }]
     Version = "2012-10-17"
   })
@@ -452,11 +452,10 @@ resource "kubernetes_deployment" "cluster_autoscaler" {
 
       spec {
         service_account_name = kubernetes_service_account.cluster_autoscaler.metadata[0].name
-        # system:serviceaccount:kube-system:cluster-autoscaler
 
         container {
           name  = "cluster-autoscaler"
-          image = "k8s.gcr.io/autoscaling/cluster-autoscaler:v1.27.8"
+          image = "k8s.gcr.io/autoscaling/cluster-autoscaler:v1.31.1"
 
           command = [
             "./cluster-autoscaler",
@@ -465,7 +464,8 @@ resource "kubernetes_deployment" "cluster_autoscaler" {
             "--cloud-provider=aws",
             "--skip-nodes-with-local-storage=false",
             "--expander=least-waste",
-            "--nodes=1:5:my-eks-cluster"
+            "--nodes=1:5:dalgo-staging-cluster",
+            "--node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/dalgo-staging-cluster"
           ]
 
           env {

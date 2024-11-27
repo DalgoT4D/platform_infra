@@ -1,7 +1,7 @@
-terraform apply
+# terraform apply
 
 ROLE="arn:aws:iam::024209611402:role/AWSReservedSSO_EKSClusterManagement_4e8ae473c740206e"
-CLUSTER_NAME="my-eks-cluster"
+CLUSTER_NAME="dalgo-staging-cluster"
 REGION="ap-south-1"
 
     
