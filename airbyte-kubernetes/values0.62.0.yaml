@@ -239,7 +239,9 @@ webapp:
   podAnnotations: {}
 
   # -- webapp.podLabels [object] Add extra labels to the webapp pods
-  podLabels: {}
+  podLabels:
+    environment: production
+    app: webapp
 
   # -- Security context for the container
   ## Examples:
@@ -560,7 +562,9 @@ server:
   podAnnotations: {}
 
   # -- Add extra labels to the server pods
-  podLabels: {}
+  podLabels:
+    environment: production
+    app: airbyte-server
 
   ## Examples:
   ## containerSecurityContext:

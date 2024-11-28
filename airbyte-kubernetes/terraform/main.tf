@@ -455,7 +455,7 @@ resource "kubernetes_deployment" "cluster_autoscaler" {
 
         container {
           name  = "cluster-autoscaler"
-          image = "k8s.gcr.io/autoscaling/cluster-autoscaler:v1.31.1"
+          image = "k8s.gcr.io/autoscaling/cluster-autoscaler:v1.27.3"
 
           command = [
             "./cluster-autoscaler",
