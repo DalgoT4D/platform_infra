@@ -63,8 +63,7 @@ global:
     type: "external" # "external"
 
     # -- Secret name where database credentials are stored
-    passwordSecretKey: "DATABASE_PASSWORD"
-    #secretValue: "DATABASE_PASSWORD"
+    secretName: "db-secrets"
 
     # -- The database host
     host: ddp-staging-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
@@ -76,21 +75,17 @@ global:
     database: airbyte
 
     # -- The database user
-    user: airbyte_user
     # -- The key within `secretName` where the user is stored
-    #userSecretKey: "" # e.g. "database-user"
+    userSecretKey: "database-user"
 
     # -- The database password
     # -- The key within `secretName` where the password is stored
-    passwordSecretKey: "DATABASE_PASSWORD" # e.g."database-password"
-    secretName: "db-secrets"
-    #secretValue: "DATABASE_PASSWORD"
+    passwordSecretKey: "database-password"
 
   storage:
     # -- The storage backend type. Supports s3, gcs, minio (default)
     type: "S3" # default storage used
     # -- Secret name where storage provider credentials are stored
-    storageSecretName: "airbyte-config-secrets"
     secretName: "airbyte-logs-secrets"
 
     # S3
@@ -116,11 +111,11 @@ global:
     accessKey:
       password: ""
       existingSecret: airbyte-logs-secrets
-      existingSecretKey: AWS_KEY
+      existingSecretKey: AWS_ACCESS_KEY_ID
     secretKey:
       password: ""
       existingSecret: airbyte-logs-secrets
-      existingSecretKey: AWS_SECRET_KEY
+      existingSecretKey: AWS_SECRET_ACCESS_KEY
 
   # -- Auth configuration
   auth:
@@ -677,26 +672,16 @@ server:
   # -- Additional init containers for server pods
   extraInitContainers: []
   extraEnv:
-    # - name: AWS_ACCESS_KEY_ID
-    #   valueFrom:
-    #     secretKeyRef:
-    #       key: s3-access-key-id
-    #       name: airbyte-logs-secrets
-    # - name: AWS_SECRET_ACCESS_KEY
-    #   valueFrom:
-    #     secretKeyRef:
-    #       key: s3-secret-access-key
-    #       name: airbyte-logs-secrets
     - name: STATE_STORAGE_S3_ACCESS_KEY
       valueFrom:
         secretKeyRef:
           name: airbyte-logs-secrets
-          key: AWS_KEY
+          key: AWS_ACCESS_KEY_ID
     - name: STATE_STORAGE_S3_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
           name: airbyte-logs-secrets
-          key: AWS_SECRET_KEY
+          key: AWS_SECRET_ACCESS_KEY
     - name: STATE_STORAGE_S3_BUCKET_NAME
       valueFrom:
         secretKeyRef:
@@ -761,7 +746,7 @@ server:
   ##   DATABASE_PORT: 5432
   # -- Supply extra env variables to main container using simplified notation
   env_vars: 
-    DATABASE_HOST: airbyte-eks.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
+    DATABASE_HOST: ddp-staging-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
     DATABASE_PORT: "5432"
 
 
@@ -864,23 +849,23 @@ worker:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
+          name: airbyte-logs-secrets
           key: s3-access-key-id
-          name: airbyte-config-secrets
     - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
+          name: airbyte-logs-secrets
           key: s3-secret-access-key
-          name: airbyte-config-secrets
     - name: STATE_STORAGE_S3_ACCESS_KEY
       valueFrom:
         secretKeyRef:
           name: airbyte-logs-secrets
-          key: AWS_KEY
+          key: AWS_ACCESS_KEY_ID
     - name: STATE_STORAGE_S3_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
           name: airbyte-logs-secrets
-          key: AWS_SECRET_KEY
+          key: AWS_SECRET_ACCESS_KEY
     - name: STATE_STORAGE_S3_BUCKET_NAME
       valueFrom:
         secretKeyRef:
@@ -1037,12 +1022,12 @@ workload-launcher:
       valueFrom:
         secretKeyRef:
           key: s3-access-key-id
-          name: airbyte-config-secrets
+          name: airbyte-logs-secrets
     - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
           key: s3-secret-access-key
-          name: airbyte-config-secrets
+          name: airbyte-logs-secrets
     - name: STORAGE_BUCKET_ACTIVITY_PAYLOAD
       valueFrom:
         secretKeyRef:
