@@ -63,7 +63,7 @@ global:
     type: "external" # "external"
 
     # -- Secret name where database credentials are stored
-    secretName: "db-secrets"
+    secretName: "airbyte-config-secrets"
 
     # -- The database host
     host: ddp-staging-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
@@ -86,7 +86,7 @@ global:
     # -- The storage backend type. Supports s3, gcs, minio (default)
     type: "S3" # default storage used
     # -- Secret name where storage provider credentials are stored
-    secretName: "airbyte-logs-secrets"
+    secretName: "airbyte-config-secrets"
 
     # S3
     bucket: ## S3 bucket names that you've created. We recommend storing the following all in one bucket.
@@ -110,11 +110,11 @@ global:
   logs:
     accessKey:
       password: ""
-      existingSecret: airbyte-logs-secrets
+      existingSecret: airbyte-config-secrets
       existingSecretKey: AWS_ACCESS_KEY_ID
     secretKey:
       password: ""
-      existingSecret: airbyte-logs-secrets
+      existingSecret: airbyte-config-secrets
       existingSecretKey: AWS_SECRET_ACCESS_KEY
 
   # -- Auth configuration
@@ -675,32 +675,32 @@ server:
     - name: STATE_STORAGE_S3_ACCESS_KEY
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: AWS_ACCESS_KEY_ID
     - name: STATE_STORAGE_S3_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: AWS_SECRET_ACCESS_KEY
     - name: STATE_STORAGE_S3_BUCKET_NAME
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: S3_LOG_BUCKET
     - name: STATE_STORAGE_S3_REGION
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: S3_LOG_BUCKET_REGION
     - name: STORAGE_BUCKET_ACTIVITY_PAYLOAD
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: S3_LOG_BUCKET
     - name: STORAGE_BUCKET_WORKLOAD_OUTPUT
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: S3_LOG_BUCKET
 
 
@@ -849,42 +849,42 @@ worker:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: s3-access-key-id
     - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: s3-secret-access-key
     - name: STATE_STORAGE_S3_ACCESS_KEY
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: AWS_ACCESS_KEY_ID
     - name: STATE_STORAGE_S3_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: AWS_SECRET_ACCESS_KEY
     - name: STATE_STORAGE_S3_BUCKET_NAME
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: S3_LOG_BUCKET
     - name: STATE_STORAGE_S3_REGION
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: S3_LOG_BUCKET_REGION
     - name: STORAGE_BUCKET_ACTIVITY_PAYLOAD
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: S3_LOG_BUCKET
     - name: STORAGE_BUCKET_WORKLOAD_OUTPUT
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: S3_LOG_BUCKET
 
   
@@ -1022,21 +1022,21 @@ workload-launcher:
       valueFrom:
         secretKeyRef:
           key: s3-access-key-id
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
     - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
           key: s3-secret-access-key
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
     - name: STORAGE_BUCKET_ACTIVITY_PAYLOAD
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: S3_LOG_BUCKET
     - name: STORAGE_BUCKET_WORKLOAD_OUTPUT
       valueFrom:
         secretKeyRef:
-          name: airbyte-logs-secrets
+          name: airbyte-config-secrets
           key: S3_LOG_BUCKET
 
 
@@ -1385,13 +1385,13 @@ temporal:
     - name: POSTGRES_USER
       valueFrom:
         secretKeyRef:
-          name: db-secrets
-          key: DATABASE_USER
+          name: airbyte-config-secrets
+          key: database-user
     - name: POSTGRES_PWD
       valueFrom:
         secretKeyRef:
-          name: db-secrets
-          key: DATABASE_PASSWORD
+          name: airbyte-config-secrets
+          key: database-password
     - name: DYNAMIC_CONFIG_FILE_PATH
       value: "config/dynamicconfig/development.yaml"
     - name: DB
@@ -1399,13 +1399,13 @@ temporal:
     - name: DB_PORT
       valueFrom:
         secretKeyRef:
-          name: db-secrets
-          key: DATABASE_PORT
+          name: airbyte-config-secrets
+          key: database-port
     - name: POSTGRES_SEEDS
       valueFrom:
         secretKeyRef:
-          name: db-secrets
-          key: DATABASE_HOST
+          name: airbyte-config-secrets
+          key: database-host
 
 
   ## Examples (when using `temporal.containerSecurityContext.readOnlyRootFilesystem=true`):
@@ -1495,9 +1495,9 @@ externalDatabase:
   # -- Database password
   password: ""
   # -- Name of an existing secret resource containing the DB password
-  existingSecret: "db-secrets"
+  existingSecret: "airbyte-config-secrets"
   # -- Name of an existing secret key containing the DB password
-  existingSecretPasswordKey: DATABASE_PASSWORD
+  existingSecretPasswordKey: "database-password"
   # -- Database name
   database: airbyte
   # -- Database port number
