@@ -1,0 +1,23 @@
+# Kubernetes API version
+apiVersion: v1
+# Resource type - creating a Service
+kind: Service
+metadata:
+  # Name of the load balancer service - must be unique within the namespace
+  name: airbyte-webapp-lb
+  annotations:
+    # Specifies that this should be an internal load balancer in AWS
+    # This means it won't be accessible from the internet, only within the VPC
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+spec:
+  # Use AWS Load Balancer to expose the service
+  type: LoadBalancer
+  selector:
+    # Target pods with these labels
+    # These must match the labels on your Airbyte webapp pods
+    app.kubernetes.io/instance: airbyte
+    app.kubernetes.io/name: webapp
+  ports:
+    # Port mapping configuration
+    - port: 80        # Port exposed by the load balancer
+      targetPort: 8080  # Port that your Airbyte webapp is running on in the pods

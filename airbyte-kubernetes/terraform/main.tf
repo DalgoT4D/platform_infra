@@ -2,6 +2,7 @@ provider "aws" {
   region = "ap-south-1" # Change to your desired region
 }
 
+# EKS Cluster Configuration
 resource "aws_eks_cluster" "my_cluster" {
   name     = "dalgo-staging-cluster"
   role_arn = aws_iam_role.eks_cluster_role.arn
@@ -18,7 +19,7 @@ resource "aws_eks_cluster" "my_cluster" {
   enabled_cluster_log_types = ["audit", "api", "authenticator", "scheduler", "controllerManager"]
 }
 
-
+# Kubeconfig Update; didn't work well so consider removing it if not useful
 resource "null_resource" "update_kubeconfig" {
   triggers = {
     always_run = "${timestamp()}"  # This ensures it runs every time
@@ -43,7 +44,7 @@ provider "kubernetes" {
   config_path = "~/.kube/config" # Path to your kubeconfig file
 }
 
-
+# IAM Roles and Policies for EKS Cluster
 resource "aws_iam_role" "eks_cluster_role" {
   name = "eks_cluster_role"
 
@@ -67,6 +68,7 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
   role       = aws_iam_role.eks_cluster_role.name
 }
 
+# VPC and Networking Configuration
 resource "aws_vpc" "staging_vpc" {
   cidr_block = "10.0.0.0/16"
   tags = {
@@ -118,7 +120,7 @@ resource "aws_route_table_association" "private_subnet_association" {
   route_table_id = aws_route_table.private_route_table.id
 }
 
-
+# IAM Configuration for Worker Nodes
 resource "aws_iam_role" "eks_node_group_role" {
   name = "eks_node_group_role"
 
@@ -160,7 +162,7 @@ resource "aws_iam_role_policy_attachment" "eks_registry_policy" {
   role       = aws_iam_role.eks_node_group_role.name
 }
 
-
+# Security Group Configuration
 # EKS Cluster Security Group
 resource "aws_security_group" "eks_cluster" {
   name        = "eks-cluster-sg"
@@ -289,6 +291,8 @@ resource "aws_eks_node_group" "my_node_group" {
     min_size     = 1
   }
 
+ # This AMI type matches current AMI deployed on production. Might be useful to compare other 
+ # performant instance type
   ami_type = "AL2023_ARM_64_STANDARD"
 
 
