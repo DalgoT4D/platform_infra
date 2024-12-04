@@ -1,5 +1,52 @@
 provider "aws" {
-  region = "ap-south-1" # Change to your desired region
+  region = "ap-south-1" 
+}
+
+# S3 Bucket for State
+resource "aws_s3_bucket" "terraform_state" {
+  bucket = "staging_eks_terrform_state"
+}
+
+# Enable versioning
+resource "aws_s3_bucket_versioning" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# Enable server-side encryption
+resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+# DynamoDB for State Locking
+resource "aws_dynamodb_table" "terraform_locks" {
+  name         = "staging-terraform-state-locks"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "LockID"
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+}
+
+# Terraform Backend Configuration
+terraform {
+  backend "s3" {
+    bucket         = "staging-eks-terrform-state"
+    key            = "global/terraform.tfstate"
+    region         = "ap-south-1"
+    dynamodb_table = "staging-terraform-state-locks"
+    encrypt        = true
+  }
 }
 
 # EKS Cluster Configuration
@@ -12,7 +59,7 @@ resource "aws_eks_cluster" "my_cluster" {
   }
 
   vpc_config {
-    subnet_ids = aws_subnet.my_subnet[*].id
+    subnet_ids = var.subnet_ids
   }
 
   depends_on                = [aws_iam_role_policy_attachment.eks_cluster_policy]
@@ -22,7 +69,7 @@ resource "aws_eks_cluster" "my_cluster" {
 # Kubeconfig Update; didn't work well so consider removing it if not useful
 resource "null_resource" "update_kubeconfig" {
   triggers = {
-    always_run = "${timestamp()}"  # This ensures it runs every time
+    always_run = "${timestamp()}" # This ensures it runs every time
   }
 
   provisioner "local-exec" {
@@ -34,14 +81,11 @@ provider "kubernetes" {
   host                   = aws_eks_cluster.my_cluster.endpoint
   cluster_ca_certificate = base64decode(aws_eks_cluster.my_cluster.certificate_authority[0].data)
   exec {
-    api_version = "client.authentication.k8s.io/v1"
-    args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.my_cluster.name]
+    api_version = "client.authentication.k8s.io/v1beta1"
+    args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.my_cluster.name, "--region", "ap-south-1"]
     command     = "aws"
   }
 
-  # Specify the version of the Kubernetes provider
-  // version = "~> 2.0"  # Adjust the version as needed
-  config_path = "~/.kube/config" # Path to your kubeconfig file
 }
 
 # IAM Roles and Policies for EKS Cluster
@@ -69,10 +113,30 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 }
 
 # VPC and Networking Configuration
+# Reference existing VPC
+data "aws_vpc" "existing" {
+  id = "vpc-06f43a5a006ddeea0"  # Your existing VPC ID
+}
+
+# Reference existing subnets
+data "aws_subnet" "existing" {
+  count = 2
+  id    = var.subnet_ids[count.index]
+}
+
+# Variables for subnet IDs
+variable "subnet_ids" {
+  type    = list(string)
+  default = [
+    "subnet-0893eae15fe20d36f",  # Your existing subnet ID
+    "subnet-07578870c36500e08"   # Your existing subnet ID
+  ]
+}
+
 resource "aws_vpc" "staging_vpc" {
   cidr_block = "10.0.0.0/16"
   tags = {
-    Name: "staging_vpc"
+    Name : "staging_vpc"
   }
   lifecycle {
     prevent_destroy = true // Prevent VPC deletion
@@ -195,7 +259,7 @@ resource "aws_security_group" "eks_nodes" {
   vpc_id      = aws_vpc.staging_vpc.id
 
   tags = {
-    Name                                   = "eks-nodes-sg"
+    Name                                          = "eks-nodes-sg"
     "kubernetes.io/cluster/dalgo-staging-cluster" = "owned"
   }
 }
@@ -282,7 +346,7 @@ resource "aws_eks_node_group" "my_node_group" {
   cluster_name    = aws_eks_cluster.my_cluster.name
   node_group_name = "staging-node-group"
   node_role_arn   = aws_iam_role.eks_node_group_role.arn
-  subnet_ids      = aws_subnet.my_subnet[*].id
+  subnet_ids      = var.subnet_ids
   instance_types  = ["t4g.large"]
 
   scaling_config {
@@ -291,8 +355,8 @@ resource "aws_eks_node_group" "my_node_group" {
     min_size     = 1
   }
 
- # This AMI type matches current AMI deployed on production. Might be useful to compare other 
- # performant instance type
+  # This AMI type matches current AMI deployed on production. Might be useful to compare other 
+  # performant instance type
   ami_type = "AL2023_ARM_64_STANDARD"
 
 
@@ -311,37 +375,6 @@ resource "aws_eks_node_group" "my_node_group" {
     aws_iam_role_policy_attachment.eks_cni_policy,
     aws_iam_role_policy_attachment.eks_registry_policy
   ]
-}
-
-# Create an Internet Gateway
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.staging_vpc.id
-
-  tags = {
-    Name = "staging-internet-gateway"
-  }
-}
-
-# Create a route table for the public subnet
-resource "aws_route_table" "public_route_table" {
-  vpc_id = aws_vpc.staging_vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
-
-  tags = {
-    Name = "public-route-table"
-  }
-}
-
-
-# Associate the public subnet with the route table
-resource "aws_route_table_association" "public_subnet_association" {
-  count          = 1
-  subnet_id      = aws_subnet.my_subnet[0].id
-  route_table_id = aws_route_table.public_route_table.id
 }
 
 data "tls_certificate" "eks" {
@@ -383,19 +416,19 @@ resource "aws_iam_policy" "eks_cluster_autoscaler_iam_policy" {
   policy = jsonencode({
     Statement = [{
       Action = [
-                "autoscaling:DescribeAutoScalingGroups",
-                "autoscaling:DescribeAutoScalingInstances",
-                "autoscaling:DescribeLaunchConfigurations",
-                "autoscaling:DescribeTags",
-                "autoscaling:SetDesiredCapacity",
-                "autoscaling:TerminateInstanceInAutoScalingGroup",
-                "autoscaling:DescribeScalingActivities",
-                "ec2:DescribeLaunchTemplateVersions",
-                "ec2:DescribeImages",
-                "ec2:DescribeInstanceTypes",
-                "ec2:GetInstanceTypesFromInstanceRequirements",
-                "eks:DescribeNodegroup"
-            ]
+        "autoscaling:DescribeAutoScalingGroups",
+        "autoscaling:DescribeAutoScalingInstances",
+        "autoscaling:DescribeLaunchConfigurations",
+        "autoscaling:DescribeTags",
+        "autoscaling:SetDesiredCapacity",
+        "autoscaling:TerminateInstanceInAutoScalingGroup",
+        "autoscaling:DescribeScalingActivities",
+        "ec2:DescribeLaunchTemplateVersions",
+        "ec2:DescribeImages",
+        "ec2:DescribeInstanceTypes",
+        "ec2:GetInstanceTypesFromInstanceRequirements",
+        "eks:DescribeNodegroup"
+      ]
       Effect   = "Allow"
       Resource = "*",
       # Condition = {
@@ -480,11 +513,11 @@ resource "kubernetes_deployment" "cluster_autoscaler" {
           resources {
             requests = {
               cpu    = "100m"
-              memory = "500Mi"  # Increase the memory request
+              memory = "500Mi" # Increase the memory request
             }
             limits = {
-              cpu    = "200m"   # Increase the CPU limit
-              memory = "1Gi"    # Increase the memory limit
+              cpu    = "200m" # Increase the CPU limit
+              memory = "1Gi"  # Increase the memory limit
             }
           }
         }
@@ -517,10 +550,10 @@ resource "kubernetes_cluster_role" "cluster_autoscaler_kube_cluster_role" {
   }
 
   rule {
-    api_groups = [""]
-    resources  = ["endpoints"]
+    api_groups     = [""]
+    resources      = ["endpoints"]
     resource_names = ["cluster-autoscaler"]
-    verbs      = ["get", "update"]
+    verbs          = ["get", "update"]
   }
 
   rule {
@@ -572,10 +605,10 @@ resource "kubernetes_cluster_role" "cluster_autoscaler_kube_cluster_role" {
   }
 
   rule {
-    api_groups = ["coordination.k8s.io"]
+    api_groups     = ["coordination.k8s.io"]
     resource_names = ["cluster-autoscaler"]
-    resources = ["leases"]
-    verbs      = ["get", "update"]
+    resources      = ["leases"]
+    verbs          = ["get", "update"]
   }
 }
 
@@ -587,7 +620,7 @@ resource "kubernetes_cluster_role_binding" "cluster_autoscaler_kube_cluster_role
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind      = "ClusterRole"
-    name = kubernetes_cluster_role.cluster_autoscaler_kube_cluster_role.metadata[0].name
+    name      = kubernetes_cluster_role.cluster_autoscaler_kube_cluster_role.metadata[0].name
   }
 
   subject {
@@ -599,7 +632,7 @@ resource "kubernetes_cluster_role_binding" "cluster_autoscaler_kube_cluster_role
 
 resource "kubernetes_role" "cluster_autoscaler" {
   metadata {
-    name      = "cluster-autoscaler"
+    name = "cluster-autoscaler"
   }
 
   rule {
@@ -609,16 +642,16 @@ resource "kubernetes_role" "cluster_autoscaler" {
   }
 
   rule {
-    api_groups = [""]
-    resources  = ["configmaps"]
+    api_groups     = [""]
+    resources      = ["configmaps"]
     resource_names = ["cluster-autoscaler-status", "cluster-autoscaler-priority-expander"]
-    verbs      = ["delete", "get", "update", "watch"]
+    verbs          = ["delete", "get", "update", "watch"]
   }
 }
 
 resource "kubernetes_role_binding" "cluster_autoscaler" {
   metadata {
-    name      = "cluster-autoscaler"
+    name = "cluster-autoscaler"
   }
 
   role_ref {
