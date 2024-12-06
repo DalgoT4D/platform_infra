@@ -133,16 +133,6 @@ variable "subnet_ids" {
   ]
 }
 
-resource "aws_vpc" "staging_vpc" {
-  cidr_block = "10.0.0.0/16"
-  tags = {
-    Name : "staging_vpc"
-  }
-  lifecycle {
-    prevent_destroy = true // Prevent VPC deletion
-  }
-}
-
 resource "aws_subnet" "my_subnet" {
   count                   = 2
   vpc_id                  = aws_vpc.staging_vpc.id
