@@ -24,18 +24,19 @@ global:
     secretName: ""
     # -- Secret value for database password
     secretValue: ""
+  
   # todo: remove so there is no need to create secrets for gcs if not using gcs
-  storage:
-    type: minio # default storage used
+  # storage:
+  #   type: minio # default storage used
 
-    enterprise:
-    # -- Secret name where an Airbyte license key is stored
-    secretName: "airbyte-config-secrets"
-    # -- The key within `licenseKeySecretName` where the Airbyte license key is stored
-    licenseKeySecretKey: "license-key"
+  #   enterprise:
+  #   # -- Secret name where an Airbyte license key is stored
+  #   secretName: "airbyte-config-secrets"
+  #   # -- The key within `licenseKeySecretName` where the Airbyte license key is stored
+  #   licenseKeySecretKey: "license-key"
 
   # -- The URL where Airbyte will be reached; This should match your Ingress host
-  #airbyteUrl: ""
+  # airbyteUrl: ""
 
     
     # -- SSO Identify Provider configuration; (requires Enterprise)
