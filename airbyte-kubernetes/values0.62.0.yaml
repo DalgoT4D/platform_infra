@@ -14,7 +14,7 @@ global:
   airbyteYml: ""
 
   # -- Log4j configuration file, if not using minio, update to "log4j2-no-minio.xml"
-  log4jConfig: "log4j2.xml"
+  log4jConfig: "log4j2-no-minio.xml"
 
   # -- Environment variables
   env_vars: {}
@@ -35,7 +35,7 @@ global:
     licenseKeySecretKey: "license-key"
 
   # -- The URL where Airbyte will be reached; This should match your Ingress host
-  airbyteUrl: ""
+  #airbyteUrl: ""
 
     
     # -- SSO Identify Provider configuration; (requires Enterprise)
@@ -84,15 +84,16 @@ global:
 
   storage:
     # -- The storage backend type. Supports s3, gcs, minio (default)
-    type: "S3" # default storage used
+    type: "s3" # default storage used
     # -- Secret name where storage provider credentials are stored
     secretName: "airbyte-config-secrets"
 
     # S3
     bucket: ## S3 bucket names that you've created. We recommend storing the following all in one bucket.
-      log: dalgo-staging-eks-log
-      state: dalgo-staging-eks-log
-      workloadOutput: dalgo-staging-eks-log
+      log: dalgo-staging2-eks
+      state: dalgo-staging2-eks
+      workloadOutput: dalgo-staging2-eks
+      activityPayload: dalgo-staging2-eks
     s3:
       region: "ap-south-1" ## e.g. us-east-1
       authenticationType: credentials ## Use "credentials" or "instanceProfile"
@@ -323,7 +324,7 @@ webapp:
   ## ref: http://kubernetes.io/docs/user-guide/ingress/
   ingress:
     # -- Set to true to enable ingress record generation
-    enabled: true
+    enabled: false
     # -- Specifies ingressClassName for clusters >= 1.18+
     className: "nginx"
     # -- Ingress annotations done as key:value pairs
@@ -636,7 +637,7 @@ server:
 
   log:
     # -- The log level to log at
-    level: "INFO"
+    level: "DEBUG"
 
   ## Examples (when using `server.containerSecurityContext.readOnlyRootFilesystem=true`):
   ## extraVolumeMounts:
@@ -841,7 +842,7 @@ worker:
 
   log:
     #! -- The log level to log at.
-    level: "INFO"
+    level: "DEBUG"
 
   ## Example:
   ##
@@ -1830,7 +1831,7 @@ airbyte-api-server:
 
   log:
     # -- The log level to log at.
-    level: "INFO"
+    level: "DEBUG"
 
   env_vars: {}
   service:
