@@ -99,6 +99,13 @@ global:
      region: "ap-south-1" ## e.g. us-east-1
      authenticationType: credentials ## Use "credentials" or "instanceProfile"
 
+  secretsManager:
+    type: googleSecretManager
+    secretName: "airbyte-config-secrets"
+    googleSecretManager:
+      projectId: "ddp-ui-95e38"
+      credentialsSecretKey: gcp.json
+
     # GCS
     #bucket: ## GCS bucket names that you've created. We recommend storing the following all in one bucket.
     #  log: airbyte-bucket
