@@ -903,6 +903,10 @@ worker:
         secretKeyRef:
           name: airbyte-config-secrets
           key: S3_LOG_BUCKET
+    - name: MAX_SYNC_WORKERS
+      value: "5"
+    - name: MAX_CHECK_WORKERS
+      value: "5"
   ## Examples (when using `worker.containerSecurityContext.readOnlyRootFilesystem=true`):
   ## extraVolumeMounts:
   ##   - name: tmpdir
