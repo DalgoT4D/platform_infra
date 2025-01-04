@@ -1,0 +1,6 @@
+vpc_id     = "vpc-060665f96234a5997"
+subnet_ids = ["subnet-0181641712cc0826a", "subnet-072059f8c76371eea"]
+iam_node_group_role = "eks_node_group_role"
+iam_cluster_role = "eks_cluster_role"
+iam_cluster_autoscaler_role = "eks-cluster-autoscaler"
+aws_region = "ap-south-1"
