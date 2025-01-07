@@ -30,9 +30,36 @@ variable "aws_region" {
   default = "ap-south-1"
 }
 
+variable "aws_profile" {
+  description = "The AWS profile"
+  type        = string
+}
+
 # configure the AWS provider
 provider "aws" {
   region = var.aws_region
+  profile = var.aws_profile
+}
+
+# S3 Bucket for State - ensure it exists
+data "aws_s3_bucket" "terraform_state" {
+  bucket = "production-eks-terraform-state"
+}
+
+# DynamoDB for State Locking - ensure it exists
+data "aws_dynamodb_table" "terraform_locks" {
+  name         = "production-terraform-state-locks"
+}
+
+# Terraform Backend Configuration
+terraform {
+  backend "s3" {
+    bucket         = "production-eks-terraform-state"
+    key            = "global/terraform.tfstate"
+    region         = "ap-south-1"
+    dynamodb_table = "production-terraform-state-locks"
+    encrypt        = true
+  }
 }
 
 # data resources to reference existing VPC and subnets
@@ -123,7 +150,7 @@ resource "aws_security_group_rule" "nodes_inbound_cluster" {
 
 # Allow all outbound traffic
 resource "aws_security_group_rule" "nodes_outbound" {
-  description       = "Allow all outbound traffic"
+  description       = "Allow all outbound traffic from nodes"
   type              = "egress"
   from_port         = 0
   to_port           = 65535
