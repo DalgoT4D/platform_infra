@@ -19,11 +19,6 @@ variable "iam_cluster_role" {
   type        = string
 }
 
-variable "iam_cluster_autoscaler_role" {
-  description = "The name of the existing IAM cluster autoscaler role"
-  type        = string
-}
-
 variable "aws_region" {
   description = "The AWS region"
   type        = string
@@ -33,6 +28,11 @@ variable "aws_region" {
 variable "aws_profile" {
   description = "The AWS profile"
   type        = string
+}
+
+variable "whitelist_security_group_ids" {
+  description = "The IDs of the existing security groups to allow incoming traffic to EKS cluster"
+  type        = list(string)
 }
 
 # configure the AWS provider
@@ -82,10 +82,6 @@ data "aws_iam_role" "eks_cluster_role" {
   name = var.iam_cluster_role
 }
 
-data "aws_iam_role" "eks_cluster_autoscaler_role" {
-  name = var.iam_cluster_autoscaler_role
-}
-
 # create eks cluster and kubernetes provider
 resource "aws_eks_cluster" "prod_eks_cluster" {
   name     = "dalgo-prod-cluster"
@@ -96,12 +92,15 @@ resource "aws_eks_cluster" "prod_eks_cluster" {
   }
 
   vpc_config {
+    endpoint_private_access = true
+    endpoint_public_access = false
     subnet_ids = data.aws_subnet.prod_vpc_subnets[*].id
   }
 
   enabled_cluster_log_types = ["audit", "api", "authenticator", "scheduler", "controllerManager"]
 }
 
+# cluster security group
 resource "aws_security_group" "eks_cluster" {
   name        = "eks-prod-cluster-sg"
   description = "Security group for EKS cluster"
@@ -126,6 +125,7 @@ resource "aws_security_group" "eks_cluster" {
   }
 }
 
+# node security group
 resource "aws_security_group" "eks_nodes" {
   name        = "eks-prod-nodes-sg"
   description = "Security group for worker nodes"
@@ -137,15 +137,28 @@ resource "aws_security_group" "eks_nodes" {
   }
 }
 
+# Allow https traffice from bastion host in the vpc for running kubectl commands
+resource "aws_security_group_rule" "whitelist_security_group_rules" {
+  count = length(var.whitelist_security_group_ids)
+
+  description       = "Allow https traffic from bastion host to connect to cluster for running/debugging with kubectl"
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  source_security_group_id = var.whitelist_security_group_ids[count.index]
+  security_group_id = aws_eks_cluster.prod_eks_cluster.vpc_config[0].cluster_security_group_id
+}
+
 # Allow inbound traffic from the cluster security group
 resource "aws_security_group_rule" "nodes_inbound_cluster" {
   description              = "Allow worker nodes to receive communication from the cluster control plane"
+  type                     = "ingress"
   from_port                = 0
+  to_port                  = 65535
   protocol                 = "-1"
   source_security_group_id = aws_security_group.eks_cluster.id
   security_group_id        = aws_security_group.eks_nodes.id
-  to_port                  = 65535
-  type                     = "ingress"
 }
 
 # Allow all outbound traffic
@@ -222,6 +235,46 @@ provider "kubernetes" {
   }
 }
 
+# create the autoscaler role and attach policies/trust relationships
+data "tls_certificate" "eks" {
+  url = aws_eks_cluster.prod_eks_cluster.identity[0].oidc[0].issuer
+}
+
+resource "aws_iam_openid_connect_provider" "eks" {
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
+  url             = aws_eks_cluster.prod_eks_cluster.identity[0].oidc[0].issuer
+}
+
+data "aws_iam_policy_document" "eks_cluster_autoscaler_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    effect  = "Allow"
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:kube-system:cluster-autoscaler"]
+    }
+
+    principals {
+      identifiers = [aws_iam_openid_connect_provider.eks.arn]
+      type        = "Federated"
+    }
+  }
+}
+
+resource "aws_iam_role" "eks_cluster_autoscaler_role" {
+  assume_role_policy = data.aws_iam_policy_document.eks_cluster_autoscaler_assume_role_policy.json
+  name               = "eks-cluster-autoscaler-prod"
+}
+
+resource "aws_iam_role_policy_attachment" "attach_eks_cluster_autoscaler_policy" {
+  role       = aws_iam_role.eks_cluster_autoscaler_role.name
+  policy_arn = "arn:aws:iam::024209611402:policy/eks-cluster-autoscaler" # customer managed policy
+}
+
+
 # create node group and its instances
 resource "aws_eks_node_group" "prod_eks_node_group" {
   cluster_name    = aws_eks_cluster.prod_eks_cluster.name
@@ -248,7 +301,6 @@ resource "aws_eks_node_group" "prod_eks_node_group" {
 
   tags = {
     Environment = "production"
-
   }
 
 }
@@ -259,7 +311,7 @@ resource "kubernetes_service_account" "kube_service_acc_user" {
     name      = "cluster-autoscaler"
     namespace = "kube-system"
     annotations = {
-      "eks.amazonaws.com/role-arn" = data.aws_iam_role.eks_cluster_autoscaler_role.arn
+      "eks.amazonaws.com/role-arn" = aws_iam_role.eks_cluster_autoscaler_role.arn
     }
   }
 }
