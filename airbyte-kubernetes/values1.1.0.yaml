@@ -907,6 +907,10 @@ worker:
       value: "5"
     - name: MAX_CHECK_WORKERS
       value: "5"
+    - name: MAX_SPEC_WORKERS
+      value: "5"
+    - name: MAX_DISCOVER_WORKERS
+      value: "5"
   ## Examples (when using `worker.containerSecurityContext.readOnlyRootFilesystem=true`):
   ## extraVolumeMounts:
   ##   - name: tmpdir
