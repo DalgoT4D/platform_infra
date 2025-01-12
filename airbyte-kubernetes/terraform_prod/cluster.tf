@@ -143,9 +143,9 @@ resource "aws_security_group_rule" "whitelist_security_group_rules" {
 
   description       = "Allow https traffic from bastion host to connect to cluster for running/debugging with kubectl"
   type              = "ingress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "-1"
   source_security_group_id = var.whitelist_security_group_ids[count.index]
   security_group_id = aws_eks_cluster.prod_eks_cluster.vpc_config[0].cluster_security_group_id
 }
