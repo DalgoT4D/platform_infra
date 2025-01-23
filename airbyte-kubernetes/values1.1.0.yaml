@@ -10,6 +10,8 @@ global:
   # -- Edition; "community" or "pro"
   edition: "community"
 
+  autoDisableFailingConnections: false
+
   airbyteYml: ""
 
   enterprise:
