@@ -68,7 +68,7 @@ global:
     secretName: "airbyte-config-secrets" # e.g. "airbyte-config-secrets"
 
     # -- The database host
-    host: "ddp-staging-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com"
+    host: "airbyte-prod-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com"
 
     # -- The database port
     port: 5432
@@ -144,8 +144,13 @@ global:
       ##    cpu: 250m
       # -- Job resource requests
       requests:
+<<<<<<< Updated upstream
         cpu: 500m
         memory: 1Gi
+=======
+        memory: 1Gi
+        cpu: 500m
+>>>>>>> Stashed changes
       ## Example:
       ## limits:
       ##    cpu: 200m
@@ -756,7 +761,7 @@ server:
   ##   DATABASE_PORT: 5432
   # -- Supply extra env variables to main container using simplified notation
   env_vars: 
-    DATABASE_HOST: ddp-staging-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
+    DATABASE_HOST: airbyte-prod-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
     DATABASE_PORT: "5432"
 
 ## @section Worker Parameters
@@ -1833,7 +1838,7 @@ postgresql:
 # External PostgreSQL configuration, All of these values are only used when postgresql.enabled is set to false
 externalDatabase:
   # -- Database host
-  host: "ddp-staging-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com"
+  host: "airbyte-prod-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com"
   # -- non-root Username for Airbyte Database
   user: "airbyte_user"
   # -- Database password
