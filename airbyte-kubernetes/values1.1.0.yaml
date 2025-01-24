@@ -144,13 +144,8 @@ global:
       ##    cpu: 250m
       # -- Job resource requests
       requests:
-<<<<<<< Updated upstream
         cpu: 500m
         memory: 1Gi
-=======
-        memory: 1Gi
-        cpu: 500m
->>>>>>> Stashed changes
       ## Example:
       ## limits:
       ##    cpu: 200m
