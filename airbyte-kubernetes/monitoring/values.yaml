@@ -4003,7 +4003,7 @@ prometheus:
      volumeClaimTemplate:
       metadata:
         name: monitoring-pvc # replace with an existing volume claim
-       spec:
+      spec:
         #  storageClassName: gp2
         #  accessModes: ["ReadWriteOnce"]
         #  resources:
