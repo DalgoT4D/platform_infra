@@ -10,3 +10,4 @@ spec:
       storage: 20Gi
   volumeMode: Block
   volumeName: monitoring-pvc
+  storageClassName: gp2
