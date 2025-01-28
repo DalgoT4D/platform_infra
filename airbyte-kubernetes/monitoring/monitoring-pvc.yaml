@@ -8,4 +8,5 @@ spec:
   resources:
     requests:
       storage: 10Gi
+  volumeName: monitoring-pv
   storageClassName: gp2
