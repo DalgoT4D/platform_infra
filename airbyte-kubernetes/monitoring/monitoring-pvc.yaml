@@ -7,7 +7,6 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 20Gi
-  volumeMode: Block
+      storage: 10Gi
   volumeName: monitoring-pvc
   storageClassName: gp2
