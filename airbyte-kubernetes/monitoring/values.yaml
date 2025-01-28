@@ -814,11 +814,11 @@ alertmanager:
         metadata:
           name: monitoring-pvc # replace with an existing volume claim
         spec:
-          # storageClassName: gluster
-          # accessModes: ["ReadWriteOnce"]
-          # resources:
-          #   requests:
-          #     storage: 50Gi
+          storageClassName: gp2
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 5Gi
           selector: {}
 
 
