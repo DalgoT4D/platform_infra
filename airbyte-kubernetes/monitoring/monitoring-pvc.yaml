@@ -9,3 +9,4 @@ spec:
     requests:
       storage: 20Gi
   volumeMode: Block
+  volumeName: monitoring-pvc
