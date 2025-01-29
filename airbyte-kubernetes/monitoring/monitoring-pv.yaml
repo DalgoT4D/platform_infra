@@ -9,7 +9,7 @@ spec:
     storage: 10Gi
   storageClassName: gp2
   accessModes:
-    - ReadWriteMany # so that multiple pvc/services (their pods) can read/write to the same volume
+    - ReadWriteOnce # this means only one node can be mounted to this volume
   awsElasticBlockStore:
     volumeID: vol-0a2377b85a9597f54
     fsType: ext4
