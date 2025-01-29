@@ -152,8 +152,8 @@ global:
       ##    memory: 1Gi
       # -- Job resource limits
       limits:
-        cpu: 500m
-        memory: 1Gi
+        cpu: 750m
+        memory: "1.25Gi"
 
     kube:
       ## JOB_KUBE_ANNOTATIONS
