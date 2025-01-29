@@ -811,8 +811,6 @@ alertmanager:
     ##
     storage:
       volumeClaimTemplate:
-        metadata:
-          name: monitoring-pvc # replace with an existing volume claim
         spec:
           storageClassName: gp2
           accessModes: ["ReadWriteOnce"]
@@ -1083,13 +1081,13 @@ grafana:
   persistence:
     enabled: true
     type: pvc
-    # storageClassName: "storageClassName"
+    storageClassName: "gp2"
     accessModes:
       - ReadWriteOnce
     size: 10Gi
     finalizers:
       - kubernetes.io/pvc-protection
-    existingClaim: monitoring-pvc
+    volumnName: monitoring-pv
 
   serviceAccount:
     create: true
@@ -4002,14 +4000,13 @@ prometheus:
     ## Using PersistentVolumeClaim
     storageSpec:
      volumeClaimTemplate:
-      metadata:
-        name: monitoring-pvc # replace with an existing volume claim
       spec:
-        #  storageClassName: gp2
-        #  accessModes: ["ReadWriteOnce"]
-        #  resources:
-        #    requests:
-        #      storage: 10Gi
+        storageClassName: gp2
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+        volumeName: monitoring-pv
         selector: {}
 
     ## Using tmpfs volume
