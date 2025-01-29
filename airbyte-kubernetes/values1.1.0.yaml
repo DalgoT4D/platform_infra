@@ -152,8 +152,8 @@ global:
       ##    memory: 1Gi
       # -- Job resource limits
       limits:
-        cpu: 1000m
-        memory: 2Gi
+        cpu: 500m
+        memory: 1Gi
 
     kube:
       ## JOB_KUBE_ANNOTATIONS
@@ -906,7 +906,7 @@ worker:
           name: airbyte-config-secrets
           key: S3_LOG_BUCKET
     - name: MAX_SYNC_WORKERS
-      value: "5"
+      value: "3"
     - name: MAX_CHECK_WORKERS
       value: "5"
     - name: MAX_SPEC_WORKERS
