@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prometheus-pv
+  labels:
+    type: amazonEBS
+spec:
+  capacity:
+    storage: 10Gi
+  storageClassName: gp2
+  accessModes:
+    - ReadWriteOnce # this means only one node can be mounted to this volume
+  awsElasticBlockStore:
+    volumeID: vol-0a2377b85a9597f54
+    fsType: ext4
