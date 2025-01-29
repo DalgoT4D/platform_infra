@@ -812,7 +812,7 @@ alertmanager:
     storage:
       volumeClaimTemplate:
         spec:
-          storageClassName: gp2
+          storageClassName: gp2-prod
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
@@ -1081,7 +1081,7 @@ grafana:
   persistence:
     enabled: true
     type: pvc
-    storageClassName: "gp2"
+    storageClassName: "gp2-prod"
     accessModes:
       - ReadWriteOnce
     size: 10Gi
@@ -4001,7 +4001,7 @@ prometheus:
     storageSpec:
      volumeClaimTemplate:
       spec:
-        storageClassName: gp2
+        storageClassName: gp2-prod
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
