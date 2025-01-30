@@ -106,12 +106,12 @@ resource "aws_security_group" "eks_cluster" {
   description = "Security group for EKS cluster"
   vpc_id      = data.aws_vpc.prod_vpc.id
 
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  # ingress {
+  #   from_port   = 443
+  #   to_port     = 443
+  #   protocol    = "tcp"
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
 
   egress {
     from_port   = 0
@@ -138,17 +138,18 @@ resource "aws_security_group" "eks_nodes" {
 }
 
 # Allow https traffice from bastion host in the vpc for running kubectl commands
-resource "aws_security_group_rule" "whitelist_security_group_rules" {
-  count = length(var.whitelist_security_group_ids)
+# uncommment if you want to whitelist security groups for the cluster
+# resource "aws_security_group_rule" "whitelist_security_group_rules" {
+#   count = length(var.whitelist_security_group_ids)
 
-  description       = "Allow https traffic from bastion host to connect to cluster for running/debugging with kubectl"
-  type              = "ingress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  source_security_group_id = var.whitelist_security_group_ids[count.index]
-  security_group_id = aws_eks_cluster.prod_eks_cluster.vpc_config[0].cluster_security_group_id
-}
+#   description       = "Allow https traffic from bastion host to connect to cluster for running/debugging with kubectl"
+#   type              = "ingress"
+#   from_port         = 443
+#   to_port           = 443
+#   protocol          = "tcp"
+#   source_security_group_id = var.whitelist_security_group_ids[count.index]
+#   security_group_id = aws_eks_cluster.prod_eks_cluster.vpc_config[0].cluster_security_group_id
+# }
 
 # Allow inbound traffic from the cluster security group
 resource "aws_security_group_rule" "nodes_inbound_cluster" {
@@ -285,7 +286,7 @@ resource "aws_eks_node_group" "prod_eks_node_group" {
 
   scaling_config {
     desired_size = 2
-    min_size     = 1
+    min_size     = 2
     max_size     = 10
   }
 
