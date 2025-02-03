@@ -810,8 +810,8 @@ alertmanager:
     ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md
     ##
     storage:
-      volumeClaimTemplate:
-        existingClaim: kube-prom-stack-pvc
+      existingClaim: kube-prom-stack-pvc
+      # volumeClaimTemplate:
         # spec:
         #   storageClassName: gp2-prod
         #   accessModes: ["ReadWriteOnce"]
@@ -4002,8 +4002,8 @@ prometheus:
     
     ## Using PersistentVolumeClaim
     storageSpec:
-     volumeClaimTemplate:
       existingClaim: kube-prom-stack-pvc
+      # volumeClaimTemplate:
       # spec:
       #   storageClassName: gp2-prod
       #   accessModes: ["ReadWriteOnce"]
