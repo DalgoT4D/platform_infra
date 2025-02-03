@@ -906,7 +906,7 @@ worker:
           name: airbyte-config-secrets
           key: S3_LOG_BUCKET
     - name: MAX_SYNC_WORKERS
-      value: "3"
+      value: "4"
     - name: MAX_CHECK_WORKERS
       value: "5"
     - name: MAX_SPEC_WORKERS
