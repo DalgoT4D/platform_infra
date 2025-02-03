@@ -9,6 +9,7 @@ metadata:
     # Specifies that this should be an internal load balancer in AWS
     # This means it won't be accessible from the internet, only within the VPC
     service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "1800" # timeout of 30 minutes
 spec:
   # Use AWS Load Balancer to expose the service
   type: LoadBalancer
