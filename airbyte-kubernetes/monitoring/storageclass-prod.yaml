@@ -6,7 +6,7 @@ metadata:
     storageclass.kubernetes.io/is-default-class: "false"
 provisioner: kubernetes.io/aws-ebs
 reclaimPolicy: Retain # so that the volume is not deleted when the PVC is deleted
-allowVolumeExpansion: false # dynamically resize the volume
+allowVolumeExpansion: true # dynamically resize the volume
 volumeBindingMode: Immediate
 parameters:
   fsType: "ext4"
