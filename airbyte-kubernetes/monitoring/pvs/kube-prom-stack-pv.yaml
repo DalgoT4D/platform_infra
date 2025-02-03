@@ -13,3 +13,5 @@ spec:
   awsElasticBlockStore:
     volumeID: vol-0a2377b85a9597f54
     fsType: ext4
+  hostPath:
+    path: "/data/monitoring/"
