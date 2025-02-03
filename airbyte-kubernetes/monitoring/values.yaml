@@ -1086,8 +1086,6 @@ grafana:
     accessModes:
       - ReadWriteOnce
     size: 10Gi
-    finalizers:
-      - kubernetes.io/pvc-protection
     selectorLabels:
       matchLabels:
         volumeIdentifier: grafana-server
