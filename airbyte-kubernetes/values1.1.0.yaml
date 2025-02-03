@@ -714,6 +714,10 @@ server:
         secretKeyRef:
           name: airbyte-config-secrets
           key: S3_LOG_BUCKET
+    - name: HTTP_IDLE_TIMEOUT  
+      value: 5m  
+    - name: READ_TIMEOUT  
+      value: 5m
   ## Example: (With default env vars and values taken from generated config map)
   # extraEnv:
   #   - name: AIRBYTE_VERSION
