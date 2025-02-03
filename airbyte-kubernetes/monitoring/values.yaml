@@ -817,7 +817,6 @@ alertmanager:
           resources:
             requests:
               storage: 10Gi
-          volumeName: alertmanager-pv
           selector: {}
 
 
@@ -1087,7 +1086,6 @@ grafana:
     size: 10Gi
     finalizers:
       - kubernetes.io/pvc-protection
-    volumnName: grafana-pv
 
   serviceAccount:
     create: true
@@ -4006,7 +4004,6 @@ prometheus:
         resources:
           requests:
             storage: 10Gi
-        volumeName: prometheus-pv
         selector: {}
 
     ## Using tmpfs volume
