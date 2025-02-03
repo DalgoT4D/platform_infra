@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: kube-prometheus-stack-pvc
+  name: kube-prom-stack-pvc
 spec:
   accessModes:
     - ReadWriteOnce
