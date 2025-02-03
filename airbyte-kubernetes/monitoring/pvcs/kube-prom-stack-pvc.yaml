@@ -9,3 +9,4 @@ spec:
     requests:
       storage: 10Gi
   volumeName: kube-prom-stack-pv
+  storageClassName: gp2-prod
