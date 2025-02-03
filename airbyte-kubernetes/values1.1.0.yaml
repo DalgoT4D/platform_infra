@@ -747,7 +747,7 @@ server:
   #         key: INTERNAL_API_HOST
   ##
   # -- Supply extra env variables to main container using full notation
-  extraEnv: []
+  # extraEnv: []
   ## Example:
   ## secrets:
   ##   DATABASE_PASSWORD: strong-password
