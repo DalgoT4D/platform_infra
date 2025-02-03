@@ -4001,18 +4001,19 @@ prometheus:
     ##
     
     ## Using PersistentVolumeClaim
-    storageSpec:
-      existingClaim: kube-prom-stack-pvc
+    existingClaim: kube-prom-stack-pvc
+    storageSpec: {}
+      # existingClaim: kube-prom-stack-pvc
       # volumeClaimTemplate:
-      # spec:
-      #   storageClassName: gp2-prod
-      #   accessModes: ["ReadWriteOnce"]
-      #   resources:
-      #     requests:
-      #       storage: 10Gi
-      #   selector:
-      #     matchLabels:
-      #       volumeIdentifier: prometheus-server
+      #   spec:
+      #     storageClassName: gp2-prod
+      #     accessModes: ["ReadWriteOnce"]
+      #     resources:
+      #       requests:
+      #         storage: 10Gi
+      #     selector:
+      #       matchLabels:
+      #         volumeIdentifier: prometheus-server
 
     ## Using tmpfs volume
     ##
