@@ -811,15 +811,16 @@ alertmanager:
     ##
     storage:
       volumeClaimTemplate:
-        spec:
-          storageClassName: gp2-prod
-          accessModes: ["ReadWriteOnce"]
-          resources:
-            requests:
-              storage: 10Gi
-          selector:
-            matchLabels:
-              volumeIdentifier: alertmanager-server
+        existingClaim: kube-prom-stack-pvc
+        # spec:
+        #   storageClassName: gp2-prod
+        #   accessModes: ["ReadWriteOnce"]
+        #   resources:
+        #     requests:
+        #       storage: 10Gi
+        #   selector:
+        #     matchLabels:
+        #       volumeIdentifier: alertmanager-server
 
     ## The external URL the Alertmanager instances will be available under. This is necessary to generate correct URLs. This is necessary if Alertmanager is not served from root of a DNS name. string  false
     ##
@@ -1081,13 +1082,14 @@ grafana:
   persistence:
     enabled: true
     type: pvc
-    storageClassName: "gp2-prod"
-    accessModes:
-      - ReadWriteOnce
-    size: 10Gi
-    selector:
-      matchLabels:
-        volumeIdentifier: grafana-server
+    # storageClassName: "gp2-prod"
+    # accessModes:
+    #   - ReadWriteOnce
+    # size: 10Gi
+    existingClaim: kube-prom-stack-pvc
+    # selector:
+    #   matchLabels:
+    #     volumeIdentifier: grafana-server
 
 
   serviceAccount:
@@ -4001,15 +4003,16 @@ prometheus:
     ## Using PersistentVolumeClaim
     storageSpec:
      volumeClaimTemplate:
-      spec:
-        storageClassName: gp2-prod
-        accessModes: ["ReadWriteOnce"]
-        resources:
-          requests:
-            storage: 10Gi
-        selector:
-          matchLabels:
-            volumeIdentifier: prometheus-server
+      existingClaim: kube-prom-stack-pvc
+      # spec:
+      #   storageClassName: gp2-prod
+      #   accessModes: ["ReadWriteOnce"]
+      #   resources:
+      #     requests:
+      #       storage: 10Gi
+      #   selector:
+      #     matchLabels:
+      #       volumeIdentifier: prometheus-server
 
     ## Using tmpfs volume
     ##
