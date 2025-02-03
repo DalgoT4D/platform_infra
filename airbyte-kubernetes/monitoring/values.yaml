@@ -1085,9 +1085,9 @@ grafana:
     accessModes:
       - ReadWriteOnce
     size: 10Gi
-    # selectorLabels:
-    #   matchLabels:
-    #     volumeIdentifier: grafana-server
+    selectorLabels:
+      matchLabels:
+        volumeIdentifier: grafana-server
 
 
   serviceAccount:
