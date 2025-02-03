@@ -4,6 +4,7 @@ metadata:
   name: prometheus-pv
   labels:
     type: amazonEBS
+    volumeIdentifier: prometheus-server
 spec:
   capacity:
     storage: 10Gi

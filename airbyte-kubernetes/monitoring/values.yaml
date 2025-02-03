@@ -817,7 +817,9 @@ alertmanager:
           resources:
             requests:
               storage: 10Gi
-          selector: {}
+          selector:
+            matchLabels:
+              volumeIdentifier: alertmanager-server
 
 
     ## The external URL the Alertmanager instances will be available under. This is necessary to generate correct URLs. This is necessary if Alertmanager is not served from root of a DNS name. string  false
@@ -1086,6 +1088,10 @@ grafana:
     size: 10Gi
     finalizers:
       - kubernetes.io/pvc-protection
+    selectorLabels:
+      matchLabels:
+        volumeIdentifier: grafana-server
+
 
   serviceAccount:
     create: true
@@ -4004,7 +4010,9 @@ prometheus:
         resources:
           requests:
             storage: 10Gi
-        selector: {}
+        selector:
+          matchLabels:
+            volumeIdentifier: prometheus-server
 
     ## Using tmpfs volume
     ##

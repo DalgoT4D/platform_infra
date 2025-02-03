@@ -4,6 +4,7 @@ metadata:
   name: alertmanager-pv
   labels:
     type: amazonEBS
+    volumeIdentifier: alertmanager-server
 spec:
   capacity:
     storage: 10Gi

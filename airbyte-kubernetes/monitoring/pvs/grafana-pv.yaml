@@ -4,6 +4,7 @@ metadata:
   name: grafana-pv
   labels:
     type: amazonEBS
+    volumeIdentifier: grafana-server
 spec:
   capacity:
     storage: 10Gi
