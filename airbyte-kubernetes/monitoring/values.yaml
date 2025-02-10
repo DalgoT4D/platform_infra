@@ -1082,6 +1082,7 @@ grafana:
   persistence:
     existingClaim: kube-prom-stack-pvc
     enabled: true
+    subPath: "/var/lib/grafana"
     # type: pvc
     # storageClassName: "gp2-prod"
     # accessModes:
