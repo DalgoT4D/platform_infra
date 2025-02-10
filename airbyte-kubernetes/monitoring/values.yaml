@@ -809,8 +809,8 @@ alertmanager:
     ## Storage is the definition of how storage will be used by the Alertmanager instances.
     ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md
     ##
-    existingClaim: kube-prom-stack-pvc
-    storage: {}
+    # existingClaim: kube-prom-stack-pvc
+    # storage: {}
       # volumeClaimTemplate:
         # spec:
         #   storageClassName: gp2-prod
@@ -1080,8 +1080,9 @@ grafana:
   # # To make Grafana persistent (Using Statefulset)
   # #
   persistence:
-    existingClaim: kube-prom-stack-pvc
     enabled: true
+    type: pvc
+    existingClaim: kube-prom-stack-pvc
     subPath: "/var/lib/grafana"
     # type: pvc
     # storageClassName: "gp2-prod"
@@ -1092,6 +1093,8 @@ grafana:
     # selector:
     #   matchLabels:
     #     volumeIdentifier: grafana-server
+    inMemory:
+      enabled: false
 
 
   serviceAccount:
@@ -4003,8 +4006,8 @@ prometheus:
     ##
     
     ## Using PersistentVolumeClaim
-    storageSpec:
-      existingClaim: kube-prom-stack-pvc
+    # storageSpec:
+    #   existingClaim: kube-prom-stack-pvc
       # existingClaim: kube-prom-stack-pvc
       # volumeClaimTemplate:
       #   spec:
