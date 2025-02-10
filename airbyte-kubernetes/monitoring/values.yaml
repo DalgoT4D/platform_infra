@@ -4003,8 +4003,8 @@ prometheus:
     ##
     
     ## Using PersistentVolumeClaim
-    existingClaim: kube-prom-stack-pvc
-    storageSpec: {}
+    storageSpec:
+      existingClaim: kube-prom-stack-pvc
       # existingClaim: kube-prom-stack-pvc
       # volumeClaimTemplate:
       #   spec:
