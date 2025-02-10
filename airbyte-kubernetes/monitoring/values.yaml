@@ -810,7 +810,7 @@ alertmanager:
     ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md
     ##
     # existingClaim: kube-prom-stack-pvc
-    # storage: {}
+    storage: {}
       # volumeClaimTemplate:
         # spec:
         #   storageClassName: gp2-prod
@@ -4006,7 +4006,7 @@ prometheus:
     ##
     
     ## Using PersistentVolumeClaim
-    # storageSpec:
+    storageSpec: {}
     #   existingClaim: kube-prom-stack-pvc
       # existingClaim: kube-prom-stack-pvc
       # volumeClaimTemplate:
