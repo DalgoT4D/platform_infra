@@ -1,4 +1,4 @@
-Helm chart used from kube-prometheus-stack from promeheus-community.
+Helm chart used from kube-prometheus-stack from prometheus-community.
 
 Version used here is : 69.3.1
 
