@@ -45,7 +45,15 @@ resource "null_resource" "update_superset_env" {
 
   provisioner "local-exec" {
     command = <<EOT
-      sed -i \
+      # Detect OS and set the correct sed syntax
+      # macOS uses the BSD version of sed, whereas most Linux distributions use GNU sed.
+      if sed --version 2>/dev/null | grep -q GNU; then
+          SED_CMD="sed -i"
+      else
+          SED_CMD="sed -i ''"
+      fi
+
+      $SED_CMD \
         -e "s/^SUPERSET_SECRET_KEY=.*/SUPERSET_SECRET_KEY=dfhfghghkghkgvhdgvhfgvhkdfh/" \
         -e "s/^SUPERSET_ADMIN_USERNAME=.*/SUPERSET_ADMIN_USERNAME=${var.SUPERSET_ADMIN_USERNAME}/" \
         -e "s/^SUPERSET_ADMIN_PASSWORD=.*/SUPERSET_ADMIN_PASSWORD=${var.SUPERSET_ADMIN_PASSWORD}/" \
