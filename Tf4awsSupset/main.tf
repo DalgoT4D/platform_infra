@@ -214,7 +214,7 @@ resource "aws_lb_listener_rule" "neworg_listener_rule" {
 
 resource "aws_lb_target_group" "neworg_tgt_group" {
   for_each = { for rule in local.neworg_config : rule.port => rule }
-  name     = "neworg-tg-${each.value.port}"
+  name     = "${var.CLIENT_NAME}-tg-${each.value.port}"
   port     = each.value.port
   protocol = "HTTP"
   vpc_id   = var.cur_vpc
