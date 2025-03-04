@@ -1,0 +1,51 @@
+# Below parameters are needed for script execution
+
+AUTOROOT_DIR        = "/home/XXX/YYYY"
+REMOTE_USER         = "ubuntu"
+SSH_KEY             = "/home/XXX/.ssh/id_rsa.pem"
+LOCAL_CLONE_DIR     = "/home/XXX/YYYYt/superset-repo"
+SUPERSET_MIDDLE_DIR = "gensuperset/make-client"
+REMOTE_CLONE_DIR    = "/home/ubuntu"
+rdsname             = "ZZZZ-database-1"
+
+# End
+
+# Below parameters are for Genrate make client
+
+CLIENT_NAME        = "testngo1"
+PROJECT_OR_ENV     = "prod"
+BASE_IMAGE         = "tech4dev/superset:4.1.1"
+SUPERSET_VERSION   = "4"
+OUTPUT_IMAGE_TAG   = "1.1"
+CONTAINER_PORT     = "9990"
+CELERY_FLOWER_PORT = "5555"
+ARCH_TYPE          = "linux/amd64"
+OUTPUT_DIR         = "testngo1"
+
+# End
+
+# Below Parametsrs are needed for superset.env
+
+SUPERSET_ADMIN_USERNAME = "admin"
+SUPERSET_ADMIN_PASSWORD = "admin"
+SUPERSET_ADMIN_EMAIL    = "admin@ngo.org"
+POSTGRES_USER           = "postgres"
+POSTGRES_PASSWORD       = "fdfhfhifhhfrf"
+APP_DB_USER             = "superset_testngo1"
+APP_DB_PASS             = "testngo1"
+APP_DB_NAME             = "superset_testngo1"
+ENABLE_OAUTH            = ""
+
+# End
+
+# Below Parameters required for aws resource creation
+
+alb_name      = "XXXX-XXXX"
+cur_vpc       = "vpc-XXXXXXXXXX"
+neworg_port   = 9990
+appli_ec2     = "i-XXXXXX"
+neworg_name   = "mydemongo.dalgo.in"
+rule_priority = 100
+
+# End
+
