@@ -1594,7 +1594,7 @@ temporal:
     - name: DYNAMIC_CONFIG_FILE_PATH
       value: "config/dynamicconfig/development.yaml"
     - name: DB
-      value: "postgresql"
+      value: "postgres12"
     - name: DB_PORT
       valueFrom:
         secretKeyRef:
