@@ -1,0 +1,7 @@
+vpc_id     = ""
+subnet_ids = [""]
+iam_node_group_role = ""
+iam_cluster_role = ""
+aws_region = ""
+aws_profile = ""
+whitelist_security_group_ids = []
