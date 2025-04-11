@@ -19,7 +19,7 @@ stringData:
   # redis
   REDIS_CELERY_DB: "0"
   REDIS_DB: "1"
-  REDIS_HOST: "superset-redis-headless" ## "{{ .Release.Name }}-redis-headless"
+  REDIS_HOST: "demosuperset-redis-headless" ## "{{ .Release.Name }}-redis-headless"
   REDIS_PORT: "6379"
   REDIS_PROTO: redis
   REDIS_USER: ""
