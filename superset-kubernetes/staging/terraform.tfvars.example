@@ -1,0 +1,9 @@
+aws_region = "ap-south-1"
+aws_profile = ""
+
+
+vpc_id = ""
+subnet_ids = ["", ""]
+iam_cluster_role = ""
+iam_node_group_role = ""
+whitelist_security_group_ids = [""]
