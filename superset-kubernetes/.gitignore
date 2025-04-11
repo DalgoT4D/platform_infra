@@ -33,3 +33,5 @@ Thumbs.db
 *.swp
 *.swo
 *.bak
+
+superset-env.yaml
