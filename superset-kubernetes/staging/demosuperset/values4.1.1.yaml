@@ -221,18 +221,22 @@ service:
     http: nil
 
 ingress:
-  enabled: false
-  ingressClassName: ~
-  annotations: {}
+  enabled: true
+  ingressClassName: nginx
+  annotations:
     # kubernetes.io/tls-acme: "true"
     ## Extend timeout to allow long running queries.
-    # nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
-    # nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
-    # nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/server-snippet: |
+      if ($host = "demosuperset.dalgo.org") {
+        return 301 https://demosuperset.dalgo.org$request_uri;
+      }
   path: /
   pathType: ImplementationSpecific
   hosts:
-    - chart-example.local
+    - demosuperset.dalgo.org
   tls: []
   extraHostsRaw: []
   #  - secretName: chart-example-tls
