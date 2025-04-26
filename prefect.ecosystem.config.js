@@ -64,7 +64,10 @@ module.exports = {
         {
             max_restarts: 5,
             name: 'prefect-server',
-            script: 'source /home/ddp/prefect-proxy/.venv/bin/activate && GOOGLE_APPLICATION_CREDENTIALS="/home/ddp/secrets/dummy.json" prefect server start',
+            script: '/home/ddp/prefect-proxy/.venv/bin/prefect server start',
+            env: {
+                "GOOGLE_APPLICATION_CREDENTIALS": "/home/ddp/secrets/dummy.json"
+            }
         },
         {
             max_restarts: 5,
