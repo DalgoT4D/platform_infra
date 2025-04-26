@@ -226,6 +226,7 @@ ingress:
   annotations:
     # kubernetes.io/tls-acme: "true"
     ## Extend timeout to allow long running queries.
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
@@ -237,7 +238,10 @@ ingress:
   pathType: ImplementationSpecific
   hosts:
     - demosuperset.dalgo.org
-  tls: []
+  tls:
+    - hosts:
+        - demosuperset.dalgo.org
+      secretName: demosuperset-tls
   extraHostsRaw: []
   #  - secretName: chart-example-tls
   #    hosts:
