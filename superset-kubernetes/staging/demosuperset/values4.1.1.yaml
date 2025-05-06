@@ -230,10 +230,10 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
-    nginx.ingress.kubernetes.io/server-snippet: |
-      if ($host = "demosuperset.dalgo.org") {
-        return 301 https://demosuperset.dalgo.org$request_uri;
-      }
+    # nginx.ingress.kubernetes.io/server-snippet: |
+    #   if ($host = "demosuperset.dalgo.org") {
+    #     return 301 https://demosuperset.dalgo.org$request_uri;
+    #   }
   path: /
   pathType: ImplementationSpecific
   hosts:

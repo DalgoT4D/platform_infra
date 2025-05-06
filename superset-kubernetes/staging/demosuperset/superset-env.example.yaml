@@ -15,6 +15,7 @@ stringData:
 
   # app
   SUPERSET_SECRET_KEY: 
+  APPLICATION_HOST: "example.com"
 
   # redis
   REDIS_CELERY_DB: "0"
