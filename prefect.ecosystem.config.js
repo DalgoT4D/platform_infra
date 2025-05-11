@@ -23,32 +23,17 @@ module.exports = {
         },
         {
             max_restarts: 5,
-            name: 'prefect-worker-manual-dbt',
+            name: 'prefect-worker-manual-dbt-1',
             script: 'PREFECT_API_URL="http://localhost:4200/api" /home/ddp/prefect-proxy/.venv/bin/prefect worker start --work-queue manual-dbt --pool prod_dalgo_work_pool --limit 1',
         },
         {
             max_restarts: 5,
-            name: 'prefect-worker-manual-dbt',
+            name: 'prefect-worker-manual-dbt-2',
             script: 'PREFECT_API_URL="http://localhost:4200/api" /home/ddp/prefect-proxy/.venv/bin/prefect worker start --work-queue manual-dbt --pool prod_dalgo_work_pool --limit 1',
         },
         {
             max_restarts: 5,
-            name: 'prefect-worker-manual-dbt',
-            script: 'PREFECT_API_URL="http://localhost:4200/api" /home/ddp/prefect-proxy/.venv/bin/prefect worker start --work-queue manual-dbt --pool prod_dalgo_work_pool --limit 1',
-        },
-        {
-            max_restarts: 5,
-            name: 'prefect-worker-manual-dbt',
-            script: 'PREFECT_API_URL="http://localhost:4200/api" /home/ddp/prefect-proxy/.venv/bin/prefect worker start --work-queue manual-dbt --pool prod_dalgo_work_pool --limit 1',
-        },
-        {
-            max_restarts: 5,
-            name: 'prefect-worker-manual-dbt',
-            script: 'PREFECT_API_URL="http://localhost:4200/api" /home/ddp/prefect-proxy/.venv/bin/prefect worker start --work-queue manual-dbt --pool prod_dalgo_work_pool --limit 1',
-        },
-        {
-            max_restarts: 5,
-            name: 'prefect-worker-manual-dbt',
+            name: 'prefect-worker-manual-dbt-3',
             script: 'PREFECT_API_URL="http://localhost:4200/api" /home/ddp/prefect-proxy/.venv/bin/prefect worker start --work-queue manual-dbt --pool prod_dalgo_work_pool --limit 1',
         },
         {
