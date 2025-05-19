@@ -1,6 +1,6 @@
 server {
 
-    server_name dashboard.dalgo.in;
+    server_name dashboard.dalgo.org;
 
     location / {
         proxy_pass http://localhost:3000;
@@ -9,7 +9,7 @@ server {
 }
 server {
 
-    server_name api.dalgo.in;
+    server_name api.dalgo.org;
 
     location /wss/ {
         proxy_pass http://localhost:8002;

@@ -1,3 +1,7 @@
 [
-    { "port": 9990, "priority": 110, "header": "mydemongo2.dalgo.in" }
+    {
+        "port": 9990,
+        "priority": 110,
+        "header": "mydemongo2.dalgo.org"
+    }
 ]
