@@ -125,7 +125,7 @@ new port, rule priority and host header write into neworg.json file as shown bel
 
 
 [
-    { "port": 9990, "priority": 110, "header": "mydemongo2.dalgo.in" }
+    { "port": 9990, "priority": 110, "header": "mydemongo2.dalgo.org" }
 ]
 
 
@@ -133,14 +133,14 @@ So if you want to add another org, just add another json entry.
 
 
 [
-    { "port": 9990, "priority": 110, "header": "mydemongo2.dalgo.in" },
-    { "port": 8883, "priority": 120, "header": "mydemongo4.dalgo.in" }
+    { "port": 9990, "priority": 110, "header": "mydemongo2.dalgo.org" },
+    { "port": 8883, "priority": 120, "header": "mydemongo4.dalgo.org" }
 ]
 
 
 Similarly if you want to delete an entry, remove a specific json entry.
 [
-    { "port": 9990, "priority": 110, "header": "mydemongo2.dalgo.in" },
+    { "port": 9990, "priority": 110, "header": "mydemongo2.dalgo.org" },
 ]
 
 
