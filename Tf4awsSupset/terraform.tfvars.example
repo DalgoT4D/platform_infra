@@ -44,7 +44,7 @@ alb_name      = "XXXX-XXXX"
 cur_vpc       = "vpc-XXXXXXXXXX"
 neworg_port   = 9990
 appli_ec2     = "i-XXXXXX"
-neworg_name   = "mydemongo.dalgo.in"
+neworg_name   = "mydemongo.dalgo.org"
 rule_priority = 100
 
 # End

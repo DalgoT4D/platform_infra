@@ -153,7 +153,7 @@ resource "null_resource" "remote_build" {
 # cur_vpc       = "vpc-XXXXXXXXXXXXXXX"  (      vpc id          )
 # neworg_port   = XXXX                   (      9990            )
 # appli_ec2     = "i-XXXXXXXXXXXXXXXXX"  (  ec2 instance id     )
-# neworg_name   = "XXXXXXXXXXXXXXXXXX"   (  mydemongo.dalgo.in  )
+# neworg_name   = "XXXXXXXXXXXXXXXXXX"   (  mydemongo.dalgo.org  )
 # rule_priority = XXXX                   (      90              )
 
 # Assume region is ap-south-1 else please change as applicable
