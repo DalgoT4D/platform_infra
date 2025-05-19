@@ -236,7 +236,7 @@ provider "kubernetes" {
   host                   = aws_eks_cluster.eks_cluster.endpoint
   cluster_ca_certificate = base64decode(aws_eks_cluster.eks_cluster.certificate_authority[0].data)
   exec {
-    api_version = "v1"
+    api_version = "client.authentication.k8s.io/v1"
     args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.eks_cluster.name, "--region", var.aws_region]
     command     = "aws"
   }
@@ -303,7 +303,7 @@ resource "aws_eks_node_group" "eks_node_group" {
 
   # This AMI type matches current AMI deployed on production. Might be useful to compare other 
   # performant instance type
-  ami_type = "AL2023_ARM_64_STANDARD"
+  ami_type = "AL2023_x86_64_STANDARD"
 
 
   # Add the security group to the node group
