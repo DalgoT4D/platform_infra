@@ -5,6 +5,7 @@ map_airbyte_port="8000:localhost:8000"
 map_prefect_port="4200:localhost:4200"
 map_proxy_port="8085:localhost:8085"
 map_flower_port="5555:localhost:5555"
+map_admin_port="8501:localhost:8501"
 STG_URL=`cat staging_url.txt`
 map_staging_warehouses_port="5433:$STG_URL:5432"
 # Add more mappings as needed
@@ -30,6 +31,7 @@ print_help() {
     echo "  --map-proxy                  Map the Prefect Proxy port."
     echo "  --map-staging-warehouses     Map the RDS staging warehouses port."
     echo "  --map-flower                 Map the Celery Flower port."
+    echo "  --map-admin                  Map the Dalgo Admin port."
     echo "  --help                       Display this help message."
     # Add more options as needed
     exit 0
@@ -61,12 +63,17 @@ do
             add_port_mapping "$map_flower_port"
             shift # past argument
             ;;
+        --map-admin)
+            add_port_mapping "$map_admin_port"
+            shift # past argument
+            ;;
         --map-all)
             add_port_mapping "$map_airbyte_port"
             add_port_mapping "$map_prefect_port"
             add_port_mapping "$map_proxy_port"
             add_port_mapping "$map_staging_warehouses_port"
             add_port_mapping "$map_flower_port"
+            add_port_mapping "$map_admin_port"
             shift # past argument
             ;;
         --help)
@@ -81,7 +88,7 @@ done
 MACHINE_IP=`cat machineip.txt`
 echo "Machine IP: $MACHINE_IP"
 # Your basic SSH command
-ssh_command="ssh -i secrets/ddp ddp@$MACHINE_IP"
+ssh_command="ssh ddp@$MACHINE_IP"
 
 # Combine the SSH command with the port mappings
 full_command="$ssh_command $port_mappings"
