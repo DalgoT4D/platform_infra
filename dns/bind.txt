@@ -1,0 +1,57 @@
+; A Records
+@               IN      A       192.0.78.139
+@               IN      A       192.0.78.204
+admin           IN      A       13.202.128.47
+airbyte         IN      A       13.202.128.47
+airbyte-staging IN      A       3.6.36.75
+api             IN      A       13.202.128.47
+dashboard       IN      A       13.202.128.47
+prefect         IN      A       13.202.128.47
+prefect-staging IN      A       3.6.36.75
+staging         IN      A       3.6.36.75
+staging-api     IN      A       3.6.36.75
+
+; MX Records
+@               IN      MX 1    aspmx.l.google.com.
+@               IN      MX 5    alt1.aspmx.l.google.com.
+@               IN      MX 5    alt2.aspmx.l.google.com.
+@               IN      MX 10   alt3.aspmx.l.google.com.
+@               IN      MX 10   alt4.aspmx.l.google.com.
+
+; TXT Records
+@               IN      TXT     "google-site-verification=V540oC0O2jW9-r6L8nHfKRcCgMdaZfhFs_ce4ftYZ8Q"
+@               IN      TXT     "v=spf1 include:zcsend.in ~all"
+_dmarc          IN      TXT     "v=DMARC1; p=none;"
+32249._domainkey IN     TXT     "k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDqbVt8HSE6+rYxNAfIJCuj+4FMBe0UAOoc4L/5Ba+VyyGzr9sH8DuO9lkIl/ysxuX+MOXAWXXunGxPpWShzWd3hsPzi3wTk9b/tfCd2YJgOiIkr07M5Ug2hH8gjiYpYdAVGMJGwnNmRlhc8MPEonsZ+n7WoolRjPx8LvAfRrIO/wIDAQAB"
+
+; CNAME Records
+_domainconnect          IN      CNAME   _domainconnect.domains.squarespace.com.
+35094685                IN      CNAME   sendgrid.net.
+_6cab695ad94162bc7ba82e3aedda5fb7 IN CNAME _afea519fce5eb55ea90decda3a51ee62.zfyfvmchrl.acm-validations.aws.
+bvzzwicwibwzebshizipiith2sypzck2._domainkey IN CNAME bvzzwicwibwzebshizipiith2sypzck2.dkim.amazonses.com.
+ncukzox3fso6ibtw6hm6ivosoa4yeijh._domainkey IN CNAME ncukzox3fso6ibtw6hm6ivosoa4yeijh.dkim.amazonses.com.
+s1._domainkey           IN      CNAME   s1.domainkey.u35094685.wl186.sendgrid.net.
+s2._domainkey           IN      CNAME   s2.domainkey.u35094685.wl186.sendgrid.net.
+wngzymca62lqfjto6cylkrmtyy5efzx3._domainkey IN CNAME wngzymca62lqfjto6cylkrmtyy5efzx3.dkim.amazonses.com.
+arghyam                IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+arogyaworld            IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+atecf                  IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+authentik              IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+cmhlp                  IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+cms                    IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+demosuperset           IN      CNAME   a8f47f866373544beb4d935befdd37fb-540079391.ap-south-1.elb.amazonaws.com.
+eksmonitoring          IN      CNAME   a9744987b47974a0a99f43b6ba809887-1496287039.ap-south-1.elb.amazonaws.com.
+em297                  IN      CNAME   u35094685.wl186.sendgrid.net.
+inrem                  IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+janaagraha             IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+mad                    IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+noora                  IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+shofco                 IN      CNAME   dalgo1-1065983014.us-east-1.elb.amazonaws.com.
+sneha                  IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+status                 IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+stir                   IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+superset               IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+t4dsuperset            IN      CNAME   a8f47f866373544beb4d935befdd37fb-540079391.ap-south-1.elb.amazonaws.com.
+ummeed                 IN      CNAME   dalgo-org-954784492.ap-south-1.elb.amazonaws.com.
+url3477                IN      CNAME   sendgrid.net.
+www                    IN      CNAME   dalgo.org.
