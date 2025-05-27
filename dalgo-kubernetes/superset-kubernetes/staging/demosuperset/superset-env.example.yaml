@@ -12,10 +12,15 @@ stringData:
   DB_PORT: "5432"
   DB_USER: 
   SQLALCHEMY_DATABASE_URI:
+  BROKER_URL:
 
   # app
   SUPERSET_SECRET_KEY: 
   APPLICATION_HOST: "example.com"
+  CORS_ORIGINS: 
+  MAPBOX_API_KEY:
+  OVERRIDE_APP_ICON: 
+  APP_NAME: 
 
   # redis
   REDIS_CELERY_DB: "0"
@@ -24,3 +29,11 @@ stringData:
   REDIS_PORT: "6379"
   REDIS_PROTO: redis
   REDIS_USER: ""
+
+  # email server
+  SMTP_HOST: 
+  SMTP_PORT: 
+  SMTP_USER: 
+  SMTP_PASSWORD: 
+  SMTP_MAIL_FROM: 
+
