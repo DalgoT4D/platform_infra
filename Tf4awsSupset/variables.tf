@@ -59,3 +59,7 @@ variable "aws_session_token" {
 variable "rdsname" {
   type = string
 }
+variable "alb_sg" {
+  description = "This is the security group attached with alb"
+  type = string
+}
