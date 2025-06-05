@@ -1,6 +1,5 @@
 secrets
 secrets/
 machineip.txt
-
-.env
 .DS_Store
+.env
