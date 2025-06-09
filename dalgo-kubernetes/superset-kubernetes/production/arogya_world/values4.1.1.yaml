@@ -61,14 +61,13 @@ bootstrapScript: |
     build-essential \
     pkg-config
 
-  # Install required Python packages
-  pip install \
-    authlib \
-    psycopg2-binary \
-    mysqlclient \
-    flask_cors
+  pip uninstall -y numpy pandas
+  pip install "numpy>=1.22,<1.27" "pandas>=2.0.3,<2.1"
 
-  pip install --no-cache gevent redis celery flower pytz
+  # Install required Python packages
+  pip install mysqlclient
+
+  # pip install --no-cache gevent redis celery flower pytz
   # pip install --upgrade urllib3 requests botocore boto3 authlib python-dotenv
   # pip install --upgrade sqlalchemy-bigquery pandas_gbq google-auth
 
@@ -399,13 +398,13 @@ configOverrides:
                 "'self'",
                 app_host,
                 "https://api.mapbox.com",
-                "https://events.mapbox.com",
+                "https://events.mapbox.com"
             ],
             "frame-ancestors": [
                 "self",
                 "http://localhost:3000",
                 "https://staging.dalgo.org",
-                "https://dashboard.dalgo.org",
+                "https://dashboard.dalgo.org"
             ],
         },
     }
@@ -471,8 +470,8 @@ configMountPath: "/app/pythonpath"
 extraConfigMountPath: "/app/configs"
 
 image:
-  repository: apachesuperset.docker.scarf.sh/apache/superset
-  tag: ~
+  repository: tech4dev/superset
+  tag: 4.1.1-amd-k8
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
