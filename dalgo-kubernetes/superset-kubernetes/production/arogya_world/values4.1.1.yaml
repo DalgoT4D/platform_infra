@@ -61,6 +61,7 @@ bootstrapScript: |
     build-essential \
     pkg-config
 
+  # specific to superset 4.1.1; might change when we upgrade
   pip uninstall -y numpy pandas
   pip install "numpy>=1.22,<1.27" "pandas>=2.0.3,<2.1"
 
