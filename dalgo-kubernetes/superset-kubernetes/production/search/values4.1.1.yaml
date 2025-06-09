@@ -61,14 +61,14 @@ bootstrapScript: |
     build-essential \
     pkg-config
 
-  # Install required Python packages
-  pip install \
-    authlib \
-    psycopg2-binary \
-    mysqlclient \
-    flask_cors
+  # specific to superset 4.1.1; might change when we upgrade
+  pip uninstall -y numpy pandas
+  pip install "numpy>=1.22,<1.27" "pandas>=2.0.3,<2.1"
 
-  pip install --no-cache gevent redis celery flower pytz
+  # Install required Python packages
+  pip install mysqlclient
+
+  # pip install --no-cache gevent redis celery flower pytz
   # pip install --upgrade urllib3 requests botocore boto3 authlib python-dotenv
   # pip install --upgrade sqlalchemy-bigquery pandas_gbq google-auth
 
@@ -471,8 +471,8 @@ configMountPath: "/app/pythonpath"
 extraConfigMountPath: "/app/configs"
 
 image:
-  repository: apachesuperset.docker.scarf.sh/apache/superset
-  tag: ~
+  repository: tech4dev/superset
+  tag: 4.1.1-amd-k8
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
