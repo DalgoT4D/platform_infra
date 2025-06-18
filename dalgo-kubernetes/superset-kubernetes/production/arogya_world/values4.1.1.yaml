@@ -24,7 +24,7 @@
 # To update it, install helm-docs and run helm-docs from the root of this chart
 
 # -- Provide a name to override the name of the chart
-nameOverride: search # good place to the org/client name
+nameOverride: arogyaworld # good place to the org/client name
 # -- Provide a name to override the full names of resources
 fullnameOverride: ~
 
@@ -85,7 +85,7 @@ configFromSecret: '{{ template "superset.fullname" . }}-config'
 
 # -- The name of the secret which we will use to populate env vars in deployed pods
 # This can be useful for secret keys, etc.
-envFromSecret: superset-search-env
+envFromSecret: superset-arogyaworld-env
 # -- This can be a list of templated strings
 envFromSecrets: []
 
@@ -313,7 +313,7 @@ configOverrides:
     SMTP_MAIL_FROM = os.environ["SMTP_MAIL_FROM"]
     SMTP_SSL_SERVER_AUTH = False
 
-    WEBDRIVER_BASEURL = "http://superset-search-new-4:8088/"
+    WEBDRIVER_BASEURL = "http://superset-arogyaworld-new-4:8088/"
 
     ENABLE_CORS = True
     CORS_OPTIONS = {
@@ -399,13 +399,13 @@ configOverrides:
                 "'self'",
                 app_host,
                 "https://api.mapbox.com",
-                "https://events.mapbox.com",
+                "https://events.mapbox.com"
             ],
             "frame-ancestors": [
                 "self",
                 "http://localhost:3000",
                 "https://staging.dalgo.org",
-                "https://dashboard.dalgo.org",
+                "https://dashboard.dalgo.org"
             ],
         },
     }
@@ -503,17 +503,17 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     # nginx.ingress.kubernetes.io/server-snippet: |
-    #   if ($host = "search.dalgo.org") {
-    #     return 301 https://search.dalgo.org$request_uri;
+    #   if ($host = "arogyaworld.dalgo.org") {
+    #     return 301 https://arogyaworld.dalgo.org$request_uri;
     #   }
   path: /
   pathType: ImplementationSpecific
   hosts:
-    - search.dalgo.org
+    - arogyaworld.dalgo.org
   tls:
     - hosts:
-        - search.dalgo.org
-      secretName: search-tls
+        - arogyaworld.dalgo.org
+      secretName: arogyaworld-tls
   extraHostsRaw: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -1018,7 +1018,7 @@ init:
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": "before-hook-creation"
   loadExamples: false
-  createAdmin: true
+  createAdmin: false
   adminUser:
     username: ""
     firstname: Superset
