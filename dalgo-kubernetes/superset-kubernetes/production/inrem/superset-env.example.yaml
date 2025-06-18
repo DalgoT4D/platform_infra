@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: superset-test-superset-env  ## superset-{{ Values.nameOverride }}-env
+  name: superset-inrem-env  ## superset-{{ Values.nameOverride }}-env
   namespace: superset
 type: Opaque
 stringData:
