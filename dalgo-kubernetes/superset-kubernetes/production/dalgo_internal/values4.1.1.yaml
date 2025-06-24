@@ -338,6 +338,10 @@ configOverrides:
     SUPERSET_FEATURE_EMBEDDED_SUPERSET = True
     HTML_SANITIZATION = False
 
+    GUEST_ROLE_NAME = os.environ["GUEST_ROLE_NAME"]
+    GUEST_TOKEN_JWT_SECRET = os.environ["GUEST_ROLE_NAME"]
+    GUEST_TOKEN_JWT_EXP_SECONDS = 3600
+
     if os.getenv("ENABLE_OAUTH"):
         CSRF_ENABLED = True
         # change from AUTH_DB to AUTH_OAUTH
