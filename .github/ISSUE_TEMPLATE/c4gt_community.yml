@@ -57,7 +57,7 @@ body:
       label: Mockups/Wireframes
       description: Include links to any visual aids, mockups, wireframes, or diagrams that help illustrate what the final product should look like. This is not always necessary, but can be very helpful in many cases.
 
-  - type: input
+  - type: dropdown
     id: ticket-product
     attributes:
       label: Product Name
@@ -144,7 +144,7 @@ body:
     validations:
       required: true
 
-  - type: textarea
+  - type: dropdown
     id: ticketorg-mentors
     attributes:
       label: Organizational Mentor
