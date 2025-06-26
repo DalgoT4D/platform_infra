@@ -61,7 +61,7 @@ body:
     id: ticket-product
     attributes:
       label: Product Name
-      placeholder: Enter Product Name
+      description: Enter Product Name
       options:
         - Dalgo
     validations:
