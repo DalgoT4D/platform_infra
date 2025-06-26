@@ -150,9 +150,9 @@ body:
       label: Organizational Mentor
       description: Please tag relevant mentors for the ticket
       options:
-        - @himanshudube97
-        - @Ishankoradia
-        - @fatchat
+        - "@himanshudube97"
+        - "@Ishankoradia"
+        - "@fatchat"
     validations:
       required: true
 
