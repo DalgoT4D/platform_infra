@@ -411,6 +411,7 @@ configOverrides:
             "frame-ancestors": [
                 "self",
                 "http://localhost:3000",
+                "https://staging-new.dalgo.org",
                 "http://localhost:3001",
                 "https://staging.dalgo.org",
                 "https://dashboard.dalgo.org"
