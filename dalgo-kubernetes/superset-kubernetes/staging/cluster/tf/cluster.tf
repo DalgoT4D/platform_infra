@@ -314,6 +314,8 @@ resource "aws_eks_node_group" "eks_node_group" {
   tags = {
     Environment = "Staging"
     Product     = "Dalgo"
+    "k8s.io/cluster-autoscaler/enabled" = "true"
+    "k8s.io/cluster-autoscaler/dalgo-superset-staging-cluster" = "owned"
   }
 
 }
@@ -472,7 +474,6 @@ resource "kubernetes_deployment" "cluster_autoscaler" {
             "--cloud-provider=aws",
             "--skip-nodes-with-local-storage=false",
             "--expander=least-waste",
-            "--nodes=1:5:dalgo-superset-staging-cluster",
             "--node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/dalgo-superset-staging-cluster"
           ]
 
