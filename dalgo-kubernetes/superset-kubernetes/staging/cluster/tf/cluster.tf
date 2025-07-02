@@ -314,6 +314,8 @@ resource "aws_eks_node_group" "eks_node_group" {
   tags = {
     Environment = "Staging"
     Product     = "Dalgo"
+    "k8s.io/cluster-autoscaler/enabled" = "true"
+    "k8s.io/cluster-autoscaler/dalgo-superset-staging-cluster" = "owned"
   }
 
 }
