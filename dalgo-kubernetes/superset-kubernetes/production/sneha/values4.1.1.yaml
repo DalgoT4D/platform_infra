@@ -356,8 +356,12 @@ configOverrides:
 
         # whitelist ourselves so our clients don't need to create accounts for us on their domain
         whitelist = ["@projecttech4dev.org"]
-        if GOOGLE_WHITELISTED_DOMAIN and GOOGLE_WHITELISTED_DOMAIN != "projecttech4dev.org":
-            whitelist.append("@" + GOOGLE_WHITELISTED_DOMAIN)
+        if GOOGLE_WHITELISTED_DOMAIN:
+            for wdomain in GOOGLE_WHITELISTED_DOMAIN.split(","):
+                if wdomain != "projecttech4dev.org":
+                    whitelist.append("@" + wdomain)
+
+            
 
         OAUTH_PROVIDERS = [
             {
@@ -422,7 +426,7 @@ configOverrides:
   # if os.environ.get("CUSTOM_COLOR_PALETTE"):
   #     import client_color_palettes
 
-  #     EXTRA_CATEGORICAL_COLOR_SCHEMES = client_color_palettes.PALETTES[
+  #     GOO = client_color_palettes.PALETTES[
   #         os.environ.get("CUSTOM_COLOR_PALETTE")
   #     ]
 
