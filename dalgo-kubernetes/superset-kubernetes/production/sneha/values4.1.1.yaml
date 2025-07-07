@@ -426,7 +426,7 @@ configOverrides:
   # if os.environ.get("CUSTOM_COLOR_PALETTE"):
   #     import client_color_palettes
 
-  #     GOO = client_color_palettes.PALETTES[
+  #     EXTRA_CATEGORICAL_COLOR_SCHEMES = client_color_palettes.PALETTES[
   #         os.environ.get("CUSTOM_COLOR_PALETTE")
   #     ]
 
