@@ -53,7 +53,7 @@ serviceAccount:
 # @default -- see `values.yaml`
 bootstrapScript: |
   #!/bin/bash
-  
+
   # Install system-level dependencies
   apt-get update && apt-get install -y \
     python3-dev \
@@ -90,7 +90,8 @@ envFromSecret: superset-atecf-env
 envFromSecrets: []
 
 # -- Extra environment variables that will be passed into pods
-extraEnv: {}
+extraEnv:
+  {}
   # Different gunicorn settings, refer to the gunicorn documentation
   # https://docs.gunicorn.org/en/stable/settings.html#
   # These variables are used as Flags at the gunicorn startup
@@ -116,7 +117,8 @@ extraEnv: {}
 extraEnvRaw: []
 
 # -- Extra environment variables to pass as secrets
-extraSecretEnv: []
+extraSecretEnv:
+  []
   # MAPBOX_API_KEY: ...
   # # Google API Keys: https://console.cloud.google.com/apis/credentials
   # GOOGLE_KEY: ...
@@ -125,7 +127,8 @@ extraSecretEnv: []
   #  SUPERSET_SECRET_KEY: 'CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET'
 
 # -- Extra files to be mounted as ConfigMap on the path specified in `extraConfigMountPath`
-extraConfigs: {}
+extraConfigs:
+  {}
   # import_datasources.yaml: |
   #     databases:
   #     - allow_file_upload: true
@@ -141,7 +144,8 @@ extraConfigs: {}
 # -- Extra files to be mounted as Secrets on the path specified in `configMountPath`
 extraSecrets: {}
 
-extraVolumes: []
+extraVolumes:
+  []
   # - name: customConfig
   #   configMap:
   #     name: '{{ template "superset.fullname" . }}-custom-config'
@@ -150,7 +154,8 @@ extraVolumes: []
   #     secretName: my-secret
   #     defaultMode: 0600
 
-extraVolumeMounts: []
+extraVolumeMounts:
+  []
   # - name: customConfig
   #   mountPath: /mnt/config
   #   readOnly: true
@@ -167,7 +172,7 @@ configOverrides:
     from superset.superset_typing import CacheConfig
     from celery.schedules import crontab
     from flask_appbuilder.security.manager import AUTH_OAUTH
-    
+
     from flask_appbuilder.security.sqla.models import User
     from flask_appbuilder.security.views import UserOAuthModelView
     from sqlalchemy import Column, Text
@@ -409,15 +414,61 @@ configOverrides:
             ],
         },
     }
+    EXTRA_CATEGORICAL_COLOR_SCHEMES = [
+    {
+        "colors": [
+            '#006699', '#009DD9', '#5AAA46', '#44AAAA', '#DDAA77', '#7799BB', '#88AA77',
+            '#552288', '#5AAA46', '#CC7788', '#EEDD55', '#9977BB', '#BBAA44', '#DDCCDD'
+        ],
+        "id": 'myVisualizationColors',
+        "description": '',
+        "label": 'My Visualization Colors',
+        "isDefault": True,
+    },
+    {
+        "colors": ['#ecca00', '#ec9b00', '#ec5300', '#ec2400', '#ec0000'],
+        "id": 'arogyaVisualizationColors',
+        "description": '',
+        "label": 'Arogya world Colors',
+        "isDefault": True,
+    },
+    {
+    "colors": ['#1e90ff', '#32cd32'],
+    "id": 'arogyaVisualizationColors',
+    "description": '',
+    "label": 'Arogya World Colors',
+    "isDefault": True
+    },
+    {
+    "colors": ['#4b0082', '#1e90ff', '#32cd32', '#ff6347'],
+    "id": 'atecf1',
+    "description": '',
+    "label": 'Atecf1 World Colors',
+    "isDefault": True
+    },  
+    {
+    "colors": ['#1e90ff', '#32cd32', '#20b2aa', '#ff8c00'],
+    "id": 'atecf2',
+    "description": '',
+    "label": 'Atecf2 World Colors',
+    "isDefault": True
+    },
+    {
+    "colors": ['#4682b4', '#66cdaa', '#ffa07a', '#ffd700'],
+    "id": 'atecf3',
+    "description": '',
+    "label": 'Atecf3 World Colors',
+    "isDefault": True
+    },
+    ]
 
   # Branding
-  if os.environ.get("APP_NAME"):
-      APP_NAME = os.environ.get("APP_NAME")
+  if os.environ.get("APP_NAME"): APP_NAME = os.environ.get("APP_NAME")
 
   if os.environ.get("OVERRIDE_APP_ICON"):
-      # change the url if you want to use a custom icon
-      # below the is the default Apache Superset icon that image already has
-      APP_ICON = "/static/assets/images/superset-logo-horiz.png"
+    # change the url if you want to use a custom icon
+    # below the is the default Apache Superset icon that image already has
+    APP_ICON = "https://atecf.dalgo.org/static/assets/images/logo.png"
 
   # if os.environ.get("CUSTOM_COLOR_PALETTE"):
   #     import client_color_palettes
@@ -462,7 +513,8 @@ configOverrides:
     SECRET_KEY = os.environ.get("SUPERSET_SECRET_KEY").encode('utf-8').strip()
 
 # -- Same as above but the values are files
-configOverridesFiles: {}
+configOverridesFiles:
+  {}
   # extend_timeout: extend_timeout.py
   # enable_oauth: enable_oauth.py
 
@@ -472,7 +524,7 @@ extraConfigMountPath: "/app/configs"
 
 image:
   repository: tech4dev/superset
-  tag: atecf-custom-v2-4.1.1 
+  tag: atecf-custom-v2-4.1.1
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -485,7 +537,8 @@ initImage:
 service:
   type: ClusterIP
   port: 8088
-  annotations: {}
+  annotations:
+    {}
     # cloud.google.com/load-balancer-type: "Internal"
   loadBalancerIP: ~
   nodePort:
@@ -519,7 +572,8 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-resources: {}
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -644,7 +698,8 @@ supersetNode:
     periodSeconds: 15
     successThreshold: 1
   # -- Resource settings for the supersetNode pods - these settings overwrite might existing values from the global resources object defined above.
-  resources: {}
+  resources:
+    {}
     # limits:
     #  cpu: 100m
     #  memory: 128Mi
@@ -653,7 +708,8 @@ supersetNode:
     #  memory: 128Mi
   podSecurityContext: {}
   containerSecurityContext: {}
-  strategy: {}
+  strategy:
+    {}
     # type: RollingUpdate
     # rollingUpdate:
     #   maxSurge: 25%
@@ -714,7 +770,8 @@ supersetWorker:
   # -- Labels to be added to supersetWorker pods
   podLabels: {}
   # -- Resource settings for the supersetWorker pods - these settings overwrite might existing values from the global resources object defined above.
-  resources: {}
+  resources:
+    {}
     # limits:
     #  cpu: 100m
     #  memory: 128Mi
@@ -723,7 +780,8 @@ supersetWorker:
     #  memory: 128Mi
   podSecurityContext: {}
   containerSecurityContext: {}
-  strategy: {}
+  strategy:
+    {}
     # type: RollingUpdate
     # rollingUpdate:
     #   maxSurge: 25%
@@ -794,7 +852,8 @@ supersetCeleryBeat:
   # -- Labels to be added to supersetCeleryBeat pods
   podLabels: {}
   # -- Resource settings for the CeleryBeat pods - these settings overwrite might existing values from the global resources object defined above.
-  resources: {}
+  resources:
+    {}
     # limits:
     #  cpu: 100m
     #  memory: 128Mi
@@ -887,7 +946,8 @@ supersetCeleryFlower:
   # -- Labels to be added to supersetCeleryFlower pods
   podLabels: {}
   # -- Resource settings for the CeleryBeat pods - these settings overwrite might existing values from the global resources object defined above.
-  resources: {}
+  resources:
+    {}
     # limits:
     #  cpu: 100m
     #  memory: 128Mi
@@ -929,7 +989,7 @@ supersetWebsockets:
       "logLevel": "debug",
       "logToFile": false,
       "logFilename": "app.log",
-      "statsd": { "host": "127.0.0.1", "port": 8125, "globalTags": [] },
+      "statsd": {"host": "127.0.0.1", "port": 8125, "globalTags": []},
       "redis":
         {
           "port": 6379,
@@ -1000,7 +1060,8 @@ init:
   # cause the process to be killed due to OOM if it exceeds limit
   # Make sure you are giving a strong password for the admin user creation( else make sure you are changing after setup)
   # Also change the admin email to your own custom email.
-  resources: {}
+  resources:
+    {}
     # limits:
     #   cpu:
     #   memory:
