@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: superset-atecf-env  ## superset-{{ Values.nameOverride }}-env
+  namespace: superset
+type: Opaque
+stringData:
+  # database
+  DB_HOST: superset.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
+  DB_NAME: superset_atecf
+  DB_PASS: WI46msBALvgfMp4
+  DB_PORT: "5432"
+  DB_USER: superset_atecf
+  SQLALCHEMY_DATABASE_URI: postgresql://superset_atecf:WI46msBALvgfMp4@superset.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com/superset_atecf
+  BROKER_URL: redis://atecf-redis-headless:6379/1
+
+  # app
+  SUPERSET_SECRET_KEY: 6D3Kw6YMKjjhEhWY5UEiQyP6R8e2HWek
+  APPLICATION_HOST: "atecf.dalgo.org"
+  CORS_ORIGINS: "http://localhost,https://dashboard.dalgo.org,https://staging.dalgo.org"
+  MAPBOX_API_KEY: "pk.eyJ1Ijoic2lkZGhhbnRzaW5naCIsImEiOiJjbDYzaDlseWQwN3M0M2JwYmp1cnE4NTlvIn0.-WOm7Eq3iEsCpNCBvEUpvg"
+  OVERRIDE_APP_ICON: "1"
+  APP_NAME: "ATECF"
+
+  # redis
+  REDIS_CELERY_DB: "0"
+  REDIS_DB: "1"
+  REDIS_HOST: "atecf-redis-headless" ## "{{ .Release.Name }}-redis-headless"
+  REDIS_PORT: "6379"
+  REDIS_PROTO: redis
+  REDIS_USER: ""
+
+  # email server
+  SMTP_HOST: email-smtp.ap-south-1.amazonaws.com
+  SMTP_PORT: "587"
+  SMTP_USER: AKIAQLIYBLKFJABR6ATY
+  SMTP_PASSWORD: BC80Jc4FA8cw4noGOVW+CiLqxZhcIYGOwxg/RcnDOF1C
+  SMTP_MAIL_FROM: notifications@dalgo.in
+
