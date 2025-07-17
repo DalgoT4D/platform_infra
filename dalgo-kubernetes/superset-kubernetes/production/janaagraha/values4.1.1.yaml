@@ -205,6 +205,7 @@ configOverrides:
     SQLALCHEMY_DATABASE_URI = os.environ["SQLALCHEMY_DATABASE_URI"]
     FEATURE_FLAGS = {
         "ENABLE_TEMPLATE_PROCESSING": True,
+        "EMBEDDED_SUPERSET": True,
         "ALERT_REPORTS": True,
         "DASHBOARD_CROSS_FILTERS": True,
         "DASHBOARD_RBAC": True,
@@ -405,7 +406,10 @@ configOverrides:
                 "self",
                 "http://localhost:3000",
                 "https://staging.dalgo.org",
-                "https://dashboard.dalgo.org"
+                "https://dashboard.dalgo.org",
+                "https://dev.cityfinance.in",
+                "http://localhost:4200",
+                "http://staging.cityfinance.in"
             ],
         },
     }
