@@ -215,6 +215,7 @@ configOverrides:
         "HORIZONTAL_FILTER_BAR": True,
         "ESTIMATE_QUERY_COST": True,
         "SSH_TUNNELING": True,
+        "THUMBNAILS": True
     }
 
     # Default cache for Superset objects
@@ -257,6 +258,15 @@ configOverrides:
         "CACHE_TYPE": "RedisCache",
         "CACHE_KEY_PREFIX": "superset_explore_form_data_cache",
         "CACHE_REDIS_URL": os.environ["BROKER_URL"],
+    }
+
+    THUMBNAIL_CACHE_CONFIG: CacheConfig = {
+        "CACHE_NO_NULL_WARNING": True,
+        "CACHE_TYPE": "RedisCache",
+        "CACHE_DEFAULT_TIMEOUT": 3600,
+        "CACHE_REDIS_URL": os.environ["BROKER_URL"],
+        "CACHE_KEY_PREFIX": "thumbnails_",
+        "REFRESH_TIMEOUT_ON_RETRIEVAL": True,
     }
 
 
@@ -318,6 +328,19 @@ configOverrides:
 
     WEBDRIVER_BASEURL = "http://superset-dalgo-new-4:8088/"
 
+    WEBDRIVER_TYPE = "firefox"
+
+    WEBDRIVER_OPTION_ARGS = [
+        "--force-device-scale-factor=2.0",
+        "--high-dpi-support=2.0",
+        "--headless",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-extensions",
+    ]
+
     ENABLE_CORS = True
     CORS_OPTIONS = {
         "supports_credentials": True,
@@ -337,6 +360,10 @@ configOverrides:
     SESSION_COOKIE_SECURE = False
     SUPERSET_FEATURE_EMBEDDED_SUPERSET = True
     HTML_SANITIZATION = False
+    THUMBNAIL_ENABLED = True
+    ENABLE_JAVASCRIPT = True
+    EXPORT_PNG_ENABLED = True
+    SCREENSHOT_FEATURE_ENABLED = True
 
     GUEST_ROLE_NAME = os.environ["GUEST_ROLE_NAME"]
     GUEST_TOKEN_JWT_SECRET = os.environ["GUEST_ROLE_NAME"]
