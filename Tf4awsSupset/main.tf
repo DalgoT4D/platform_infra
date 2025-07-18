@@ -257,38 +257,18 @@ data "aws_security_group" "ec2_sg" {
   id = tolist(data.aws_instance.ec2_instance_id.vpc_security_group_ids)[0]
 }
 
-# Does not have security group id for alb as of now.
-# taking each cidr_block for each az subnet , for adding into inbound rule
-
-data "aws_subnet" "subnet_info" {
-  for_each = toset(data.aws_lb.curalb.subnets)
-  id       = each.key
+# Reference the existing security group that allows all traffic from the ALB
+data "aws_security_group" "allow_all_from_alb" {
+  id = var.alb_sg
 }
 
-
-# data "aws_security_group" "alb_sg" {
-#   # Assume alb has security_sg index 0 as we need or we can use as below given sg-234
-#   # source_security_group_id = contains(data.aws_lb.curalb.security_groups, "sg-234") ? "sg-234" : null
-#   id = tolist(data.aws_lb.curalb.security_groups)[0]
-# }
-# this should go inside resource neworg_port_inbound_rule
-# source_security_group_id = data.aws_security_group.alb_sg
-# cidr_blocks and source_security_group_id are mutually exclusive
-
-# Create inbound rule on ec2 security group for new port
-
-resource "aws_security_group_rule" "neworg_port_inbound_rule" {
-  for_each  = { for rule in local.neworg_config : rule.port => rule }
-  type      = "ingress"
-  from_port = each.value.port
-  to_port   = each.value.port
-  protocol  = "tcp"
-
-  cidr_blocks       = [for subnet in data.aws_subnet.subnet_info : subnet.cidr_block]
-  security_group_id = data.aws_security_group.ec2_sg.id
+# Attach the ALB's security group to the primary network interface of the EC2 instance. 
+resource "aws_network_interface_sg_attachment" "sg_attachment" {
+  security_group_id    = data.aws_security_group.allow_all_from_alb.id
+  network_interface_id = data.aws_instance.ec2_instance_id.network_interface_id  # Primary network interface
 }
 
-
+# Output the status
 output "status" {
   value = "Remote Docker deployment completed."
 }
