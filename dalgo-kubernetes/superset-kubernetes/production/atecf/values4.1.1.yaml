@@ -397,8 +397,8 @@ configOverrides:
     TALISMAN_CONFIG = {
         "force_https": False,  # because enabling this will break automated reports
         "content_security_policy": {
-            "style-src": ["'self'", app_host, "'unsafe-inline'"],
-            "img-src": ["'self'", app_host, "data:"],
+        "style-src": ["'self'", app_host, "'unsafe-inline'","https://fonts.googleapis.com"],
+        "img-src": ["'self'", app_host, "data:", "https://client-superset-assets.s3.ap-south-1.amazonaws.com"],
             "worker-src": ["'self'", app_host, "blob:"],
             "connect-src": [
                 "'self'",
@@ -524,7 +524,7 @@ extraConfigMountPath: "/app/configs"
 
 image:
   repository: tech4dev/superset
-  tag: atecf-custom-v2-4.1.1
+  tag: atecf-new-custom-v3-4.1.1
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
