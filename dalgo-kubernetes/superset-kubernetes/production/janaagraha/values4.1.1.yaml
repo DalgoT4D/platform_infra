@@ -409,7 +409,8 @@ configOverrides:
                 "https://dashboard.dalgo.org",
                 "https://dev.cityfinance.in",
                 "http://localhost:4200",
-                "http://staging.cityfinance.in"
+                "http://staging.cityfinance.in",
+                "https://www.cityfinance.in"
             ],
         },
     }
