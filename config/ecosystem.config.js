@@ -23,6 +23,13 @@ module.exports = {
     },
     {
       max_restarts: 5,
+      name: 'django-celery-flower',
+      cwd: '/home/ddp/DDP_backend',
+      script:
+        '/home/ddp/DDP_backend/.venv/bin/celery --broker=redis://localhost:6379 flower --port=5555',
+    },
+    {
+      max_restarts: 5,
       name: 'ddp-webapp',
       script: 'yarn start',
       cwd: '/home/ddp/webapp',
