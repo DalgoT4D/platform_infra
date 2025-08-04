@@ -327,16 +327,6 @@ configOverrides:
     SCREENSHOT_SELENIUM_HEADSTART = 3  # Seconds to wait before taking screenshot
     SCREENSHOT_SELENIUM_ANIMATION_WAIT = 5  # Wait for animations to complete_USER_FRIENDLY = ""
 
-    WEBDRIVER_TYPE = "firefox"
-
-      # Screenshot timeouts - these are the actual recognized config variables in Superset 4.1.1
-    SCREENSHOT_LOCATE_WAIT = 60  # Time to wait for elements to be located (default is 10)
-    SCREENSHOT_LOAD_WAIT = 120   # Time to wait for page to load (default is 60)
-    
-    # Additional screenshot settings
-    SCREENSHOT_SELENIUM_RETRIES = 5  # Number of retries for screenshots
-    SCREENSHOT_SELENIUM_HEADSTART = 3  # Seconds to wait before taking screenshot
-    SCREENSHOT_SELENIUM_ANIMATION_WAIT = 5  # Wait for animations to complete
 
     ENABLE_CORS = True
     CORS_OPTIONS = {
