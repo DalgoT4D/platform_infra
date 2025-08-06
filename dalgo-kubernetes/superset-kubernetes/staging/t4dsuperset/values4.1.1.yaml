@@ -502,7 +502,7 @@ supersetWorker:
 # Superset beat configuration (to trigger scheduled jobs like reports)
 supersetCeleryBeat:
   # -- This is only required if you intend to use alerts and reports
-  enabled: false
+  enabled: true
   # -- Sets the [pod disruption budget](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) for supersetCeleryBeat pods
   podDisruptionBudget:
     # -- Whether the pod disruption budget should be created
