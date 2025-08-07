@@ -631,7 +631,7 @@ hostAliases: []
 supersetNode:
   replicas:
     enabled: true
-    replicaCount: 1
+    replicaCount: 2
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -696,7 +696,15 @@ supersetNode:
   # -- Labels to be added to supersetNode deployment
   deploymentLabels: {}
   # -- Affinity to be added to supersetNode deployment
-  affinity: {}
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: noora
+          topologyKey: kubernetes.io/hostname
   # -- TopologySpreadConstrains to be added to supersetNode deployments
   topologySpreadConstraints: []
   # -- Annotations to be added to supersetNode pods
@@ -748,7 +756,7 @@ supersetNode:
 supersetWorker:
   replicas:
     enabled: true
-    replicaCount: 1
+    replicaCount: 2
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -791,7 +799,15 @@ supersetWorker:
   # -- Labels to be added to supersetWorker deployment
   deploymentLabels: {}
   # -- Affinity to be added to supersetWorker deployment
-  affinity: {}
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: noora-worker
+          topologyKey: kubernetes.io/hostname
   # -- TopologySpreadConstrains to be added to supersetWorker deployments
   topologySpreadConstraints: []
   # -- Annotations to be added to supersetWorker pods
