@@ -1014,11 +1014,7 @@ supersetWebsockets:
       # -- (int)
       http: nil
   command: []
-  resources:
-    limits:
-      ephemeral-storage: 2Gi
-    requests:
-      ephemeral-storage: 1Gi
+  resources: {}
   # -- Launch additional containers into supersetWebsockets pods
   extraContainers: []
   deploymentAnnotations: {}
