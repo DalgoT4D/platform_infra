@@ -741,9 +741,9 @@ supersetNode:
   # -- Resource settings for the supersetNode pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
     limits:
-      ephemeral-storage: 2Gi
-    requests:
       ephemeral-storage: 1Gi
+    requests:
+      ephemeral-storage: 512Mi
   podSecurityContext: {}
   containerSecurityContext: {}
   strategy: {}
