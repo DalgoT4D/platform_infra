@@ -580,7 +580,7 @@ extraConfigMountPath: "/app/configs"
 
 image:
   repository: tech4dev/superset
-  tag: 4.1.1-amd-k8
+  tag: 4.1.1_prod
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -1216,7 +1216,7 @@ postgresql:
 
   image:
     repository: tech4dev/superset
-    tag: 4.1.1-amd-k8
+    tag: 4.1.1_prod
     pullPolicy: IfNotPresent
 
   ## PostgreSQL Primary parameters
