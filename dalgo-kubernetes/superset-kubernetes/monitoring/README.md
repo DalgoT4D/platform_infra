@@ -22,3 +22,15 @@ metadata:
 ..
 
 In the role that you use, you will need to udpate the trust policy so that cluster service acount can assume the role to create volumes etc.
+
+
+# expose to https
+kubectl create secret tls grafana-tls-secret \
+  --cert=dalgo.org.ssl.pem \
+  --key=dalgo.org.ssl.key \
+  --namespace=monitoring
+
+kubectl apply -f ingress.yaml
+
+
+update the DNS record for the subdomain

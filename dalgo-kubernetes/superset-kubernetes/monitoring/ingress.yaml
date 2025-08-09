@@ -4,24 +4,21 @@ metadata:
   namespace: monitoring
   name: grafana-ingress
   annotations:
-    kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
+  ingressClassName: nginx
   tls:
-  - hosts:
-    - supersetmonit.dalgo.org
-    secretName: grafana-tls-secret
+    - hosts:
+        - supersetmonit.dalgo.org
+      secretName: grafana-tls-secret
   rules:
-  - host: supersetmonit.dalgo.org
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: prometheus-stack-grafana
-            port:
-              number: 80
+    - host: supersetmonit.dalgo.org
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: prometheus-stack-grafana
+                port:
+                  number: 80
