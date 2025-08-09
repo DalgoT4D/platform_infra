@@ -670,12 +670,12 @@ supersetNode:
   # -- Resource settings for the supersetNode pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
     requests:
-      memory: "800Mi"
-      cpu: "300m"
+      memory: "300Mi"
+      cpu: "100m"
       ephemeral-storage: 512Mi
     limits:
-      memory: "1.5Gi"
-      cpu: "1000m"
+      memory: "600Mi"
+      cpu: "300m"
       ephemeral-storage: 1Gi
   podSecurityContext: {}
   containerSecurityContext: {}
@@ -750,12 +750,12 @@ supersetWorker:
   # -- Resource settings for the supersetWorker pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
     requests:
-      memory: "400Mi"
-      cpu: "200m"
+      memory: "200Mi"
+      cpu: "50m"
       ephemeral-storage: 1Gi
     limits:
-      memory: "800Mi"
-      cpu: "500m"
+      memory: "500Mi"
+      cpu: "200m"
       ephemeral-storage: 2Gi
   podSecurityContext: {}
   containerSecurityContext: {}
@@ -832,12 +832,12 @@ supersetCeleryBeat:
   # -- Resource settings for the CeleryBeat pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
     requests:
-      memory: "200Mi"
-      cpu: "100m"
+      memory: "100Mi"
+      cpu: "25m"
       ephemeral-storage: 500Mi
     limits:
-      memory: "400Mi"
-      cpu: "200m"
+      memory: "200Mi"
+      cpu: "100m"
       ephemeral-storage: 1Gi
   podSecurityContext: {}
   containerSecurityContext: {}
