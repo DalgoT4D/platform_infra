@@ -754,12 +754,12 @@ supersetNode:
   # -- Resource settings for the supersetNode pods - these settings overwrite might existing values from the global resources object defined above.
   resources: 
     requests:
-      memory: "300Mi"
-      cpu: "100m"
+      memory: "500Mi"
+      cpu: "200m"
       ephemeral-storage: 512Mi
     limits:
-      memory: "600Mi"
-      cpu: "300m"
+      memory: "1200Mi"
+      cpu: "600m"
       ephemeral-storage: 1Gi
     # limits:
     #  cpu: 100m
@@ -832,11 +832,11 @@ supersetWorker:
   # -- Resource settings for the supersetWorker pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
     requests:
-      memory: "200Mi"
-      cpu: "50m"
+      memory: "300Mi"
+      cpu: "100m"
     limits:
-      memory: "500Mi"
-      cpu: "200m"
+      memory: "800Mi"
+      cpu: "400m"
   podSecurityContext: {}
   containerSecurityContext: {}
   strategy: {}
@@ -867,7 +867,7 @@ supersetWorker:
 # Superset beat configuration (to trigger scheduled jobs like reports)
 supersetCeleryBeat:
   # -- This is only required if you intend to use alerts and reports
-  enabled: false
+  enabled: true
   # -- Sets the [pod disruption budget](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) for supersetCeleryBeat pods
   podDisruptionBudget:
     # -- Whether the pod disruption budget should be created
@@ -912,11 +912,11 @@ supersetCeleryBeat:
   # -- Resource settings for the CeleryBeat pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
     requests:
-      memory: "100Mi"
-      cpu: "25m"
+      memory: "150Mi"
+      cpu: "50m"
     limits:
-      memory: "200Mi"
-      cpu: "100m"
+      memory: "400Mi"
+      cpu: "200m"
   podSecurityContext: {}
   containerSecurityContext: {}
   # -- Set priorityClassName for CeleryBeat pods
