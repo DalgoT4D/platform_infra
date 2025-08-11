@@ -779,11 +779,13 @@ supersetWorker:
   # -- Resource settings for the supersetWorker pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
     requests:
-      memory: "300Mi"
-      cpu: "100m"
+      memory: "1Gi"
+      cpu: "500m"
+      ephemeral-storage: 1Gi
     limits:
-      memory: "800Mi"
-      cpu: "400m"
+      memory: "2Gi"
+      cpu: "1000m"
+      ephemeral-storage: 2Gi
   podSecurityContext: {}
   containerSecurityContext: {}
   strategy:
