@@ -699,7 +699,14 @@ supersetNode:
     successThreshold: 1
   # -- Resource settings for the supersetNode pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
-    {}
+    requests:
+      memory: "500Mi"
+      cpu: "200m"
+      ephemeral-storage: 1Gi
+    limits:
+      memory: "1200Mi"
+      cpu: "600m"
+      ephemeral-storage: 2Gi
     # limits:
     #  cpu: 100m
     #  memory: 128Mi
@@ -771,13 +778,14 @@ supersetWorker:
   podLabels: {}
   # -- Resource settings for the supersetWorker pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
-    {}
-    # limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 128Mi
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+      ephemeral-storage: 1Gi
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+      ephemeral-storage: 2Gi
   podSecurityContext: {}
   containerSecurityContext: {}
   strategy:
@@ -809,7 +817,7 @@ supersetWorker:
 # Superset beat configuration (to trigger scheduled jobs like reports)
 supersetCeleryBeat:
   # -- This is only required if you intend to use alerts and reports
-  enabled: false
+  enabled: true
   # -- Sets the [pod disruption budget](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) for supersetCeleryBeat pods
   podDisruptionBudget:
     # -- Whether the pod disruption budget should be created
@@ -853,13 +861,12 @@ supersetCeleryBeat:
   podLabels: {}
   # -- Resource settings for the CeleryBeat pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
-    {}
-    # limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 128Mi
+    requests:
+      memory: "150Mi"
+      cpu: "50m"
+    limits:
+      memory: "400Mi"
+      cpu: "200m"
   podSecurityContext: {}
   containerSecurityContext: {}
   # -- Set priorityClassName for CeleryBeat pods
