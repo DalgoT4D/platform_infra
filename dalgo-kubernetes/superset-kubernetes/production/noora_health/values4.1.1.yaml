@@ -212,6 +212,7 @@ configOverrides:
         "HORIZONTAL_FILTER_BAR": True,
         "ESTIMATE_QUERY_COST": True,
         "SSH_TUNNELING": True,
+        "ALERT_REPORT_SLACK_V2": True,
     }
 
     # Default cache for Superset objects
@@ -259,6 +260,8 @@ configOverrides:
 
     REDIS_HOST = os.environ["REDIS_HOST"]
     REDIS_PORT = "6379"
+
+    SLACK_API_TOKEN = os.environ["SLACK_API_TOKEN"]
 
 
     class CeleryConfig:  # pylint: disable=too-few-public-methods
@@ -821,12 +824,12 @@ supersetWorker:
   # -- Resource settings for the supersetWorker pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
     requests:
-      memory: "300Mi"
-      cpu: "100m"
+      memory: "1Gi"
+      cpu: "500m"
       ephemeral-storage: 1Gi
     limits:
-      memory: "800Mi"
-      cpu: "400m"
+      memory: "2Gi"
+      cpu: "1000m"
       ephemeral-storage: 2Gi
   podSecurityContext: {}
   containerSecurityContext: {}
