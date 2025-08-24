@@ -263,6 +263,9 @@ configOverrides:
 
     SLACK_API_TOKEN = os.environ["SLACK_API_TOKEN"]
 
+    SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = 10 * 1024 * 1024 # 10 MB
+
+
 
     class CeleryConfig:  # pylint: disable=too-few-public-methods
         broker_url = os.environ["BROKER_URL"]

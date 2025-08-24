@@ -468,7 +468,7 @@ configOverrides:
   if os.environ.get("OVERRIDE_APP_ICON"):
     # change the url if you want to use a custom icon
     # below the is the default Apache Superset icon that image already has
-    APP_ICON = "https://atecf.dalgo.org/static/assets/images/logo.png"
+    APP_ICON = "https://client-superset-assets.s3.ap-south-1.amazonaws.com/atecf/logo.png"
 
   # if os.environ.get("CUSTOM_COLOR_PALETTE"):
   #     import client_color_palettes
