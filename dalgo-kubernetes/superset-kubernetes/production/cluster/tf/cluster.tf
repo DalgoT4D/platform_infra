@@ -298,7 +298,7 @@ resource "aws_eks_node_group" "eks_node_group" {
   scaling_config {
     desired_size = 1
     min_size     = 1
-    max_size     = 5
+    max_size     = 10
   }
 
   # This AMI type matches current AMI deployed on production. Might be useful to compare other 
