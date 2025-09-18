@@ -560,7 +560,7 @@ hostAliases: []
 supersetNode:
   replicas:
     enabled: true
-    replicaCount: 1
+    replicaCount: 2
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -625,7 +625,15 @@ supersetNode:
   # -- Labels to be added to supersetNode deployment
   deploymentLabels: {}
   # -- Affinity to be added to supersetNode deployment
-  affinity: {}
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: sneha
+          topologyKey: kubernetes.io/hostname
   # -- TopologySpreadConstrains to be added to supersetNode deployments
   topologySpreadConstraints: []
   # -- Annotations to be added to supersetNode pods
@@ -661,9 +669,13 @@ supersetNode:
     successThreshold: 1
   # -- Resource settings for the supersetNode pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
-    limits:
-      ephemeral-storage: 2Gi
     requests:
+      memory: "500Mi"
+      cpu: "200m"
+      ephemeral-storage: 512Mi
+    limits:
+      memory: "1200Mi"
+      cpu: "600m"
       ephemeral-storage: 1Gi
   podSecurityContext: {}
   containerSecurityContext: {}
@@ -677,7 +689,7 @@ supersetNode:
 supersetWorker:
   replicas:
     enabled: true
-    replicaCount: 1
+    replicaCount: 2
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -720,7 +732,15 @@ supersetWorker:
   # -- Labels to be added to supersetWorker deployment
   deploymentLabels: {}
   # -- Affinity to be added to supersetWorker deployment
-  affinity: {}
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: sneha-worker
+          topologyKey: kubernetes.io/hostname
   # -- TopologySpreadConstrains to be added to supersetWorker deployments
   topologySpreadConstraints: []
   # -- Annotations to be added to supersetWorker pods
@@ -729,10 +749,14 @@ supersetWorker:
   podLabels: {}
   # -- Resource settings for the supersetWorker pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
-    limits:
-      ephemeral-storage: 2Gi
     requests:
+      memory: "1Gi"
+      cpu: "500m"
       ephemeral-storage: 1Gi
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+      ephemeral-storage: 2Gi
   podSecurityContext: {}
   containerSecurityContext: {}
   strategy: {}
@@ -807,10 +831,14 @@ supersetCeleryBeat:
   podLabels: {}
   # -- Resource settings for the CeleryBeat pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
-    limits:
-      ephemeral-storage: 1Gi
     requests:
+      memory: "150Mi"
+      cpu: "50m"
       ephemeral-storage: 500Mi
+    limits:
+      memory: "400Mi"
+      cpu: "200m"
+      ephemeral-storage: 1Gi
   podSecurityContext: {}
   containerSecurityContext: {}
   # -- Set priorityClassName for CeleryBeat pods
