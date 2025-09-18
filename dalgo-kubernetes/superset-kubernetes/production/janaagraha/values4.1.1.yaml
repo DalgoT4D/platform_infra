@@ -213,6 +213,7 @@ configOverrides:
         "HORIZONTAL_FILTER_BAR": True,
         "ESTIMATE_QUERY_COST": True,
         "SSH_TUNNELING": True,
+        "ENABLE_JAVASCRIPT_CONTROLS": True,
     }
 
     # Default cache for Superset objects

@@ -344,6 +344,7 @@ configOverrides:
         ],
         "origins": [os.environ["CORS_ORIGINS"].split(",")],
     }
+    AUTH_USER_REGISTRATION = True
 
     SESSION_COOKIE_SAMESITE = None
     SESSION_COOKIE_SECURE = False
