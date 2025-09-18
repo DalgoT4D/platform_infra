@@ -341,6 +341,11 @@ configOverrides:
     SUPERSET_FEATURE_EMBEDDED_SUPERSET = True
     HTML_SANITIZATION = False
 
+    AUTH_USER_REGISTRATION = True
+    AUTH_USER_REGISTRATION_ROLE = "Gamma"
+
+    RECAPTCHA_ENABLED = False
+
     if os.getenv("ENABLE_OAUTH"):
         CSRF_ENABLED = True
         # change from AUTH_DB to AUTH_OAUTH
