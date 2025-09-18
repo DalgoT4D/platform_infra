@@ -207,6 +207,8 @@ configOverrides:
         "ENABLE_TEMPLATE_PROCESSING": True,
         "ALERT_REPORTS": True,
         "DASHBOARD_CROSS_FILTERS": True,
+        "DASHBOARD_NATIVE_FILTERS": True,
+        "DASHBOARD_NATIVE_FILTERS_SET": True,
         "DASHBOARD_RBAC": True,
         "DRILL_TO_DETAIL": True,
         "HORIZONTAL_FILTER_BAR": True,
@@ -394,6 +396,10 @@ configOverrides:
                 },
             }
         ]
+
+    # public dashboard
+    AUTH_ROLE_PUBLIC = 'Public'
+    PUBLIC_ROLE_LIKE = 'Gamma'
 
 
     MAPBOX_API_KEY = os.getenv("MAPBOX_API_KEY")
