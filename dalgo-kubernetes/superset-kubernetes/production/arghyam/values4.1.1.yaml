@@ -657,7 +657,15 @@ supersetNode:
     periodSeconds: 15
     successThreshold: 1
   # -- Resource settings for the supersetNode pods - these settings overwrite might existing values from the global resources object defined above.
-  resources: {}
+  resources:
+    requests:
+      memory: "500Mi"
+      cpu: "200m"
+      ephemeral-storage: 512Mi
+    limits:
+      memory: "1200Mi"
+      cpu: "600m"
+      ephemeral-storage: 1Gi
     # limits:
     #  cpu: 100m
     #  memory: 128Mi
@@ -727,13 +735,15 @@ supersetWorker:
   # -- Labels to be added to supersetWorker pods
   podLabels: {}
   # -- Resource settings for the supersetWorker pods - these settings overwrite might existing values from the global resources object defined above.
-  resources: {}
-    # limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 128Mi
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+      ephemeral-storage: 1Gi
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+      ephemeral-storage: 2Gi
   podSecurityContext: {}
   containerSecurityContext: {}
   strategy: {}
@@ -807,13 +817,13 @@ supersetCeleryBeat:
   # -- Labels to be added to supersetCeleryBeat pods
   podLabels: {}
   # -- Resource settings for the CeleryBeat pods - these settings overwrite might existing values from the global resources object defined above.
-  resources: {}
-    # limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 128Mi
+  resources:
+    requests:
+      memory: "150Mi"
+      cpu: "50m"
+    limits:
+      memory: "400Mi"
+      cpu: "200m"
   podSecurityContext: {}
   containerSecurityContext: {}
   # -- Set priorityClassName for CeleryBeat pods
