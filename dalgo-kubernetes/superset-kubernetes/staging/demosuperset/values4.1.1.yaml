@@ -207,8 +207,8 @@ configOverrides:
         "HORIZONTAL_FILTER_BAR": True,
         "ESTIMATE_QUERY_COST": True,
         "SSH_TUNNELING": True,
+        "FAB_ADD_SECURITY_API": True
     }
-
     # Default cache for Superset objects
     CACHE_CONFIG: CacheConfig = {
         "CACHE_DEFAULT_TIMEOUT": 3600,
