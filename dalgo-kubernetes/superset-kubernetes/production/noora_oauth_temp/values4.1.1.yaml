@@ -358,6 +358,12 @@ configOverrides:
         # The default user self registration role
         AUTH_USER_REGISTRATION_ROLE = "Gamma"
 
+        AUTH_USER_REGISTRATION_ROLE_JMESPATH = """
+            ends_with(email, '@projecttech4dev.org') && 'Tech4Dev' ||
+            ends_with(email, '@gmail.com') && 'Data Analysis' ||
+            'Public'
+        """
+
         # without this the redirect_url will be "http" and will therefore not match the url
         # provided in the google cloud console
         ENABLE_PROXY_FIX = True
