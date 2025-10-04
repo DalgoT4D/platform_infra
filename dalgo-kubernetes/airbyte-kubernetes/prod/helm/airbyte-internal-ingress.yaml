@@ -10,7 +10,6 @@ metadata:
     # Create INTERNAL load balancer (not internet-facing)
     alb.ingress.kubernetes.io/scheme: internal
     # Auto-discover private subnets for internal load balancer (should work now with proper tags)
-    # alb.ingress.kubernetes.io/subnets: subnet-08e4502bf3a55222b, subnet-07578870c36500e08
     alb.ingress.kubernetes.io/subnets: auto
     # Use IP targets for better performance with pods
     alb.ingress.kubernetes.io/target-type: ip
