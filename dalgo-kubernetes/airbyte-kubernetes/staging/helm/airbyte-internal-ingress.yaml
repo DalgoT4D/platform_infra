@@ -1,0 +1,46 @@
+# Internal Load Balancer with path-based routing
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: airbyte-internal-ingress
+  namespace: airbyte
+  annotations:
+    # Explicitly use AWS Load Balancer Controller
+    kubernetes.io/ingress.class: alb
+    # Create INTERNAL load balancer (not internet-facing)
+    alb.ingress.kubernetes.io/scheme: internal
+    # Auto-discover private subnets for internal load balancer (should work now with proper tags)
+    alb.ingress.kubernetes.io/subnets: subnet-08e4502bf3a55222b, subnet-07578870c36500e08
+    # Use IP targets for better performance with pods
+    alb.ingress.kubernetes.io/target-type: ip
+    # Connection timeout (30 minutes)
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=1800
+    # Health check settings
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '30'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '3'
+spec:
+  # Use AWS Load Balancer Controller (not nginx)
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          # Route /api/v1/connector* to connector-builder-server
+          - path: /api/v1/connector_builder/
+            pathType: Prefix
+            backend:
+              service:
+                name: airbyte-airbyte-connector-builder-server-svc
+                port:
+                  number: 80
+          # Route everything else to server
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: airbyte-airbyte-server-svc
+                port:
+                  number: 8001
