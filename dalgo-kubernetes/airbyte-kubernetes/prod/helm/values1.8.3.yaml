@@ -5,9 +5,7 @@
 global:
   # -- Service Account name override
   serviceAccountName: &service-account-name "airbyte-admin"
-  # -- Deployment mode, whether or not render the default env vars and volumes in deployment spec
-  deploymentMode: "oss"
-  # -- Edition; "community" or "pro"
+  # -- Edition; "community" or "enterprise"
   edition: "community"
   autoDisableFailingConnections: false
 
@@ -78,7 +76,7 @@ global:
     secretName: "airbyte-config-secrets" # e.g. "airbyte-config-secrets"
 
     # -- The database host
-    host: "ddp-staging-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com"
+    host: "airbyte-prod-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com"
 
     # -- The database port
     port: 5432
@@ -110,7 +108,7 @@ global:
     s3:
      region: "ap-south-1" ## e.g. us-east-1
      authenticationType: credentials ## Use "credentials" or "instanceProfile"
-    # GCS
+  # GCS
     #bucket: ## GCS bucket names that you've created. We recommend storing the following all in one bucket.
     #  log: airbyte-bucket
     #  state: airbyte-bucket
@@ -136,10 +134,17 @@ global:
       projectId: "ddp-ui-95e38"
       credentialsSecretKey: gcp.json
   metrics:
-    # -- The metric client to configure globally. Supports "otel"
-    metricClient: ""
-    # -- The open-telemetry-collector endpoint that metrics will be sent to
-    otelCollectorEndpoint: ""
+    enabled: "false"
+    step: ""
+    otlp:
+      enabled: "false"
+      # -- The open-telemetry-collector endpoint that metrics will be sent to
+      collectorEndpoint: ""
+    statsd:
+      enabled: "false"
+      flavor: ""
+      host: ""
+      port: ""
 
   # Jobs resource requests and limits, see http://kubernetes.io/docs/user-guide/compute-resources/
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -216,7 +221,7 @@ version: ""
 ## @section Webapp Parameters
 
 webapp:
-  enabled: true
+  enabled: false
   # -- Number of webapp replicas
   replicaCount: 1
 
@@ -344,11 +349,9 @@ webapp:
   api:
     # -- The webapp API url
     url: /api/v1/
-  connector-builder-server:
-    url: /connector-builder-api
 
   fullstory:
-    # -- Whether or not to enable fullstory
+    # -- Whether to enable fullstory
     enabled: false
 
   ## Examples (when using `webapp.containerSecurityContext.readOnlyRootFilesystem=true`):
@@ -439,106 +442,6 @@ webapp:
   ##   DATABASE_PORT: 5432
   # -- Supply extra env variables to main container using simplified notation
   env_vars: {}
-
-## @section Pod Sweeper parameters
-
-pod-sweeper:
-  enabled: true
-  image:
-    # -- The image repository to use for the pod sweeper
-    repository: airbyte/pod-sweeper
-
-  # -- Add extra annotations to the podSweeper pod
-  podAnnotations: {}
-
-  # -- Add extra labels to the podSweeper pod
-  podLabels: {}
-
-  # -- Security context for the container
-  podSecurityContext:
-    fsGroup: 1000
-
-  containerSecurityContext:
-    allowPrivilegeEscalation: false 
-    runAsNonRoot: true
-    runAsUser: 1000
-    runAsGroup: 1000
-    readOnlyRootFilesystem: false
-    capabilities:
-      drop: ["ALL"]
-    seccompProfile:
-      type: RuntimeDefault
-
-  livenessProbe:
-    # -- Enable livenessProbe on the podSweeper
-    enabled: true
-    # -- Initial delay seconds for livenessProbe
-    initialDelaySeconds: 5
-    # -- Period seconds for livenessProbe
-    periodSeconds: 30
-    # -- Timeout seconds for livenessProbe
-    timeoutSeconds: 1
-    # -- Failure threshold for livenessProbe
-    failureThreshold: 3
-    # -- Success threshold for livenessProbe
-    successThreshold: 1
-
-  readinessProbe:
-    # -- Enable readinessProbe on the podSweeper
-    enabled: true
-    # -- Initial delay seconds for readinessProbe
-    initialDelaySeconds: 5
-    # -- Period seconds for readinessProbe
-    periodSeconds: 30
-    # -- Timeout seconds for readinessProbe
-    timeoutSeconds: 1
-    # -- Failure threshold for readinessProbe
-    failureThreshold: 3
-    # -- Success threshold for readinessProbe
-    successThreshold: 1
-
-  ## Pod Sweeper app resource requests and limits
-  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
-  ## We usually recommend not to specify default resources and to leave this as a conscious
-  ## choice for the user. This also increases chances charts run on environments with little
-  ## resources, such as Minikube. If you do want to specify resources, uncomment the following
-  ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  resources:
-    ## Example:
-    ## limits:
-    ##    cpu: 200m
-    ##    memory: 1Gi
-    # -- The resources limits for the podSweeper container
-    limits: {}
-    ## Examples:
-    ## requests:
-    ##    memory: 256Mi
-    ##    cpu: 250m
-    # -- The requested resources for the podSweeper container
-    requests: {}
-
-  # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
-  nodeSelector: {}
-
-  # -- Tolerations for pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
-  tolerations: []
-
-  # -- Affinity and anti-affinity for pod assignment, see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
-  affinity: {}
-
-  ## Examples:
-  ## extraVolumeMounts:
-  ##   - name: tmpdir
-  ##     mountPath: /tmp
-  # -- Additional volumeMounts for podSweeper container(s).
-  extraVolumeMounts: []
-
-  ## Examples:
-  ## extraVolumes:
-  ##   - name: tmpdir
-  ##     emptyDir: {}
-  # -- Additional volumes for podSweeper pod(s).
-  extraVolumes: []
 
 ## @section Server parameters
 
@@ -709,6 +612,10 @@ server:
         secretKeyRef:
           name: airbyte-config-secrets
           key: S3_LOG_BUCKET
+    - name: HTTP_IDLE_TIMEOUT  
+      value: 20m  
+    - name: READ_TIMEOUT  
+      value: 30m
   ## Example: (With default env vars and values taken from generated config map)
   # extraEnv:
   #   - name: AIRBYTE_VERSION
@@ -751,7 +658,7 @@ server:
   ##   DATABASE_PORT: 5432
   # -- Supply extra env variables to main container using simplified notation
   env_vars: 
-    DATABASE_HOST: ddp-staging-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
+    DATABASE_HOST: airbyte-prod-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
     DATABASE_PORT: "5432"
 
 ## @section Worker Parameters
@@ -901,7 +808,7 @@ worker:
           name: airbyte-config-secrets
           key: S3_LOG_BUCKET
     - name: MAX_SYNC_WORKERS
-      value: "5"
+      value: "4"
     - name: MAX_CHECK_WORKERS
       value: "5"
     - name: MAX_SPEC_WORKERS
@@ -1101,6 +1008,11 @@ workload-launcher:
     # -- Workload init image
     # This is a template string that will be passed to the "tpl" helper.
     image: "airbyte/workload-init-container:{{ default .Chart.AppVersion .Values.global.image.tag }}"
+
+  connectorProfiler:
+    # -- Workload init image
+    # This is a template string that will be passed to the "tpl" helper.
+    image: "airbyte/async-profiler:{{ default .Chart.AppVersion .Values.global.image.tag }}"
 
   ## current no exist documentations
   activityMaxAttempt: ""
@@ -1509,7 +1421,7 @@ temporal:
     # -- The pull policy for the temporal image
     pullPolicy: IfNotPresent
     # -- The temporal image tag to use
-    tag: "1.26"
+    tag: "1.27.2"
 
   service:
     # -- The Kubernetes Service Type
@@ -1544,7 +1456,7 @@ temporal:
   ## Examples (when using `temporal.containerSecurityContext.readOnlyRootFilesystem=true`):
   ## extraInitContainers:
   ##   - name: config-loader
-  ##     image: temporalio/auto-setup:1.23
+  ##     image: temporalio/auto-setup:1.27.2
   ##     command:
   ##       - /bin/sh
   ##       - -c
@@ -1581,6 +1493,10 @@ temporal:
   ##   value: "key=sample-value"
   # -- Additional env vars for temporal pod(s).
   extraEnv:
+    - name: BIND_ON_IP
+      value: "0.0.0.0"
+    - name: TEMPORAL_BROADCAST_ADDRESS
+      value: "0.0.0.0"
     - name: POSTGRES_USER
       valueFrom:
         secretKeyRef:
@@ -1823,25 +1739,6 @@ postgresql:
   # -- Affinity and anti-affinity for postgresql pod assignment, see
   # https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
-
-# External PostgreSQL configuration, All of these values are only used when postgresql.enabled is set to false
-externalDatabase:
-  # -- Database host
-  host: "ddp-staging-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com"
-  # -- non-root Username for Airbyte Database
-  user: "airbyte_user"
-  # -- Database password
-  password: ""
-  # -- Name of an existing secret resource containing the DB password
-  existingSecret: "airbyte-config-secrets"
-  # -- Name of an existing secret key containing the DB password
-  existingSecretPasswordKey: "database-password"
-  # -- Database name
-  database: "airbyte"
-  # -- Database port number
-  port: 5432
-  # -- Database full JDBL URL (ex: jdbc:postgresql://host:port/db?parameters)
-  jdbcUrl: ""
 
 minio:
   image:
@@ -2484,4 +2381,4 @@ featureflag-server:
 testWebapp:
   image:
     repository: airbyte/airbyte-base-java-image
-    tag: 3.3.1
+    tag: 3.3.7
