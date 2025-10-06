@@ -359,8 +359,13 @@ configOverrides:
         AUTH_USER_REGISTRATION_ROLE = "Gamma"
 
         AUTH_USER_REGISTRATION_ROLE_JMESPATH = """
-            ends_with(email, '@projecttech4dev.org') && 'Tech4Dev' ||
-            ends_with(email, '@gmail.com') && 'Data Analysis' ||
+            ends_with(email, '@noorahealth.org') && 'default_noora' ||
+            ends_with(email, '@yosaid.org') && 'default_noora' ||
+            ends_with(email, '@assra4u.org') && 'default_noora' ||
+            ends_with(email, '@agency.fund') && 'default_noora' ||
+            ends_with(email, '@projecttech4dev.org') && 'default_basic' ||
+            ends_with(email, '@oneheartworldwide.org') && 'default_basic' ||
+            ends_with(email, '@gmail.com') && 'default_basic' ||
             'Public'
         """
 
