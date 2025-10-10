@@ -315,7 +315,7 @@ if __name__ == "__main__":
     not_swapped_users: list[str] = oauth_switch.oauth_migration_status()
 
     for email in not_swapped_users:
-        print(f"Swapping user with email: {email}")
+        print(f"Migrating user with email: {email}")
         oauth_switch.swap_oauth_basic_user_records(email)
 
     oauth_switch.oauth_migration_status()
