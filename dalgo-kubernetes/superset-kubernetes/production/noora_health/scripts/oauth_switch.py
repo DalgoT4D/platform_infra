@@ -27,8 +27,8 @@ class OauthSwitch():
             """
                 SELECT COUNT(*) 
                 FROM ab_user 
-                WHERE email NOT LIKE %s AND username NOT LIKE 'google%';
-            """, (f"{self.prefix}%",))
+                WHERE email NOT LIKE %s AND username NOT LIKE %s;
+            """, (f"{self.prefix}%", "google%"))
             
             count = cursor.fetchone()[0]
             print(f"[DRY RUN] Would update {count} users with prefix '{self.prefix}'")
@@ -38,9 +38,9 @@ class OauthSwitch():
             """
                 SELECT id, email, username 
                 FROM ab_user 
-                WHERE email NOT LIKE %s AND username NOT LIKE 'google%'
+                WHERE email NOT LIKE %s AND username NOT LIKE %s
                 LIMIT 5;
-            """, (f"{self.prefix}%",))
+            """, (f"{self.prefix}%", "google%"))
             
             examples = cursor.fetchall()
             print("[DRY RUN] Examples of emails that would be updated:")
@@ -56,8 +56,8 @@ class OauthSwitch():
             """
                 UPDATE ab_user 
                 SET email = CONCAT(%s, email)
-                WHERE email NOT LIKE %s AND username NOT LIKE 'google%';
-            """, (self.prefix, f"{self.prefix}%"))
+                WHERE email NOT LIKE %s AND username NOT LIKE %s;
+            """, (self.prefix, f"{self.prefix}%", "google%"))
             
             affected_rows = cursor.rowcount
             self.connection.commit()
@@ -217,7 +217,7 @@ class OauthSwitch():
 
         if not rows:
             print("No users found for migration.")
-            return
+            return []
 
         total_prefixed_users = len(rows)
         print(f"Total prefixed users: {total_prefixed_users}")
@@ -277,6 +277,11 @@ class OauthSwitch():
         print(f"Users left to swap: {left_to_swap}")
 
         return [user['email'] for user in not_swapped_users_list]
+    
+    def close(self):
+        if self.connection:
+            self.connection.close()
+            print("PostgreSQL connection is closed")
 
 if __name__ == "__main__":
     load_dotenv()
@@ -290,13 +295,17 @@ if __name__ == "__main__":
             "database": os.getenv("DB_NAME"),
         },
         prefix="oldnoora_",
+        dry_run=False
     )
+    
+    # THIS IS STEP IS DONE: ONLY TO BE RUN ONCE AT THE START OF THE MIGRATION
+    # oauth_switch.prefix_users_email()
 
     not_swapped_users: list[str] = oauth_switch.oauth_migration_status()
 
     for email in not_swapped_users:
         print(f"Swapping user with email: {email}")
-        oauth_switch.swap_oauth_basic_user_records(email)
+        # oauth_switch.swap_oauth_basic_user_records(email)
 
 
-    
+    oauth_switch.close()
