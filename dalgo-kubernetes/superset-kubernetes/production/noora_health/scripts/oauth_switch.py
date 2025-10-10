@@ -270,13 +270,12 @@ class OauthSwitch():
                     oauth_users_not_swapped_list.append(row)
 
         print("""
-            Total users to be migrated (prefixed): %s \n
-            Total users (google) signed in: %s \n
-            Total users not (google) signed in: %s \n
-            Total users migrated successfully: %s \n
-            Total users signed in but not migrated: %s \n
-        """, 
-            (
+Total users to be migrated (prefixed): %s
+Total users (google) signed in: %s
+Total users not (google) signed in: %s
+Total users migrated successfully: %s
+Total users signed in but not migrated: %s
+        """ % (
                 total_prefixed_users, 
                 len(users_signed_in), 
                 len(users_not_signed_in), 
@@ -311,14 +310,16 @@ if __name__ == "__main__":
     # oauth_switch.prefix_users_email()
 
     # print the start time stamp
-    print(f"============ Start - {datetime.now().strftime('%d %b %I:%M %p')} ============\n")
+    print(f"================= Start - {datetime.now().strftime('%d %b %I:%M %p')} ============\n")
 
     not_swapped_users: list[str] = oauth_switch.oauth_migration_status()
 
     for email in not_swapped_users:
         print(f"Swapping user with email: {email}")
-        # oauth_switch.swap_oauth_basic_user_records(email)
+        oauth_switch.swap_oauth_basic_user_records(email)
 
-    print(f"================== End ===================================================\n")
+    oauth_switch.oauth_migration_status()
+
+    print(f"================== End ===========================================================\n")
 
     oauth_switch.close()
