@@ -2,6 +2,7 @@ from datetime import datetime
 import psycopg2
 import os
 import sys
+import pytz
 
 from dotenv import load_dotenv
 
@@ -324,7 +325,7 @@ if __name__ == "__main__":
     # oauth_switch.prefix_users_email()
 
     # print the start time stamp
-    print(f"================= Start - {datetime.now().strftime('%d %b %I:%M %p')} ============\n")
+    print(f"================= Start - {datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%d %b %I:%M %p')} ============\n")
 
     not_swapped_users: list[str] = oauth_switch.oauth_migration_status()
 
