@@ -1,3 +1,4 @@
+from datetime import datetime
 import psycopg2
 import os
 import sys
@@ -220,7 +221,6 @@ class OauthSwitch():
             return []
 
         total_prefixed_users = len(rows)
-        print(f"Total prefixed users: {total_prefixed_users}")
 
         # convert to list of dicts for easier handling
         rows_dict = []
@@ -228,8 +228,9 @@ class OauthSwitch():
         for row in rows:
             rows_dict.append(dict(zip(column_names, row)))
 
-        # 2. find how many of these have a corresponding oauth user
-        oauth_users = 0
+        # 2. find how many of these have a corresponding oauth user (i.e. signed in)
+        users_signed_in = []
+        users_not_signed_in = []
         for row in rows_dict:
             email_without_prefix = row["email"].replace(self.prefix, "", 1)
             try:
@@ -242,16 +243,16 @@ class OauthSwitch():
                 )
                 oauth_row = cursor.fetchone()
                 if oauth_row:
-                    oauth_users += 1
+                    users_signed_in.append(row)
+                else:
+                    users_not_signed_in.append(row)
             except Exception as e:
                 print(f"Error checking OAuth user for email {email_without_prefix}: {e}")
                 continue
 
-        print(f"Users with corresponding OAuth accounts: {oauth_users}")
-
         # 3. find how many of the users in 2) have been swapped successfully
-        swapped_users = 0
-        not_swapped_users_list = []
+        oauth_users_not_swapped_list = []
+        oauth_users_swapped_list = []
         for row in rows_dict:
             email_without_prefix = row["email"].replace(self.prefix, "", 1)
             cursor.execute(
@@ -264,20 +265,28 @@ class OauthSwitch():
             if oauth_row:
                 oauth_dict = dict(zip(column_names, oauth_row))
                 if oauth_dict["id"] < row["id"]:
-                    swapped_users += 1
+                    oauth_users_swapped_list.append(row)
                 else:
-                    not_swapped_users_list.append(row)
+                    oauth_users_not_swapped_list.append(row)
 
-        print(f"Users swapped successfully: {swapped_users}")
+        print("""
+            Total users to be migrated (prefixed): %s \n
+            Total users (google) signed in: %s \n
+            Total users not (google) signed in: %s \n
+            Total users migrated successfully: %s \n
+            Total users signed in but not migrated: %s \n
+        """, 
+            (
+                total_prefixed_users, 
+                len(users_signed_in), 
+                len(users_not_signed_in), 
+                len(oauth_users_swapped_list),
+                len(oauth_users_not_swapped_list)
+            ) 
+        )
 
-        print("Users not swapped yet:", [user["email"] for user in not_swapped_users_list])
+        return [user['email'] for user in oauth_users_not_swapped_list]
 
-        # 4. find how many users are left to be swapped
-        left_to_swap = oauth_users - swapped_users
-        print(f"Users left to swap: {left_to_swap}")
-
-        return [user['email'] for user in not_swapped_users_list]
-    
     def close(self):
         if self.connection:
             self.connection.close()
@@ -301,11 +310,15 @@ if __name__ == "__main__":
     # THIS IS STEP IS DONE: ONLY TO BE RUN ONCE AT THE START OF THE MIGRATION
     # oauth_switch.prefix_users_email()
 
+    # print the start time stamp
+    print(f"============ Start - {datetime.now().strftime('%d %b %I:%M %p')} ============\n")
+
     not_swapped_users: list[str] = oauth_switch.oauth_migration_status()
 
     for email in not_swapped_users:
         print(f"Swapping user with email: {email}")
         # oauth_switch.swap_oauth_basic_user_records(email)
 
+    print(f"================== End ===================================================\n")
 
     oauth_switch.close()
