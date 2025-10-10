@@ -289,10 +289,24 @@ Total users signed in but not migrated: %s
     def close(self):
         if self.connection:
             self.connection.close()
-            print("PostgreSQL connection is closed")
 
 if __name__ == "__main__":
     load_dotenv()
+
+    # Open log file in append mode
+    log_filename = "logs.txt"
+    log_file = open(log_filename, "a")
+    class Tee(object):
+        def __init__(self, *files):
+            self.files = files
+        def write(self, obj):
+            for f in self.files:
+                f.write(obj)
+                f.flush()
+        def flush(self):
+            for f in self.files:
+                f.flush()
+    sys.stdout = Tee(sys.__stdout__, log_file)
 
     oauth_switch = OauthSwitch(
         creds={
@@ -320,6 +334,6 @@ if __name__ == "__main__":
 
     oauth_switch.oauth_migration_status()
 
-    print(f"================== End ===========================================================\n")
+    print(f"================== End ===========================================\n")
 
     oauth_switch.close()
