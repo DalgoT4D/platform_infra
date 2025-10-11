@@ -358,6 +358,17 @@ configOverrides:
         # The default user self registration role
         AUTH_USER_REGISTRATION_ROLE = "Gamma"
 
+        AUTH_USER_REGISTRATION_ROLE_JMESPATH = """
+            ends_with(email, '@noorahealth.org') && 'default_noora' ||
+            ends_with(email, '@yosaid.org') && 'default_noora' ||
+            ends_with(email, '@assra4u.org') && 'default_noora' ||
+            ends_with(email, '@agency.fund') && 'default_noora' ||
+            ends_with(email, '@projecttech4dev.org') && 'default_basic' ||
+            ends_with(email, '@oneheartworldwide.org') && 'default_basic' ||
+            ends_with(email, '@gmail.com') && 'default_basic' ||
+            'Public'
+        """
+
         # without this the redirect_url will be "http" and will therefore not match the url
         # provided in the google cloud console
         ENABLE_PROXY_FIX = True
@@ -425,6 +436,81 @@ configOverrides:
             ],
         },
     }
+    EXTRA_CATEGORICAL_COLOR_SCHEMES = [
+        {
+            "id": "pallette_primary",
+            "description": "",
+            "label": "Noora Palette Primary",
+            "isDefault": False,
+            "colors": ["#DD3E77", "#37B7E6", "#00956E", "#FAA820", "#383838"],
+        },
+        {
+            "id": "pallette_1",
+            "description": "",
+            "label": "Noora Palette 1",
+            "isDefault": False,
+            "colors": ["#DD3E77", "#ED64D3", "#8E2F51", "#F47F7F"],
+        },
+        {
+            "id": "pallette_2",
+            "description": "",
+            "label": "Noora Palette 2",
+            "isDefault": False,
+            "colors": ["#37B7E6", "#652D90", "#1C77A0", "#867ADD", "#264487"],
+        },
+        {
+            "id": "pallette_3",
+            "description": "",
+            "label": "Noora Palette 3",
+            "isDefault": False,
+            "colors": ["#00956E", "#144D47", "#6F7A31", "#AFDB95", "#A7A2A0"],
+        },
+        {
+            "id": "pallette_4",
+            "description": "",
+            "label": "Noora Palette 4",
+            "isDefault": False,
+            "colors": [
+                "#FAA820",
+                "#EA6A50",
+                "#875241",
+                "#F7E74F",
+                "#A87335",
+                "#C99889",
+            ],
+        },
+        {
+            "id": "pallette_all",
+            "description": "",
+            "label": "Noora Palette All",
+            "isDefault": False,
+            "colors": [
+                "#37B7E6",
+                "#00956E",
+                "#264487",
+                "#875241",
+                "#383838",
+                "#C99889",
+                "#6F7A31",
+                "#144D47",
+                "#AFDB95",
+                "#867ADD",
+                "#ED64D3",
+                "#EA6A50",
+                "#652D90",
+                "#F7E74F",
+                "#DD3E77",
+                "#F47F7F",
+                "#1C77A0",
+                "#A87335",
+                "#A7A2A0",
+                "#8E2F51",
+                "#FAA820",
+            ],
+        },
+    ]
+
+
 
   # Branding
   if os.environ.get("APP_NAME"):
