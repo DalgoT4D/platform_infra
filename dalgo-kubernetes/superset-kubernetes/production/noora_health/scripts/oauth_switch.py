@@ -3,6 +3,8 @@ import psycopg2
 import os
 import sys
 import pytz
+import boto3
+import argparse
 
 from dotenv import load_dotenv
 
@@ -196,7 +198,7 @@ class OauthSwitch():
             return False
 
 
-    def oauth_migration_status(self) -> list[dict]:
+    def oauth_migration_status(self) -> tuple[list[str]]:
         """
         Check the migration status of users from basic auth to OAuth
         1. Check how many users have been prefixed. This is the base/denominator for migration
@@ -285,14 +287,42 @@ Total users signed in but not migrated: %s
             ) 
         )
 
-        return [user['email'] for user in oauth_users_not_swapped_list]
+        return (
+            [user['email'] for user in users_not_signed_in], 
+            [user['email'] for user in oauth_users_not_swapped_list],
+            total_prefixed_users
+        )
 
     def close(self):
         if self.connection:
             self.connection.close()
 
+def send_ses_email(subject, message, to_emails):
+    ses = boto3.client(
+        "ses",
+        "ap-south-1",
+        aws_access_key_id=os.getenv("SES_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.getenv("SES_SECRET_ACCESS_KEY"),
+    )
+
+    response = ses.send_email(
+        Destination={"ToAddresses": to_emails},
+        Message={
+            "Body": {"Text": {"Charset": "UTF-8", "Data": message}},
+            "Subject": {"Charset": "UTF-8", "Data": subject},
+        },
+        Source=os.getenv("SES_SENDER_EMAIL"),
+    )
+    return response
+
 if __name__ == "__main__":
     load_dotenv()
+
+    parser = argparse.ArgumentParser(description="Superset OAuth migration script")
+    parser.add_argument("--send-email", action="store_true", help="Send migration status email via AWS SES")
+    args = parser.parse_args()
+
+   
 
     # Open log file in append mode
     log_filename = "logs.txt"
@@ -320,6 +350,28 @@ if __name__ == "__main__":
         prefix="oldnoora_",
         dry_run=False
     )
+
+    # Trigger email if --send-email is passed
+    if args.send_email:
+        (users_not_signed_in, _, total_user_count) = oauth_switch.oauth_migration_status()
+        subject = "Noora Superset OAuth Migration Status"
+        body = (
+           f"""
+Completion progress: {total_user_count - len(users_not_signed_in) } / {total_user_count} ~ {round((total_user_count - len(users_not_signed_in)) * 100 / total_user_count )}%
+Users not signed in yet:
+{', \n'.join(users_not_signed_in) if users_not_signed_in else 'None'}
+           """
+        )
+        send_ses_email(
+            subject=subject,
+            message=body,
+            to_emails=os.getenv("REPORT_EMAIL_RECIPIENTS", "").split(","),
+        )
+        print("Migration status email sent.")
+
+        oauth_switch.close()
+
+        sys.exit(0)
     
     # THIS IS STEP IS DONE: ONLY TO BE RUN ONCE AT THE START OF THE MIGRATION
     # oauth_switch.prefix_users_email()
@@ -327,7 +379,7 @@ if __name__ == "__main__":
     # print the start time stamp
     print(f"================= Start - {datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%d %b %I:%M %p')} ============\n")
 
-    not_swapped_users: list[str] = oauth_switch.oauth_migration_status()
+    (_, not_swapped_users, total_user_count) = oauth_switch.oauth_migration_status()
 
     for email in not_swapped_users:
         print(f"Migrating user with email: {email}")
