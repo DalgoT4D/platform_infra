@@ -353,6 +353,7 @@ if __name__ == "__main__":
 
     # Trigger email if --send-email is passed
     if args.send_email:
+        print("Sending migration status email.\n")
         (users_not_signed_in, _, total_user_count) = oauth_switch.oauth_migration_status()
         subject = "Noora Superset OAuth Migration Status"
         body = (
