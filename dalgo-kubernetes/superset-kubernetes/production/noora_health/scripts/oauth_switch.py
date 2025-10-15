@@ -82,7 +82,7 @@ class OauthSwitch():
             email = email.replace(self.prefix, "", 1)
 
         cursor = self.connection.cursor()
-        cursor.execute("SELECT * FROM ab_user WHERE email LIKE %s OR LIKE %s;", (f"{email}%", f"{self.prefix}{email}%"))
+        cursor.execute("SELECT * FROM ab_user WHERE email LIKE %s OR email LIKE %s;", (f"{email}%", f"{self.prefix}{email}%"))
         rows = cursor.fetchall()
 
         # convert to list of dicts for easier handling
