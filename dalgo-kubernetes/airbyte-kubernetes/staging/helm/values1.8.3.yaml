@@ -1000,7 +1000,7 @@ workload-launcher:
     image: "airbyte/container-orchestrator:{{ default .Chart.AppVersion .Values.global.image.tag }}"
 
     nodeSelector:
-      type: jobs
+      type: static
 
   connectorSidecar:
     # -- Connector Sidecar image

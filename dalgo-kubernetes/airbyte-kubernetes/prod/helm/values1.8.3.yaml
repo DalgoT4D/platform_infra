@@ -314,7 +314,8 @@ webapp:
     requests: {}
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
-  nodeSelector: {}
+  nodeSelector:
+    type: static
 
   # -- Tolerations for webapp pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
@@ -531,7 +532,8 @@ server:
     requests: {}
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
-  nodeSelector: {}
+  nodeSelector:
+    type: static
 
   # -- Tolerations for server pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
@@ -747,7 +749,8 @@ worker:
     requests: {}
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
-  nodeSelector: {}
+  nodeSelector:
+    type: jobs
 
   # -- Tolerations for worker pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
@@ -929,7 +932,8 @@ workload-launcher:
     requests: {}
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
-  nodeSelector: {}
+  nodeSelector:
+    type: static
 
   # -- Tolerations for workload launcher pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
@@ -969,6 +973,14 @@ workload-launcher:
         secretKeyRef:
           name: airbyte-config-secrets
           key: S3_LOG_BUCKET
+    - name: JOB_KUBE_NODE_SELECTORS
+      value: type=jobs
+    - name: SPEC_JOB_KUBE_NODE_SELECTORS
+      value: type=jobs
+    - name: CHECK_JOB_KUBE_NODE_SELECTORS
+      value: type=jobs
+    - name: DISCOVER_JOB_KUBE_NODE_SELECTORS
+      value: type=jobs
 
   ## Examples (when using `workload launcher.containerSecurityContext.readOnlyRootFilesystem=true`):
   ## extraVolumeMounts:
@@ -998,6 +1010,9 @@ workload-launcher:
     # -- Orchestrator image
     # This is a template string that will be passed to the "tpl" helper.
     image: "airbyte/container-orchestrator:{{ default .Chart.AppVersion .Values.global.image.tag }}"
+
+    nodeSelector:
+      type: static
 
   connectorSidecar:
     # -- Connector Sidecar image
@@ -1275,7 +1290,8 @@ airbyte-bootloader:
   podLabels: {}
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
-  nodeSelector: {}
+  nodeSelector:
+    type: static
 
   # -- Tolerations for worker pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
@@ -1477,7 +1493,8 @@ temporal:
     enabled: false
 
   # -- Node labels for temporal pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
-  nodeSelector: {}
+  nodeSelector:
+    type: static
 
   # -- Tolerations for temporal pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
@@ -1631,7 +1648,8 @@ temporal-ui:
     enabled: false
 
   # -- Node labels for temporal-ui pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
-  nodeSelector: {}
+  nodeSelector:
+    type: static
 
   # -- Tolerations for temporal-ui pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
@@ -2032,7 +2050,8 @@ connector-builder-server:
     port: 80
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
-  nodeSelector: {}
+  nodeSelector:
+    type: static
 
   # -- Tolerations for webapp pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
@@ -2084,7 +2103,8 @@ keycloak:
       type: RuntimeDefault
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
-  nodeSelector: {}
+  nodeSelector:
+    type: static
 
   # -- Tolerations for webapp pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
@@ -2131,7 +2151,8 @@ keycloak-setup:
       type: RuntimeDefault
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
-  nodeSelector: {}
+  nodeSelector:
+    type: static
 
   # -- Tolerations for webapp pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
@@ -2225,7 +2246,8 @@ workload-api-server:
     level: "INFO"
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
-  nodeSelector: {}
+  nodeSelector:
+    type: jobs
 
   # -- Tolerations for webapp pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
