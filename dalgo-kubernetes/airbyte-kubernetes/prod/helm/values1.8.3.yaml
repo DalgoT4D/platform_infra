@@ -523,13 +523,17 @@ server:
     ##    cpu: 200m
     ##    memory: 1Gi
     # -- The resources limits for the server container
-    limits: {}
+    limits:
+      cpu: 1.5
+      memory: 3Gi
     ## Examples:
     ## requests:
     ##    memory: 256Mi
     ##    cpu: 250m
     # -- The requested resources for the server container
-    requests: {}
+    requests:
+      cpu: 1
+      memory: 2Gi
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
   nodeSelector:
@@ -740,13 +744,17 @@ worker:
     ##    cpu: 200m
     ##    memory: 1Gi
     #! -- The resources limits for the worker container
-    limits: {}
+    limits:
+      cpu: 1.5
+      memory: 3Gi
     ## Examples:
     ## requests:
     ##    memory: 256Mi
     ##    cpu: 250m
     # -- The requested resources for the worker container
-    requests: {}
+    requests:
+      cpu: 1
+      memory: 2Gi
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
   nodeSelector:
@@ -851,7 +859,7 @@ worker:
 workload-launcher:
   enabled: true
   # -- Number of workload launcher replicas
-  replicaCount: 1
+  replicaCount: 2
 
   image:
     # -- The repository to use for the airbyte workload launcher image.
@@ -923,13 +931,17 @@ workload-launcher:
     ##    cpu: 200m
     ##    memory: 1Gi
     # -- The resources limits for the workload launcher container
-    limits: {}
+    limits:
+      cpu: 512m
+      memory: 1Gi
     ## Examples:
     ## requests:
     ##    memory: 256Mi
     ##    cpu: 250m
     # -- The requested resources for the workload launcher container
-    requests: {}
+    requests:
+      cpu: 250m
+      memory: 512Mi
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
   nodeSelector:
@@ -2167,7 +2179,7 @@ workload-api-server:
   bearerToken: token
 
   # -- workload-api-server replicas
-  replicaCount: 1
+  replicaCount: 2
 
   image:
     # -- The repository to use for the airbyte-workload-api-server image.
@@ -2233,13 +2245,17 @@ workload-api-server:
     ##    cpu: 200m
     ##    memory: 1Gi
     # -- The resources limits for the airbyte-workload-api-server container
-    limits: {}
+    limits:
+      cpu: 500m
+      memory: 1Gi
     ## Examples:
     ## requests:
     ##    memory: 256Mi
     ##    cpu: 250m
     # -- The requested resources for the airbyte-workload-api-server container
-    requests: {}
+    requests:
+      cpu: 250m
+      memory: 512Mi
 
   log:
     # -- The log level at which to log
