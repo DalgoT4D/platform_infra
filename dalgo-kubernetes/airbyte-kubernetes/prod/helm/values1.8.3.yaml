@@ -489,11 +489,11 @@ server:
     # -- Initial delay seconds for livenessProbe
     initialDelaySeconds: 60
     # -- Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for livenessProbe
-    timeoutSeconds: 60
+    timeoutSeconds: 30
     # -- Failure threshold for livenessProbe
-    failureThreshold: 30
+    failureThreshold: 5
     # -- Success threshold for livenessProbe
     successThreshold: 1
 
@@ -501,13 +501,13 @@ server:
     # -- Enable readinessProbe on the server
     enabled: true
     # -- Initial delay seconds for readinessProbe
-    initialDelaySeconds: 10
+    initialDelaySeconds: 120
     # -- Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for readinessProbe
-    timeoutSeconds: 10
+    timeoutSeconds: 30
     # -- Failure threshold for readinessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for readinessProbe
     successThreshold: 1
 
@@ -879,13 +879,13 @@ workload-launcher:
     # -- Enable livenessProbe on the workload launcher
     enabled: true
     # -- Initial delay seconds for livenessProbe
-    initialDelaySeconds: 30
+    initialDelaySeconds: 60
     # -- Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for livenessProbe
-    timeoutSeconds: 60
-    # -- Failure threshold for livenessProbe
-    failureThreshold: 30
+    timeoutSeconds: 30
+    # -- Failure threshold for livenessProbejou
+    failureThreshold: 5
     # -- Success threshold for livenessProbe
     successThreshold: 1
 
@@ -893,13 +893,13 @@ workload-launcher:
     # -- Enable readinessProbe on the workload launcher
     enabled: true
     # -- Initial delay seconds for readinessProbe
-    initialDelaySeconds: 10
+    initialDelaySeconds: 120
     # -- Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for readinessProbe
-    timeoutSeconds: 1
+    timeoutSeconds: 30
     # -- Failure threshold for readinessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for readinessProbe
     successThreshold: 1
 
@@ -2189,13 +2189,13 @@ workload-api-server:
     # -- Enable livenessProbe on the server
     enabled: true
     # -- Initial delay seconds for livenessProbe
-    initialDelaySeconds: 30
+    initialDelaySeconds: 60
     # -- Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for livenessProbe
-    timeoutSeconds: 10
+    timeoutSeconds: 30
     # -- Failure threshold for livenessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for livenessProbe
     successThreshold: 1
 
@@ -2203,13 +2203,13 @@ workload-api-server:
     # -- Enable readinessProbe on the server
     enabled: true
     # -- Initial delay seconds for readinessProbe
-    initialDelaySeconds: 10
+    initialDelaySeconds: 120
     # -- Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for readinessProbe
-    timeoutSeconds: 10
+    timeoutSeconds: 30
     # -- Failure threshold for readinessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for readinessProbe
     successThreshold: 1
 
