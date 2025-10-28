@@ -441,7 +441,8 @@ configOverrides:
                 "https://staging-new.dalgo.org",
                 "http://localhost:3001",
                 "https://staging.dalgo.org",
-                "https://dashboard.dalgo.org"
+                "https://dashboard.dalgo.org",
+                "https://insights.dalgo.org"
             ],
         },
     }
