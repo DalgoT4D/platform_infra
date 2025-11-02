@@ -66,7 +66,11 @@ global:
     #    clientSecretSecretKey: "client-secret"
 
   # -- Environment variables
-  env_vars: {}
+  env_vars:
+    JOB_MAIN_CONTAINER_CPU_REQUEST: "500m"
+    JOB_MAIN_CONTAINER_CPU_LIMIT: "2000m"
+    JOB_MAIN_CONTAINER_MEMORY_REQUEST: "2Gi"
+    JOB_MAIN_CONTAINER_MEMORY_LIMIT: "4Gi"
 
   # -- Database configuration
   database:
