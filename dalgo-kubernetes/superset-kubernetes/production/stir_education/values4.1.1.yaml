@@ -358,6 +358,11 @@ configOverrides:
         # The default user self registration role
         AUTH_USER_REGISTRATION_ROLE = "Gamma"
 
+        AUTH_USER_REGISTRATION_ROLE_JMESPATH = """
+            ends_with(email, '@stireducation.org') && 'programteam' ||
+            'Gamma'
+        """
+
         # without this the redirect_url will be "http" and will therefore not match the url
         # provided in the google cloud console
         ENABLE_PROXY_FIX = True
@@ -368,8 +373,10 @@ configOverrides:
 
         # whitelist ourselves so our clients don't need to create accounts for us on their domain
         whitelist = ["@projecttech4dev.org"]
-        if GOOGLE_WHITELISTED_DOMAIN and GOOGLE_WHITELISTED_DOMAIN != "projecttech4dev.org":
-            whitelist.append("@" + GOOGLE_WHITELISTED_DOMAIN)
+        if GOOGLE_WHITELISTED_DOMAIN:
+            for wdomain in GOOGLE_WHITELISTED_DOMAIN.split(","):
+                if wdomain != "projecttech4dev.org":
+                    whitelist.append("@" + wdomain)
 
         OAUTH_PROVIDERS = [
             {
