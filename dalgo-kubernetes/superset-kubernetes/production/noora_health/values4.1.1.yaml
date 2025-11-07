@@ -213,6 +213,7 @@ configOverrides:
         "ESTIMATE_QUERY_COST": True,
         "SSH_TUNNELING": True,
         "ALERT_REPORT_SLACK_V2": True,
+        "SUPERSET_DASHBOARD_POSITION_DATA_LIMIT" = 131070 #bytes
     }
 
     # Default cache for Superset objects
