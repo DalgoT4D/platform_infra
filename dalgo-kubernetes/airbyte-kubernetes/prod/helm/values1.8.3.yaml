@@ -162,7 +162,7 @@ global:
       ##    cpu: 250m
       # -- Job resource requests
       requests:
-        cpu: 500m
+        cpu: 1000m
         memory: 2Gi
       ## Example:
       ## limits:
@@ -744,13 +744,17 @@ worker:
     ##    cpu: 200m
     ##    memory: 1Gi
     #! -- The resources limits for the worker container
-    limits: {}
+    limits:
+      cpu: 1000m
+      memory: 2Gi
     ## Examples:
     ## requests:
     ##    memory: 256Mi
     ##    cpu: 250m
     # -- The requested resources for the worker container
-    requests: {}
+    requests:
+      cpu: 500m
+      memory: 1Gi
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
   nodeSelector:
@@ -838,7 +842,7 @@ worker:
     enabled: false
 
   debug:
-    enabled: false
+    enabled: true
 
   ## current no exist documentations
   activityMaxAttempt: ""
@@ -2233,13 +2237,17 @@ workload-api-server:
     ##    cpu: 200m
     ##    memory: 1Gi
     # -- The resources limits for the airbyte-workload-api-server container
-    limits: {}
+    limits:
+      cpu: 500m
+      memory: 1Gi
     ## Examples:
     ## requests:
     ##    memory: 256Mi
     ##    cpu: 250m
     # -- The requested resources for the airbyte-workload-api-server container
-    requests: {}
+    requests:
+      cpu: 256m
+      memory: 725Mi
 
   log:
     # -- The log level at which to log
