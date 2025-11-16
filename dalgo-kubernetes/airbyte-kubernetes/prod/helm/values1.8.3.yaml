@@ -23,13 +23,14 @@ global:
   # Docker image config that will apply to all images.
   image:
     # Docker registry to pull platform images from, e.g. http://my-registry:8000/
-    registry: ""
+    registry: "docker.io"
     # Image tag to use for airbyte images. 
     # Does not include non-airbyte images such as temporal, minio, etc.
     tag: ""
 
   # Docker image pull secret
-  imagePullSecrets: []
+  imagePullSecrets:
+    - name: "airbyte-docker-secret"
 
   # -- Auth configuration
   auth:
@@ -200,7 +201,7 @@ global:
 
       ## JOB_KUBE_MAIN_CONTAINER_IMAGE_PULL_SECRET
       # -- image pull secret to use for job pod
-      main_container_image_pull_secret: ""
+      main_container_image_pull_secret: "airbyte-docker-secret"
 
 ## @section Common Parameters
 
