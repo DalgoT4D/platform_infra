@@ -192,7 +192,8 @@ global:
       ## JOB_KUBE_NODE_SELECTORS
       ## pod node selector of the sync job and the default pod node selector fallback for others jobs
       # -- Node labels for pod assignment
-      nodeSelector: {}
+      nodeSelector:
+        type: jobs
 
       ## JOB_KUBE_TOLERATIONS
       # -- Node tolerations for pod assignment
@@ -759,7 +760,7 @@ worker:
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
   nodeSelector:
-    type: jobs
+    type: static
 
   # -- Tolerations for worker pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
@@ -2256,7 +2257,7 @@ workload-api-server:
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
   nodeSelector:
-    type: jobs
+    type: static
 
   # -- Tolerations for webapp pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
