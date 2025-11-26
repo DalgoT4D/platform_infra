@@ -423,7 +423,8 @@ configOverrides:
                 "https://dev.cityfinance.in",
                 "http://localhost:4200",
                 "http://staging.cityfinance.in",
-                "https://www.cityfinance.in"
+                "https://www.cityfinance.in",
+                "https://alb.cityfinance.in/ "
             ],
         },
     }
