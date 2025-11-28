@@ -182,7 +182,8 @@ global:
       ## JOB_KUBE_ANNOTATIONS
       # pod annotations of the sync job and the default pod annotations fallback for others jobs
       # -- key/value annotations applied to kube jobs
-      annotations: {}
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: false
 
       ## JOB_KUBE_LABELS
       ## pod labels of the sync job and the default pod labels fallback for others jobs
