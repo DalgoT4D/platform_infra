@@ -1,6 +1,6 @@
 helm uninstall airbyte -n airbyte
 
-helm upgrade --install airbyte airbyte/airbyte --namespace airbyte --values values1.7.0.yaml --version 1.7.0
+<!-- helm upgrade --install airbyte airbyte/airbyte --namespace airbyte --values values1.7.0.yaml --version 1.7.0 -->
 
 helm upgrade --install airbyte airbyte/airbyte --namespace airbyte --values values1.8.3.yaml --version 1.8.3
 
@@ -41,3 +41,11 @@ helm upgrade aws-load-balancer-controller eks/aws-load-balancer-controller \
   --set vpcId=$VPC_ID \
   --version 1.13.0
 
+## add docker authentication info as secret
+
+kubectl create secret docker-registry airbyte-docker-secret \
+  --docker-server=https://index.docker.io/v1/ \
+  --docker-username=tech4dev \
+  --docker-password='YOUR_PASSWORD' \
+  --docker-email='email on docker' \
+  -n airbyte
