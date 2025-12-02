@@ -456,7 +456,7 @@ webapp:
 server:
   enabled: true
   # -- Number of server replicas
-  replicaCount: 2
+  replicaCount: 1
 
   image:
     # -- The repository to use for the airbyte server image.
