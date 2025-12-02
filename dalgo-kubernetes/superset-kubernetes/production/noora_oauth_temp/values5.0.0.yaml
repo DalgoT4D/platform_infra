@@ -24,7 +24,7 @@
 # To update it, install helm-docs and run helm-docs from the root of this chart
 
 # -- Provide a name to override the name of the chart
-nameOverride: janaagraha # good place to the org/client name
+nameOverride: noora-oauth # good place to the org/client name
 # -- Provide a name to override the full names of resources
 fullnameOverride: ~
 
@@ -53,26 +53,6 @@ serviceAccount:
 # @default -- see `values.yaml`
 bootstrapScript: |
   #!/bin/bash
-  
-  # Install system-level dependencies
-  apt-get update && apt-get install -y \
-    python3-dev \
-    default-libmysqlclient-dev \
-    build-essential \
-    pkg-config
-
-  # specific to superset 4.1.1; might change when we upgrade
-  pip uninstall -y numpy pandas
-  pip install "numpy>=1.22,<1.27" "pandas>=2.0.3,<2.1"
-
-  # Install required Python packages
-  pip install mysqlclient
-
-  # pip install --no-cache gevent redis celery flower pytz
-  # pip install --upgrade urllib3 requests botocore boto3 authlib python-dotenv
-  # pip install --upgrade sqlalchemy-bigquery pandas_gbq google-auth
-
-  # pip install sqlalchemy-redshift
 
   # Create bootstrap file if it doesn't exist
   if [ ! -f ~/bootstrap ]; then
@@ -85,7 +65,7 @@ configFromSecret: '{{ template "superset.fullname" . }}-config'
 
 # -- The name of the secret which we will use to populate env vars in deployed pods
 # This can be useful for secret keys, etc.
-envFromSecret: superset-janaagraha-env
+envFromSecret: superset-noora-oauth-env
 # -- This can be a list of templated strings
 envFromSecrets: []
 
@@ -205,15 +185,17 @@ configOverrides:
     SQLALCHEMY_DATABASE_URI = os.environ["SQLALCHEMY_DATABASE_URI"]
     FEATURE_FLAGS = {
         "ENABLE_TEMPLATE_PROCESSING": True,
-        "EMBEDDED_SUPERSET": True,
         "ALERT_REPORTS": True,
+        "ALERT_REPORT_TABS": True,
         "DASHBOARD_CROSS_FILTERS": True,
         "DASHBOARD_RBAC": True,
         "DRILL_TO_DETAIL": True,
         "HORIZONTAL_FILTER_BAR": True,
         "ESTIMATE_QUERY_COST": True,
         "SSH_TUNNELING": True,
-        "ENABLE_JAVASCRIPT_CONTROLS": True,
+        "ALERT_REPORT_SLACK_V2": True,
+        "PLAYWRIGHT_REPORTS_AND_THUMBNAILS": True,
+        "ALERT_REPORTS_NOTIFICATION_DRY_RUN": False
     }
 
     # Default cache for Superset objects
@@ -318,16 +300,19 @@ configOverrides:
     WEBDRIVER_BASEURL = "http://{{ template "superset.fullname" . }}:{{ .Values.service.port }}/"
     WEBDRIVER_BASEURL_USER_FRIENDLY = f"https://{os.environ['APPLICATION_HOST']}"
 
-    WEBDRIVER_TYPE = "firefox"
+    WEBDRIVER_TYPE = "chrome"
 
-      # Screenshot timeouts - these are the actual recognized config variables in Superset 4.1.1
-    SCREENSHOT_LOCATE_WAIT = 60  # Time to wait for elements to be located (default is 10)
-    SCREENSHOT_LOAD_WAIT = 120   # Time to wait for page to load (default is 60)
-    
-    # Additional screenshot settings
-    SCREENSHOT_SELENIUM_RETRIES = 5  # Number of retries for screenshots
-    SCREENSHOT_SELENIUM_HEADSTART = 3  # Seconds to wait before taking screenshot
-    SCREENSHOT_SELENIUM_ANIMATION_WAIT = 5  # Wait for animations to complete = ""
+    WEBDRIVER_OPTION_ARGS = [
+        "--force-device-scale-factor=2.0",
+        "--high-dpi-support=2.0",
+        "--headless",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        # This is required because our process runs as root (in order to install pip packages)
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-extensions",
+    ]
 
     ENABLE_CORS = True
     CORS_OPTIONS = {
@@ -360,6 +345,17 @@ configOverrides:
         # The default user self registration role
         AUTH_USER_REGISTRATION_ROLE = "Gamma"
 
+        AUTH_USER_REGISTRATION_ROLE_JMESPATH = """
+            ends_with(email, '@noorahealth.org') && 'default_noora' ||
+            ends_with(email, '@yosaid.org') && 'default_noora' ||
+            ends_with(email, '@assra4u.org') && 'default_noora' ||
+            ends_with(email, '@agency.fund') && 'default_noora' ||
+            ends_with(email, '@projecttech4dev.org') && 'default_basic' ||
+            ends_with(email, '@oneheartworldwide.org') && 'default_basic' ||
+            ends_with(email, '@gmail.com') && 'default_basic' ||
+            'Public'
+        """
+
         # without this the redirect_url will be "http" and will therefore not match the url
         # provided in the google cloud console
         ENABLE_PROXY_FIX = True
@@ -370,8 +366,12 @@ configOverrides:
 
         # whitelist ourselves so our clients don't need to create accounts for us on their domain
         whitelist = ["@projecttech4dev.org"]
-        if GOOGLE_WHITELISTED_DOMAIN and GOOGLE_WHITELISTED_DOMAIN != "projecttech4dev.org":
-            whitelist.append("@" + GOOGLE_WHITELISTED_DOMAIN)
+        if GOOGLE_WHITELISTED_DOMAIN:
+            for wdomain in GOOGLE_WHITELISTED_DOMAIN.split(","):
+                if wdomain != "projecttech4dev.org":
+                    whitelist.append("@" + wdomain)
+
+            
 
         OAUTH_PROVIDERS = [
             {
@@ -413,22 +413,91 @@ configOverrides:
                 "'self'",
                 app_host,
                 "https://api.mapbox.com",
-                "https://events.mapbox.com"
+                "https://events.mapbox.com",
             ],
             "frame-ancestors": [
                 "self",
                 "http://localhost:3000",
                 "https://staging.dalgo.org",
                 "https://dashboard.dalgo.org",
-                "https://dev.cityfinance.in",
-                "http://localhost:4200",
-                "http://staging.cityfinance.in",
-                "https://www.cityfinance.in",
-                "https://alb.cityfinance.in/ ",
-                "https://albstaging.cityfinance.in/"
             ],
         },
     }
+    EXTRA_CATEGORICAL_COLOR_SCHEMES = [
+        {
+            "id": "pallette_primary",
+            "description": "",
+            "label": "Noora Palette Primary",
+            "isDefault": False,
+            "colors": ["#DD3E77", "#37B7E6", "#00956E", "#FAA820", "#383838"],
+        },
+        {
+            "id": "pallette_1",
+            "description": "",
+            "label": "Noora Palette 1",
+            "isDefault": False,
+            "colors": ["#DD3E77", "#ED64D3", "#8E2F51", "#F47F7F"],
+        },
+        {
+            "id": "pallette_2",
+            "description": "",
+            "label": "Noora Palette 2",
+            "isDefault": False,
+            "colors": ["#37B7E6", "#652D90", "#1C77A0", "#867ADD", "#264487"],
+        },
+        {
+            "id": "pallette_3",
+            "description": "",
+            "label": "Noora Palette 3",
+            "isDefault": False,
+            "colors": ["#00956E", "#144D47", "#6F7A31", "#AFDB95", "#A7A2A0"],
+        },
+        {
+            "id": "pallette_4",
+            "description": "",
+            "label": "Noora Palette 4",
+            "isDefault": False,
+            "colors": [
+                "#FAA820",
+                "#EA6A50",
+                "#875241",
+                "#F7E74F",
+                "#A87335",
+                "#C99889",
+            ],
+        },
+        {
+            "id": "pallette_all",
+            "description": "",
+            "label": "Noora Palette All",
+            "isDefault": False,
+            "colors": [
+                "#37B7E6",
+                "#00956E",
+                "#264487",
+                "#875241",
+                "#383838",
+                "#C99889",
+                "#6F7A31",
+                "#144D47",
+                "#AFDB95",
+                "#867ADD",
+                "#ED64D3",
+                "#EA6A50",
+                "#652D90",
+                "#F7E74F",
+                "#DD3E77",
+                "#F47F7F",
+                "#1C77A0",
+                "#A87335",
+                "#A7A2A0",
+                "#8E2F51",
+                "#FAA820",
+            ],
+        },
+    ]
+
+
 
   # Branding
   if os.environ.get("APP_NAME"):
@@ -492,7 +561,7 @@ extraConfigMountPath: "/app/configs"
 
 image:
   repository: tech4dev/superset
-  tag: 4.1.1_prod
+  tag: 5.0.0-prod-v1
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -523,17 +592,17 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     # nginx.ingress.kubernetes.io/server-snippet: |
-    #   if ($host = "janaagraha.dalgo.org") {
-    #     return 301 https://janaagraha.dalgo.org$request_uri;
+    #   if ($host = "noora-oauth.dalgo.org") {
+    #     return 301 https://noora-oauth.dalgo.org$request_uri;
     #   }
   path: /
   pathType: ImplementationSpecific
   hosts:
-    - janaagraha.dalgo.org
+    - noora-oauth.dalgo.org
   tls:
     - hosts:
-        - janaagraha.dalgo.org
-      secretName: janaagraha-tls
+        - noora-oauth.dalgo.org
+      secretName: noora-oauth-tls
   extraHostsRaw: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -564,7 +633,7 @@ hostAliases: []
 supersetNode:
   replicas:
     enabled: true
-    replicaCount: 1
+    replicaCount: 2
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -629,7 +698,15 @@ supersetNode:
   # -- Labels to be added to supersetNode deployment
   deploymentLabels: {}
   # -- Affinity to be added to supersetNode deployment
-  affinity: {}
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: noora-oauth
+          topologyKey: kubernetes.io/hostname
   # -- TopologySpreadConstrains to be added to supersetNode deployments
   topologySpreadConstraints: []
   # -- Annotations to be added to supersetNode pods
@@ -673,12 +750,6 @@ supersetNode:
       memory: "1200Mi"
       cpu: "600m"
       ephemeral-storage: 1Gi
-    # limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 128Mi
   podSecurityContext: {}
   containerSecurityContext: {}
   strategy: {}
@@ -734,7 +805,15 @@ supersetWorker:
   # -- Labels to be added to supersetWorker deployment
   deploymentLabels: {}
   # -- Affinity to be added to supersetWorker deployment
-  affinity: {}
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: noora-oauth-worker
+          topologyKey: kubernetes.io/hostname
   # -- TopologySpreadConstrains to be added to supersetWorker deployments
   topologySpreadConstraints: []
   # -- Annotations to be added to supersetWorker pods
@@ -828,9 +907,11 @@ supersetCeleryBeat:
     requests:
       memory: "150Mi"
       cpu: "50m"
+      ephemeral-storage: 500Mi
     limits:
       memory: "400Mi"
       cpu: "200m"
+      ephemeral-storage: 1Gi
   podSecurityContext: {}
   containerSecurityContext: {}
   # -- Set priorityClassName for CeleryBeat pods
@@ -1048,7 +1129,7 @@ init:
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": "before-hook-creation"
   loadExamples: false
-  createAdmin: false
+  createAdmin: true
   adminUser:
     username: ""
     firstname: Superset
