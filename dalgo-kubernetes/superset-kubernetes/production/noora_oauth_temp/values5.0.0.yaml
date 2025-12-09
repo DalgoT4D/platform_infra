@@ -302,7 +302,12 @@ configOverrides:
     WEBDRIVER_BASEURL = "http://{{ template "superset.fullname" . }}:{{ .Values.service.port }}/"
     WEBDRIVER_BASEURL_USER_FRIENDLY = f"https://{os.environ['APPLICATION_HOST']}"
 
-    SLACK_API_RATE_LIMIT_RETRY_COUNT = 5
+
+    # for caching the list of slack channels
+    from datetime import timedelta
+
+    SLACK_CACHE_TIMEOUT = int(timedelta(days=1).total_seconds()) 
+    SLACK_API_RATE_LIMIT_RETRY_COUNT = 2
     WEBDRIVER_TYPE = "chrome"
 
     WEBDRIVER_OPTION_ARGS = [
