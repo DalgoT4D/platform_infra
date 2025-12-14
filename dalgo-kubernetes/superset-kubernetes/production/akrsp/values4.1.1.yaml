@@ -24,7 +24,7 @@
 # To update it, install helm-docs and run helm-docs from the root of this chart
 
 # -- Provide a name to override the name of the chart
-nameOverride: arghyam # good place to the org/client name
+nameOverride: akrsp # good place to the org/client name
 # -- Provide a name to override the full names of resources
 fullnameOverride: ~
 
@@ -85,7 +85,7 @@ configFromSecret: '{{ template "superset.fullname" . }}-config'
 
 # -- The name of the secret which we will use to populate env vars in deployed pods
 # This can be useful for secret keys, etc.
-envFromSecret: superset-arghyam-env
+envFromSecret: superset-akrsp-env
 # -- This can be a list of templated strings
 envFromSecrets: []
 
@@ -516,17 +516,17 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     # nginx.ingress.kubernetes.io/server-snippet: |
-    #   if ($host = "arghyam.dalgo.org") {
-    #     return 301 https://arghyam.dalgo.org$request_uri;
+    #   if ($host = "akrsp.dalgo.org") {
+    #     return 301 https://akrsp.dalgo.org$request_uri;
     #   }
   path: /
   pathType: ImplementationSpecific
   hosts:
-    - arghyam.dalgo.org
+    - akrsp.dalgo.org
   tls:
     - hosts:
-        - arghyam.dalgo.org
-      secretName: arghyam-tls
+        - akrsp.dalgo.org
+      secretName: akrsp-tls
   extraHostsRaw: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -1154,6 +1154,9 @@ postgresql:
 # More documentation can be found here: https://artifacthub.io/packages/helm/bitnami/redis
 # @default -- see `values.yaml`
 redis:
+  image:
+    repository: bitnamilegacy/redis
+    tag: "7.0.10-debian-11-r4"
   ##
   ## Use the redis chart dependency.
   ##
