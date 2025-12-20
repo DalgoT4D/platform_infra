@@ -24,7 +24,7 @@
 # To update it, install helm-docs and run helm-docs from the root of this chart
 
 # -- Provide a name to override the name of the chart
-nameOverride: sneha # good place to the org/client name
+nameOverride: sneha-temp # good place to the org/client name
 # -- Provide a name to override the full names of resources
 fullnameOverride: ~
 
@@ -85,7 +85,7 @@ configFromSecret: '{{ template "superset.fullname" . }}-config'
 
 # -- The name of the secret which we will use to populate env vars in deployed pods
 # This can be useful for secret keys, etc.
-envFromSecret: superset-sneha-env
+envFromSecret: superset-sneha-temp-env
 # -- This can be a list of templated strings
 envFromSecrets: []
 
@@ -530,11 +530,11 @@ ingress:
   path: /
   pathType: ImplementationSpecific
   hosts:
-    - sneha.dalgo.org
+    - sneha-temp.dalgo.org
   tls:
     - hosts:
-        - sneha.dalgo.org
-      secretName: sneha-tls
+        - sneha-temp.dalgo.org
+      secretName: sneha-temp-tls
   extraHostsRaw: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -637,7 +637,7 @@ supersetNode:
         podAffinityTerm:
           labelSelector:
             matchLabels:
-              app: sneha
+              app: sneha-temp
           topologyKey: kubernetes.io/hostname
   # -- TopologySpreadConstrains to be added to supersetNode deployments
   topologySpreadConstraints: []
@@ -744,7 +744,7 @@ supersetWorker:
         podAffinityTerm:
           labelSelector:
             matchLabels:
-              app: sneha-worker
+              app: sneha-temp-worker
           topologyKey: kubernetes.io/hostname
   # -- TopologySpreadConstrains to be added to supersetWorker deployments
   topologySpreadConstraints: []

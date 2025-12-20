@@ -567,7 +567,7 @@ extraConfigMountPath: "/app/configs"
 
 image:
   repository: tech4dev/superset
-  tag: 5.0.0-prod-v1
+  tag: 5.0.0-prod-v2
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
