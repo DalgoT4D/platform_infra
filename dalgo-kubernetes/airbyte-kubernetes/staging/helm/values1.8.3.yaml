@@ -177,7 +177,8 @@ global:
       ## JOB_KUBE_ANNOTATIONS
       # pod annotations of the sync job and the default pod annotations fallback for others jobs
       # -- key/value annotations applied to kube jobs
-      annotations: {}
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: false
 
       ## JOB_KUBE_LABELS
       ## pod labels of the sync job and the default pod labels fallback for others jobs
@@ -187,7 +188,8 @@ global:
       ## JOB_KUBE_NODE_SELECTORS
       ## pod node selector of the sync job and the default pod node selector fallback for others jobs
       # -- Node labels for pod assignment
-      nodeSelector: {}
+      nodeSelector:
+        type: jobs
 
       ## JOB_KUBE_TOLERATIONS
       # -- Node tolerations for pod assignment
@@ -449,7 +451,7 @@ webapp:
 server:
   enabled: true
   # -- Number of server replicas
-  replicaCount: 2
+  replicaCount: 1
 
   image:
     # -- The repository to use for the airbyte server image.
@@ -487,13 +489,13 @@ server:
     # -- Enable livenessProbe on the server
     enabled: true
     # -- Initial delay seconds for livenessProbe
-    initialDelaySeconds: 30
+    initialDelaySeconds: 60
     # -- Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for livenessProbe
-    timeoutSeconds: 10
+    timeoutSeconds: 30
     # -- Failure threshold for livenessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for livenessProbe
     successThreshold: 1
 
@@ -501,13 +503,13 @@ server:
     # -- Enable readinessProbe on the server
     enabled: true
     # -- Initial delay seconds for readinessProbe
-    initialDelaySeconds: 10
+    initialDelaySeconds: 120
     # -- Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for readinessProbe
-    timeoutSeconds: 10
+    timeoutSeconds: 30
     # -- Failure threshold for readinessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for readinessProbe
     successThreshold: 1
 
@@ -614,6 +616,10 @@ server:
         secretKeyRef:
           name: airbyte-config-secrets
           key: S3_LOG_BUCKET
+    - name: HTTP_IDLE_TIMEOUT  
+      value: 20m  
+    - name: READ_TIMEOUT  
+      value: 30m
   ## Example: (With default env vars and values taken from generated config map)
   # extraEnv:
   #   - name: AIRBYTE_VERSION
@@ -643,7 +649,7 @@ server:
   #         key: INTERNAL_API_HOST
   ##
   # -- Supply extra env variables to main container using full notation
-  extraEnv: []
+  # extraEnv: []
   ## Example:
   ## secrets:
   ##   DATABASE_PASSWORD: strong-password
@@ -704,9 +710,9 @@ worker:
     # -- Period seconds for livenessProbe
     periodSeconds: 10
     # -- Timeout seconds for livenessProbe
-    timeoutSeconds: 1
+    timeoutSeconds: 60
     # -- Failure threshold for livenessProbe
-    failureThreshold: 3
+    failureThreshold: 30
     # -- Success threshold for livenessProbe
     successThreshold: 1
 
@@ -746,7 +752,7 @@ worker:
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
   nodeSelector:
-    type: jobs
+    type: static
 
   # -- Tolerations for worker pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
@@ -830,7 +836,7 @@ worker:
     enabled: false
 
   debug:
-    enabled: false
+    enabled: true
 
   ## current no exist documentations
   activityMaxAttempt: ""
@@ -879,13 +885,13 @@ workload-launcher:
     # -- Enable livenessProbe on the workload launcher
     enabled: true
     # -- Initial delay seconds for livenessProbe
-    initialDelaySeconds: 30
+    initialDelaySeconds: 60
     # -- Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for livenessProbe
-    timeoutSeconds: 1
+    timeoutSeconds: 30
     # -- Failure threshold for livenessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for livenessProbe
     successThreshold: 1
 
@@ -893,13 +899,13 @@ workload-launcher:
     # -- Enable readinessProbe on the workload launcher
     enabled: true
     # -- Initial delay seconds for readinessProbe
-    initialDelaySeconds: 10
+    initialDelaySeconds: 120
     # -- Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for readinessProbe
-    timeoutSeconds: 1
+    timeoutSeconds: 30
     # -- Failure threshold for readinessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for readinessProbe
     successThreshold: 1
 
@@ -2189,13 +2195,13 @@ workload-api-server:
     # -- Enable livenessProbe on the server
     enabled: true
     # -- Initial delay seconds for livenessProbe
-    initialDelaySeconds: 30
+    initialDelaySeconds: 60
     # -- Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for livenessProbe
-    timeoutSeconds: 10
+    timeoutSeconds: 30
     # -- Failure threshold for livenessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for livenessProbe
     successThreshold: 1
 
@@ -2203,13 +2209,13 @@ workload-api-server:
     # -- Enable readinessProbe on the server
     enabled: true
     # -- Initial delay seconds for readinessProbe
-    initialDelaySeconds: 10
+    initialDelaySeconds: 120
     # -- Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for readinessProbe
-    timeoutSeconds: 10
+    timeoutSeconds: 30
     # -- Failure threshold for readinessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for readinessProbe
     successThreshold: 1
 
@@ -2239,7 +2245,7 @@ workload-api-server:
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
   nodeSelector:
-    type: jobs
+    type: static
 
   # -- Tolerations for webapp pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []

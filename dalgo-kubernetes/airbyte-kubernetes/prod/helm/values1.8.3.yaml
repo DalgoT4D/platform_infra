@@ -23,13 +23,14 @@ global:
   # Docker image config that will apply to all images.
   image:
     # Docker registry to pull platform images from, e.g. http://my-registry:8000/
-    registry: ""
+    registry: "docker.io"
     # Image tag to use for airbyte images. 
     # Does not include non-airbyte images such as temporal, minio, etc.
     tag: ""
 
   # Docker image pull secret
-  imagePullSecrets: []
+  imagePullSecrets:
+    - name: "airbyte-docker-secret"
 
   # -- Auth configuration
   auth:
@@ -66,7 +67,11 @@ global:
     #    clientSecretSecretKey: "client-secret"
 
   # -- Environment variables
-  env_vars: {}
+  # env_vars:
+  #   JOB_MAIN_CONTAINER_CPU_REQUEST: "500m"
+  #   JOB_MAIN_CONTAINER_CPU_LIMIT: "2000m"
+  #   JOB_MAIN_CONTAINER_MEMORY_REQUEST: "2Gi"
+  #   JOB_MAIN_CONTAINER_MEMORY_LIMIT: "4Gi"
 
   # -- Database configuration
   database:
@@ -158,16 +163,16 @@ global:
       ##    cpu: 250m
       # -- Job resource requests
       requests:
-        cpu: 500m
-        memory: 1Gi
+        cpu: 1000m
+        memory: 2Gi
       ## Example:
       ## limits:
       ##    cpu: 200m
       ##    memory: 1Gi
       # -- Job resource limits
       limits:
-        cpu: 1000m
-        memory: 2Gi
+        cpu: 2000m
+        memory: 4Gi
 
     local:
       volume:
@@ -177,7 +182,8 @@ global:
       ## JOB_KUBE_ANNOTATIONS
       # pod annotations of the sync job and the default pod annotations fallback for others jobs
       # -- key/value annotations applied to kube jobs
-      annotations: {}
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: false
 
       ## JOB_KUBE_LABELS
       ## pod labels of the sync job and the default pod labels fallback for others jobs
@@ -187,7 +193,8 @@ global:
       ## JOB_KUBE_NODE_SELECTORS
       ## pod node selector of the sync job and the default pod node selector fallback for others jobs
       # -- Node labels for pod assignment
-      nodeSelector: {}
+      nodeSelector:
+        type: jobs
 
       ## JOB_KUBE_TOLERATIONS
       # -- Node tolerations for pod assignment
@@ -196,7 +203,7 @@ global:
 
       ## JOB_KUBE_MAIN_CONTAINER_IMAGE_PULL_SECRET
       # -- image pull secret to use for job pod
-      main_container_image_pull_secret: ""
+      main_container_image_pull_secret: "airbyte-docker-secret"
 
 ## @section Common Parameters
 
@@ -449,7 +456,7 @@ webapp:
 server:
   enabled: true
   # -- Number of server replicas
-  replicaCount: 2
+  replicaCount: 1
 
   image:
     # -- The repository to use for the airbyte server image.
@@ -487,13 +494,13 @@ server:
     # -- Enable livenessProbe on the server
     enabled: true
     # -- Initial delay seconds for livenessProbe
-    initialDelaySeconds: 30
+    initialDelaySeconds: 60
     # -- Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for livenessProbe
-    timeoutSeconds: 10
+    timeoutSeconds: 30
     # -- Failure threshold for livenessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for livenessProbe
     successThreshold: 1
 
@@ -501,13 +508,13 @@ server:
     # -- Enable readinessProbe on the server
     enabled: true
     # -- Initial delay seconds for readinessProbe
-    initialDelaySeconds: 10
+    initialDelaySeconds: 120
     # -- Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for readinessProbe
-    timeoutSeconds: 10
+    timeoutSeconds: 30
     # -- Failure threshold for readinessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for readinessProbe
     successThreshold: 1
 
@@ -708,9 +715,9 @@ worker:
     # -- Period seconds for livenessProbe
     periodSeconds: 10
     # -- Timeout seconds for livenessProbe
-    timeoutSeconds: 1
+    timeoutSeconds: 60
     # -- Failure threshold for livenessProbe
-    failureThreshold: 3
+    failureThreshold: 30
     # -- Success threshold for livenessProbe
     successThreshold: 1
 
@@ -740,17 +747,21 @@ worker:
     ##    cpu: 200m
     ##    memory: 1Gi
     #! -- The resources limits for the worker container
-    limits: {}
+    limits:
+      cpu: 1000m
+      memory: 2Gi
     ## Examples:
     ## requests:
     ##    memory: 256Mi
     ##    cpu: 250m
     # -- The requested resources for the worker container
-    requests: {}
+    requests:
+      cpu: 500m
+      memory: 1Gi
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
   nodeSelector:
-    type: jobs
+    type: static
 
   # -- Tolerations for worker pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
@@ -834,7 +845,7 @@ worker:
     enabled: false
 
   debug:
-    enabled: false
+    enabled: true
 
   ## current no exist documentations
   activityMaxAttempt: ""
@@ -883,13 +894,13 @@ workload-launcher:
     # -- Enable livenessProbe on the workload launcher
     enabled: true
     # -- Initial delay seconds for livenessProbe
-    initialDelaySeconds: 30
+    initialDelaySeconds: 60
     # -- Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for livenessProbe
-    timeoutSeconds: 1
-    # -- Failure threshold for livenessProbe
-    failureThreshold: 3
+    timeoutSeconds: 30
+    # -- Failure threshold for livenessProbejou
+    failureThreshold: 5
     # -- Success threshold for livenessProbe
     successThreshold: 1
 
@@ -897,13 +908,13 @@ workload-launcher:
     # -- Enable readinessProbe on the workload launcher
     enabled: true
     # -- Initial delay seconds for readinessProbe
-    initialDelaySeconds: 10
+    initialDelaySeconds: 120
     # -- Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for readinessProbe
-    timeoutSeconds: 1
+    timeoutSeconds: 30
     # -- Failure threshold for readinessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for readinessProbe
     successThreshold: 1
 
@@ -2193,13 +2204,13 @@ workload-api-server:
     # -- Enable livenessProbe on the server
     enabled: true
     # -- Initial delay seconds for livenessProbe
-    initialDelaySeconds: 30
+    initialDelaySeconds: 60
     # -- Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for livenessProbe
-    timeoutSeconds: 10
+    timeoutSeconds: 30
     # -- Failure threshold for livenessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for livenessProbe
     successThreshold: 1
 
@@ -2207,13 +2218,13 @@ workload-api-server:
     # -- Enable readinessProbe on the server
     enabled: true
     # -- Initial delay seconds for readinessProbe
-    initialDelaySeconds: 10
+    initialDelaySeconds: 120
     # -- Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # -- Timeout seconds for readinessProbe
-    timeoutSeconds: 10
+    timeoutSeconds: 30
     # -- Failure threshold for readinessProbe
-    failureThreshold: 3
+    failureThreshold: 5
     # -- Success threshold for readinessProbe
     successThreshold: 1
 
@@ -2229,13 +2240,17 @@ workload-api-server:
     ##    cpu: 200m
     ##    memory: 1Gi
     # -- The resources limits for the airbyte-workload-api-server container
-    limits: {}
+    limits:
+      cpu: 500m
+      memory: 1Gi
     ## Examples:
     ## requests:
     ##    memory: 256Mi
     ##    cpu: 250m
     # -- The requested resources for the airbyte-workload-api-server container
-    requests: {}
+    requests:
+      cpu: 256m
+      memory: 725Mi
 
   log:
     # -- The log level at which to log
@@ -2243,7 +2258,7 @@ workload-api-server:
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
   nodeSelector:
-    type: jobs
+    type: static
 
   # -- Tolerations for webapp pod assignment, see https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
