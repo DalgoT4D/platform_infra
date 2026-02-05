@@ -24,7 +24,7 @@
 # To update it, install helm-docs and run helm-docs from the root of this chart
 
 # -- Provide a name to override the name of the chart
-nameOverride: bhumi # good place to the org/client name
+nameOverride: tdf-1000daysfund # good place to the org/client name (must start with letter for k8s DNS-1035 compliance)
 # -- Provide a name to override the full names of resources
 fullnameOverride: ~
 
@@ -85,7 +85,7 @@ configFromSecret: '{{ template "superset.fullname" . }}-config'
 
 # -- The name of the secret which we will use to populate env vars in deployed pods
 # This can be useful for secret keys, etc.
-envFromSecret: superset-bhumi-env
+envFromSecret: superset-tdf-1000daysfund-env
 # -- This can be a list of templated strings
 envFromSecrets: []
 
@@ -206,12 +206,15 @@ configOverrides:
     FEATURE_FLAGS = {
         "ENABLE_TEMPLATE_PROCESSING": True,
         "ALERT_REPORTS": True,
+        "ALERT_REPORT_TABS": True,
         "DASHBOARD_CROSS_FILTERS": True,
         "DASHBOARD_RBAC": True,
         "DRILL_TO_DETAIL": True,
         "HORIZONTAL_FILTER_BAR": True,
         "ESTIMATE_QUERY_COST": True,
         "SSH_TUNNELING": True,
+        "PLAYWRIGHT_REPORTS_AND_THUMBNAILS": True,
+        "ALERT_REPORTS_NOTIFICATION_DRY_RUN": False
     }
 
     # Default cache for Superset objects
@@ -316,17 +319,19 @@ configOverrides:
     WEBDRIVER_BASEURL = "http://{{ template "superset.fullname" . }}:{{ .Values.service.port }}/"
     WEBDRIVER_BASEURL_USER_FRIENDLY = f"https://{os.environ['APPLICATION_HOST']}"
 
-    WEBDRIVER_TYPE = "firefox"
-
-      # Screenshot timeouts - these are the actual recognized config variables in Superset 4.1.1
-    SCREENSHOT_LOCATE_WAIT = 60  # Time to wait for elements to be located (default is 10)
-    SCREENSHOT_LOAD_WAIT = 120   # Time to wait for page to load (default is 60)
+    WEBDRIVER_TYPE = "chrome"
+    WEBDRIVER_OPTION_ARGS = [
+        "--force-device-scale-factor=2.0",
+        "--high-dpi-support=2.0",
+        "--headless",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        # This is required because our process runs as root (in order to install pip packages)
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-extensions",
+    ]
     
-    # Additional screenshot settings
-    SCREENSHOT_SELENIUM_RETRIES = 5  # Number of retries for screenshots
-    SCREENSHOT_SELENIUM_HEADSTART = 3  # Seconds to wait before taking screenshot
-    SCREENSHOT_SELENIUM_ANIMATION_WAIT = 5  # Wait for animations to complete = ""
-
     ENABLE_CORS = True
     CORS_OPTIONS = {
         "supports_credentials": True,
@@ -368,8 +373,12 @@ configOverrides:
 
         # whitelist ourselves so our clients don't need to create accounts for us on their domain
         whitelist = ["@projecttech4dev.org"]
-        if GOOGLE_WHITELISTED_DOMAIN and GOOGLE_WHITELISTED_DOMAIN != "projecttech4dev.org":
-            whitelist.append("@" + GOOGLE_WHITELISTED_DOMAIN)
+        if GOOGLE_WHITELISTED_DOMAIN:
+            for wdomain in GOOGLE_WHITELISTED_DOMAIN.split(","):
+                if wdomain != "projecttech4dev.org":
+                    whitelist.append("@" + wdomain)
+
+            
 
         OAUTH_PROVIDERS = [
             {
@@ -411,13 +420,13 @@ configOverrides:
                 "'self'",
                 app_host,
                 "https://api.mapbox.com",
-                "https://events.mapbox.com"
+                "https://events.mapbox.com",
             ],
             "frame-ancestors": [
                 "self",
                 "http://localhost:3000",
                 "https://staging.dalgo.org",
-                "https://dashboard.dalgo.org"
+                "https://dashboard.dalgo.org",
             ],
         },
     }
@@ -484,7 +493,7 @@ extraConfigMountPath: "/app/configs"
 
 image:
   repository: tech4dev/superset
-  tag: 4.1.1_prod
+  tag: 5.0.0-prod-v2
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -515,17 +524,17 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     # nginx.ingress.kubernetes.io/server-snippet: |
-    #   if ($host = "bhumi.dalgo.org") {
-    #     return 301 https://bhumi.dalgo.org$request_uri;
+    #   if ($host = "1000daysfund.dalgo.org") {
+    #     return 301 https://1000daysfund.dalgo.org$request_uri;
     #   }
   path: /
   pathType: ImplementationSpecific
   hosts:
-    - bhumi.dalgo.org
+    - 1000daysfund.dalgo.org
   tls:
     - hosts:
-        - bhumi.dalgo.org
-      secretName: bhumi-tls
+        - 1000daysfund.dalgo.org
+      secretName: tdf-1000daysfund-tls
   extraHostsRaw: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -621,7 +630,15 @@ supersetNode:
   # -- Labels to be added to supersetNode deployment
   deploymentLabels: {}
   # -- Affinity to be added to supersetNode deployment
-  affinity: {}
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: tdf-1000daysfund
+          topologyKey: kubernetes.io/hostname
   # -- TopologySpreadConstrains to be added to supersetNode deployments
   topologySpreadConstraints: []
   # -- Annotations to be added to supersetNode pods
@@ -720,7 +737,15 @@ supersetWorker:
   # -- Labels to be added to supersetWorker deployment
   deploymentLabels: {}
   # -- Affinity to be added to supersetWorker deployment
-  affinity: {}
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: tdf-1000daysfund-worker
+          topologyKey: kubernetes.io/hostname
   # -- TopologySpreadConstrains to be added to supersetWorker deployments
   topologySpreadConstraints: []
   # -- Annotations to be added to supersetWorker pods
@@ -737,12 +762,6 @@ supersetWorker:
       memory: "2Gi"
       cpu: "1000m"
       ephemeral-storage: 2Gi
-    # limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 128Mi
   podSecurityContext: {}
   containerSecurityContext: {}
   strategy: {}
@@ -820,9 +839,11 @@ supersetCeleryBeat:
     requests:
       memory: "150Mi"
       cpu: "50m"
+      ephemeral-storage: 500Mi
     limits:
       memory: "400Mi"
       cpu: "200m"
+      ephemeral-storage: 1Gi
   podSecurityContext: {}
   containerSecurityContext: {}
   # -- Set priorityClassName for CeleryBeat pods
