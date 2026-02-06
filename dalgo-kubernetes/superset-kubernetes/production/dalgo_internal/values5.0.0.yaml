@@ -54,26 +54,6 @@ serviceAccount:
 bootstrapScript: |
   #!/bin/bash
   
-  # Install system-level dependencies
-  apt-get update && apt-get install -y \
-    python3-dev \
-    default-libmysqlclient-dev \
-    build-essential \
-    pkg-config
-
-  # specific to superset 4.1.1; might change when we upgrade
-  pip uninstall -y numpy pandas
-  pip install "numpy>=1.22,<1.27" "pandas>=2.0.3,<2.1"
-
-  # Install required Python packages
-  pip install mysqlclient
-
-  # pip install --no-cache gevent redis celery flower pytz
-  # pip install --upgrade urllib3 requests botocore boto3 authlib python-dotenv
-  # pip install --upgrade sqlalchemy-bigquery pandas_gbq google-auth
-
-  # pip install sqlalchemy-redshift
-
   # Create bootstrap file if it doesn't exist
   if [ ! -f ~/bootstrap ]; then
     echo "Running Superset with uid {{ .Values.runAsUser }}" > ~/bootstrap
@@ -541,7 +521,7 @@ ingress:
   annotations:
     # kubernetes.io/tls-acme: "true"
     ## Extend timeout to allow long running queries.
-    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
