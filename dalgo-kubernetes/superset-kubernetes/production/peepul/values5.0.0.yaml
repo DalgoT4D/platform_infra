@@ -239,6 +239,7 @@ configOverrides:
         "CACHE_REDIS_URL": os.environ["BROKER_URL"],
     }
 
+    SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = 655350
 
     REDIS_HOST = os.environ["REDIS_HOST"]
     REDIS_PORT = "6379"
@@ -410,6 +411,39 @@ configOverrides:
             ],
         },
     }
+
+    EXTRA_CATEGORICAL_COLOR_SCHEMES = [
+    {
+        "id": "peepul_blue",
+        "label": "Peepul - Blue",
+        "colors": ['#2d2b70', '#67cbdb'],
+        "isDefault": False
+    },
+    {
+        "id": "peepul_pie",
+        "label": "Peepul - Pie Chart",
+        "colors": ['#67cbdb', '#CEECF1', '#2d8897', '#F5F5F5'],
+        "isDefault": False
+    },
+    {
+        "id": "peepul_score_dist",
+        "label": "Peepul - Score",
+        "colors": ['#E89A9A', '#FFE599', '#93C47D', '#6AA84F', '#38761d'],
+        "isDefault": False
+    },
+    {
+        "id": "peepul_line_graph",
+        "label": "Peepul - Line Graph",
+        "colors": ['#2d2b70', '#FFE599', '#67cbdb'],
+        "isDefault": False
+    },
+    {
+        "id": "peepul_brown",
+        "label": "Peepul - Brown",
+        "colors": ['#8C5A3C', '#D6AD8A'],
+        "isDefault": False
+    },
+    ]
 
   # Branding
   if os.environ.get("APP_NAME"):
