@@ -1,0 +1,17 @@
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: prefect-server-external-ep
+  namespace: prefect
+  labels:
+    kubernetes.io/service-name: prefect-server-external
+addressType: IPv4
+ports:
+  - name: http
+    protocol: TCP
+    port: 4200
+endpoints:
+  - addresses:
+      - <WHERE prefect is running>    # <- REPLACE with your external private IP
+    conditions:
+      ready: true
