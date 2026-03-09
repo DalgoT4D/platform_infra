@@ -24,7 +24,7 @@
 # To update it, install helm-docs and run helm-docs from the root of this chart
 
 # -- Provide a name to override the name of the chart
-nameOverride: noora-oauth # good place to the org/client name
+nameOverride: noora # good place to the org/client name
 # -- Provide a name to override the full names of resources
 fullnameOverride: ~
 
@@ -65,7 +65,7 @@ configFromSecret: '{{ template "superset.fullname" . }}-config'
 
 # -- The name of the secret which we will use to populate env vars in deployed pods
 # This can be useful for secret keys, etc.
-envFromSecret: superset-noora-oauth-env
+envFromSecret: superset-noora-env
 # -- This can be a list of templated strings
 envFromSecrets: []
 
@@ -302,12 +302,11 @@ configOverrides:
     WEBDRIVER_BASEURL = "http://{{ template "superset.fullname" . }}:{{ .Values.service.port }}/"
     WEBDRIVER_BASEURL_USER_FRIENDLY = f"https://{os.environ['APPLICATION_HOST']}"
 
-
-    # for caching the list of slack channels
+        # for caching the list of slack channels
     from datetime import timedelta
-
     SLACK_CACHE_TIMEOUT = int(timedelta(days=1).total_seconds()) 
     SLACK_API_RATE_LIMIT_RETRY_COUNT = 2
+
     WEBDRIVER_TYPE = "chrome"
 
     WEBDRIVER_OPTION_ARGS = [
@@ -336,6 +335,7 @@ configOverrides:
         ],
         "origins": [os.environ["CORS_ORIGINS"].split(",")],
     }
+    AUTH_USER_REGISTRATION = True
 
     SESSION_COOKIE_SAMESITE = None
     SESSION_COOKIE_SECURE = False
@@ -378,9 +378,7 @@ configOverrides:
             for wdomain in GOOGLE_WHITELISTED_DOMAIN.split(","):
                 if wdomain != "projecttech4dev.org":
                     whitelist.append("@" + wdomain)
-
-            
-
+                    
         OAUTH_PROVIDERS = [
             {
                 "name": "google",
@@ -600,17 +598,17 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     # nginx.ingress.kubernetes.io/server-snippet: |
-    #   if ($host = "noora-oauth.dalgo.org") {
-    #     return 301 https://noora-oauth.dalgo.org$request_uri;
+    #   if ($host = "noora.dalgo.org") {
+    #     return 301 https://noora.dalgo.org$request_uri;
     #   }
   path: /
   pathType: ImplementationSpecific
   hosts:
-    - noora-oauth.dalgo.org
+    - noora.dalgo.org
   tls:
     - hosts:
-        - noora-oauth.dalgo.org
-      secretName: noora-oauth-tls
+        - noora.dalgo.org
+      secretName: noora-tls
   extraHostsRaw: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -713,7 +711,7 @@ supersetNode:
         podAffinityTerm:
           labelSelector:
             matchLabels:
-              app: noora-oauth
+              app: noora
           topologyKey: kubernetes.io/hostname
   # -- TopologySpreadConstrains to be added to supersetNode deployments
   topologySpreadConstraints: []
@@ -770,7 +768,7 @@ supersetNode:
 supersetWorker:
   replicas:
     enabled: true
-    replicaCount: 1
+    replicaCount: 2
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -820,7 +818,7 @@ supersetWorker:
         podAffinityTerm:
           labelSelector:
             matchLabels:
-              app: noora-oauth-worker
+              app: noora-worker
           topologyKey: kubernetes.io/hostname
   # -- TopologySpreadConstrains to be added to supersetWorker deployments
   topologySpreadConstraints: []

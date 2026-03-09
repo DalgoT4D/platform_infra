@@ -24,7 +24,7 @@
 # To update it, install helm-docs and run helm-docs from the root of this chart
 
 # -- Provide a name to override the name of the chart
-nameOverride: noora-oauth # good place to the org/client name
+nameOverride: bhumi # good place to the org/client name (must start with letter for k8s DNS-1035 compliance)
 # -- Provide a name to override the full names of resources
 fullnameOverride: ~
 
@@ -53,7 +53,7 @@ serviceAccount:
 # @default -- see `values.yaml`
 bootstrapScript: |
   #!/bin/bash
-
+  
   # Create bootstrap file if it doesn't exist
   if [ ! -f ~/bootstrap ]; then
     echo "Running Superset with uid {{ .Values.runAsUser }}" > ~/bootstrap
@@ -65,7 +65,7 @@ configFromSecret: '{{ template "superset.fullname" . }}-config'
 
 # -- The name of the secret which we will use to populate env vars in deployed pods
 # This can be useful for secret keys, etc.
-envFromSecret: superset-noora-oauth-env
+envFromSecret: superset-bhumi-env
 # -- This can be a list of templated strings
 envFromSecrets: []
 
@@ -193,7 +193,6 @@ configOverrides:
         "HORIZONTAL_FILTER_BAR": True,
         "ESTIMATE_QUERY_COST": True,
         "SSH_TUNNELING": True,
-        "ALERT_REPORT_SLACK_V2": True,
         "PLAYWRIGHT_REPORTS_AND_THUMBNAILS": True,
         "ALERT_REPORTS_NOTIFICATION_DRY_RUN": False
     }
@@ -243,8 +242,6 @@ configOverrides:
 
     REDIS_HOST = os.environ["REDIS_HOST"]
     REDIS_PORT = "6379"
-
-    SLACK_API_TOKEN = os.environ["SLACK_API_TOKEN"]
 
 
     class CeleryConfig:  # pylint: disable=too-few-public-methods
@@ -302,14 +299,7 @@ configOverrides:
     WEBDRIVER_BASEURL = "http://{{ template "superset.fullname" . }}:{{ .Values.service.port }}/"
     WEBDRIVER_BASEURL_USER_FRIENDLY = f"https://{os.environ['APPLICATION_HOST']}"
 
-
-    # for caching the list of slack channels
-    from datetime import timedelta
-
-    SLACK_CACHE_TIMEOUT = int(timedelta(days=1).total_seconds()) 
-    SLACK_API_RATE_LIMIT_RETRY_COUNT = 2
     WEBDRIVER_TYPE = "chrome"
-
     WEBDRIVER_OPTION_ARGS = [
         "--force-device-scale-factor=2.0",
         "--high-dpi-support=2.0",
@@ -321,7 +311,7 @@ configOverrides:
         "--disable-setuid-sandbox",
         "--disable-extensions",
     ]
-
+    
     ENABLE_CORS = True
     CORS_OPTIONS = {
         "supports_credentials": True,
@@ -352,17 +342,6 @@ configOverrides:
 
         # The default user self registration role
         AUTH_USER_REGISTRATION_ROLE = "Gamma"
-
-        AUTH_USER_REGISTRATION_ROLE_JMESPATH = """
-            ends_with(email, '@noorahealth.org') && 'default_noora' ||
-            ends_with(email, '@yosaid.org') && 'default_noora' ||
-            ends_with(email, '@assra4u.org') && 'default_noora' ||
-            ends_with(email, '@agency.fund') && 'default_noora' ||
-            ends_with(email, '@projecttech4dev.org') && 'default_basic' ||
-            ends_with(email, '@oneheartworldwide.org') && 'default_basic' ||
-            ends_with(email, '@gmail.com') && 'default_basic' ||
-            'Public'
-        """
 
         # without this the redirect_url will be "http" and will therefore not match the url
         # provided in the google cloud console
@@ -414,8 +393,8 @@ configOverrides:
     TALISMAN_CONFIG = {
         "force_https": False,  # because enabling this will break automated reports
         "content_security_policy": {
-            "style-src": ["'self'", app_host, "'unsafe-inline'"],
-            "img-src": ["'self'", app_host, "data:"],
+            "style-src": ["'self'", app_host, "'unsafe-inline'","https://fonts.googleapis.com"],
+            "img-src": ["'self'", app_host, "data:", "https://client-superset-assets.s3.ap-south-1.amazonaws.com"],
             "worker-src": ["'self'", app_host, "blob:"],
             "connect-src": [
                 "'self'",
@@ -431,81 +410,6 @@ configOverrides:
             ],
         },
     }
-    EXTRA_CATEGORICAL_COLOR_SCHEMES = [
-        {
-            "id": "pallette_primary",
-            "description": "",
-            "label": "Noora Palette Primary",
-            "isDefault": False,
-            "colors": ["#DD3E77", "#37B7E6", "#00956E", "#FAA820", "#383838"],
-        },
-        {
-            "id": "pallette_1",
-            "description": "",
-            "label": "Noora Palette 1",
-            "isDefault": False,
-            "colors": ["#DD3E77", "#ED64D3", "#8E2F51", "#F47F7F"],
-        },
-        {
-            "id": "pallette_2",
-            "description": "",
-            "label": "Noora Palette 2",
-            "isDefault": False,
-            "colors": ["#37B7E6", "#652D90", "#1C77A0", "#867ADD", "#264487"],
-        },
-        {
-            "id": "pallette_3",
-            "description": "",
-            "label": "Noora Palette 3",
-            "isDefault": False,
-            "colors": ["#00956E", "#144D47", "#6F7A31", "#AFDB95", "#A7A2A0"],
-        },
-        {
-            "id": "pallette_4",
-            "description": "",
-            "label": "Noora Palette 4",
-            "isDefault": False,
-            "colors": [
-                "#FAA820",
-                "#EA6A50",
-                "#875241",
-                "#F7E74F",
-                "#A87335",
-                "#C99889",
-            ],
-        },
-        {
-            "id": "pallette_all",
-            "description": "",
-            "label": "Noora Palette All",
-            "isDefault": False,
-            "colors": [
-                "#37B7E6",
-                "#00956E",
-                "#264487",
-                "#875241",
-                "#383838",
-                "#C99889",
-                "#6F7A31",
-                "#144D47",
-                "#AFDB95",
-                "#867ADD",
-                "#ED64D3",
-                "#EA6A50",
-                "#652D90",
-                "#F7E74F",
-                "#DD3E77",
-                "#F47F7F",
-                "#1C77A0",
-                "#A87335",
-                "#A7A2A0",
-                "#8E2F51",
-                "#FAA820",
-            ],
-        },
-    ]
-
-
 
   # Branding
   if os.environ.get("APP_NAME"):
@@ -595,22 +499,22 @@ ingress:
   annotations:
     # kubernetes.io/tls-acme: "true"
     ## Extend timeout to allow long running queries.
-    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     # nginx.ingress.kubernetes.io/server-snippet: |
-    #   if ($host = "noora-oauth.dalgo.org") {
-    #     return 301 https://noora-oauth.dalgo.org$request_uri;
+    #   if ($host = "bhumi.dalgo.org") {
+    #     return 301 https://bhumi.dalgo.org$request_uri;
     #   }
   path: /
   pathType: ImplementationSpecific
   hosts:
-    - noora-oauth.dalgo.org
+    - bhumi.dalgo.org
   tls:
     - hosts:
-        - noora-oauth.dalgo.org
-      secretName: noora-oauth-tls
+        - bhumi.dalgo.org
+      secretName: bhumi-tls
   extraHostsRaw: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -641,7 +545,7 @@ hostAliases: []
 supersetNode:
   replicas:
     enabled: true
-    replicaCount: 2
+    replicaCount: 1
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -713,7 +617,7 @@ supersetNode:
         podAffinityTerm:
           labelSelector:
             matchLabels:
-              app: noora-oauth
+              app: bhumi
           topologyKey: kubernetes.io/hostname
   # -- TopologySpreadConstrains to be added to supersetNode deployments
   topologySpreadConstraints: []
@@ -752,7 +656,7 @@ supersetNode:
   resources:
     requests:
       memory: "500Mi"
-      cpu: "200m"
+      cpu: "50m"
       ephemeral-storage: 512Mi
     limits:
       memory: "1200Mi"
@@ -820,7 +724,7 @@ supersetWorker:
         podAffinityTerm:
           labelSelector:
             matchLabels:
-              app: noora-oauth-worker
+              app: bhumi-worker
           topologyKey: kubernetes.io/hostname
   # -- TopologySpreadConstrains to be added to supersetWorker deployments
   topologySpreadConstraints: []
@@ -832,11 +736,11 @@ supersetWorker:
   resources:
     requests:
       memory: "1Gi"
-      cpu: "500m"
+      cpu: "50m"
       ephemeral-storage: 1Gi
     limits:
       memory: "2Gi"
-      cpu: "1000m"
+      cpu: "600m"
       ephemeral-storage: 2Gi
   podSecurityContext: {}
   containerSecurityContext: {}

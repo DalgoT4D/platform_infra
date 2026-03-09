@@ -1169,6 +1169,9 @@ postgresql:
 # More documentation can be found here: https://artifacthub.io/packages/helm/bitnami/redis
 # @default -- see `values.yaml`
 redis:
+  image:
+    repository: bitnamilegacy/redis
+    tag: "7.0.10-debian-11-r4"
   ##
   ## Use the redis chart dependency.
   ##
