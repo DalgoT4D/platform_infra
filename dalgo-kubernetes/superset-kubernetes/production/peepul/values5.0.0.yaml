@@ -693,7 +693,7 @@ supersetNode:
       cpu: "50m"
       ephemeral-storage: 512Mi
     limits:
-      memory: "1200Mi"
+      memory: "1800Mi"
       cpu: "600m"
       ephemeral-storage: 1Gi
   podSecurityContext: {}
