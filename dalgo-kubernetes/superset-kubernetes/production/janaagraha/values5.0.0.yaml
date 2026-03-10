@@ -747,7 +747,7 @@ supersetWorker:
       cpu: "500m"
       ephemeral-storage: 1Gi
     limits:
-      memory: "2Gi"
+      memory: "1.5Gi"
       cpu: "1000m"
       ephemeral-storage: 2Gi
   podSecurityContext: {}
