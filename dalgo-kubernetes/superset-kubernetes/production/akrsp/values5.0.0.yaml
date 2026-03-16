@@ -656,7 +656,7 @@ supersetNode:
   resources:
     requests:
       memory: "750Mi"
-      cpu: "200m"
+      cpu: "50m"
       ephemeral-storage: 512Mi
     limits:
       memory: "1200Mi"
@@ -736,11 +736,11 @@ supersetWorker:
   resources:
     requests:
       memory: "1Gi"
-      cpu: "500m"
+      cpu: "50m"
       ephemeral-storage: 1Gi
     limits:
-      memory: "2Gi"
-      cpu: "1000m"
+      memory: "1.5Gi"
+      cpu: "600m"
       ephemeral-storage: 2Gi
   podSecurityContext: {}
   containerSecurityContext: {}
