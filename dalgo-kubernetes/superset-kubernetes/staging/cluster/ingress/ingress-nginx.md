@@ -22,3 +22,13 @@ add under data "annotations-risk-level: Critical"
 # logs of ingress controller
 
  kubectl logs -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx
+
+# helm upgrade command to run ingress controller as a Daemonset - one pod per node. 
+helm upgrade nginx-ingress ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --set controller.kind=DaemonSet \
+  --set controller.service.type=LoadBalancer \
+  --set controller.resources.requests.cpu=50m \
+  --set controller.resources.requests.memory=90Mi \
+  --set controller.service.externalTrafficPolicy=Local \
+  --set controller.allowSnippetAnnotations=true \
