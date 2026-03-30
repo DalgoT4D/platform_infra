@@ -481,7 +481,7 @@ extraConfigMountPath: "/app/configs"
 
 image:
   repository: tech4dev/superset
-  tag: 5.0.0-prod-v2
+  tag: atecf-prod-5.0.0-amd64
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -663,7 +663,7 @@ supersetNode:
   # -- Resource settings for the supersetNode pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
     requests:
-      memory: "500Mi"
+      memory: "750Mi"
       cpu: "200m"
       ephemeral-storage: 512Mi
     limits:

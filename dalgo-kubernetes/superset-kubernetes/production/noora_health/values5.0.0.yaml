@@ -53,7 +53,7 @@ serviceAccount:
 # @default -- see `values.yaml`
 bootstrapScript: |
   #!/bin/bash
-
+  pip install google-cloud-bigquery-storage
   # Create bootstrap file if it doesn't exist
   if [ ! -f ~/bootstrap ]; then
     echo "Running Superset with uid {{ .Values.runAsUser }}" > ~/bootstrap
@@ -749,7 +749,7 @@ supersetNode:
   # -- Resource settings for the supersetNode pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
     requests:
-      memory: "500Mi"
+      memory: "750Mi"
       cpu: "200m"
       ephemeral-storage: 512Mi
     limits:
