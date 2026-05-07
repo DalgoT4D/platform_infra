@@ -119,7 +119,7 @@
         ],
         "type": "string",
         "title": "Image Pull Policy",
-        "default": "Always",
+        "default": "IfNotPresent",
         "description": "The Kubernetes image pull policy to use for job containers."
       },
       "service_account_name": {
@@ -192,11 +192,6 @@
       "kind": "Job",
       "spec": {
         "template": {
-          "metadata": {
-            "annotations": {
-              "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
-            }
-          },
           "spec": {
             "containers": [
               {
@@ -204,17 +199,7 @@
                 "args": "{{ command }}",
                 "name": "prefect-job",
                 "image": "{{ image }}",
-                "imagePullPolicy": "{{ image_pull_policy }}",
-                "resources": {
-                  "requests": {
-                    "cpu": "500m",
-                    "memory": "512Mi"
-                  },
-                  "limits": {
-                    "cpu": "1",
-                    "memory": "1Gi"
-                  }
-                }
+                "imagePullPolicy": "{{ image_pull_policy }}"
               }
             ],
             "completions": 1,
@@ -224,6 +209,11 @@
             },
             "restartPolicy": "Never",
             "serviceAccountName": "{{ service_account_name }}"
+          },
+          "metadata": {
+            "annotations": {
+              "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
+            }
           }
         },
         "backoffLimit": "{{ backoff_limit }}",
