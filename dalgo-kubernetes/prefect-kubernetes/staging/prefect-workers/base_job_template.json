@@ -149,7 +149,7 @@
       "pod_watch_timeout_seconds": {
         "type": "integer",
         "title": "Pod Watch Timeout Seconds",
-        "default": 60,
+        "default": 300,
         "description": "Number of seconds to watch for pod creation before timing out."
       }
     },
