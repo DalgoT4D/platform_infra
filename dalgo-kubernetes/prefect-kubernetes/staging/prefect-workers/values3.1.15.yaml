@@ -248,7 +248,8 @@ worker:
 
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   # -- extra annotations for worker pod
-  podAnnotations: {}
+  podAnnotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
 
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   # -- affinity for worker pods assignment
