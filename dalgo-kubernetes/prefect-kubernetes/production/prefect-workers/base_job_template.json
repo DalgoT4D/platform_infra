@@ -199,7 +199,17 @@
                 "args": "{{ command }}",
                 "name": "prefect-job",
                 "image": "{{ image }}",
-                "imagePullPolicy": "{{ image_pull_policy }}"
+                "imagePullPolicy": "{{ image_pull_policy }}",
+                "resources": {
+                  "requests": {
+                    "cpu": "500m",
+                    "memory": "512Mi"
+                  },
+                  "limits": {
+                    "cpu": "1",
+                    "memory": "1Gi"
+                  }
+                }
               }
             ],
             "completions": 1,
