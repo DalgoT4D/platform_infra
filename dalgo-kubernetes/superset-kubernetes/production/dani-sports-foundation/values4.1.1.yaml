@@ -24,7 +24,7 @@
 # To update it, install helm-docs and run helm-docs from the root of this chart
 
 # -- Provide a name to override the name of the chart
-nameOverride: dani # good place to the org/client name (must start with letter for k8s DNS-1035 compliance)
+nameOverride: bhumi # good place to the org/client name
 # -- Provide a name to override the full names of resources
 fullnameOverride: ~
 
@@ -54,6 +54,26 @@ serviceAccount:
 bootstrapScript: |
   #!/bin/bash
   
+  # Install system-level dependencies
+  apt-get update && apt-get install -y \
+    python3-dev \
+    default-libmysqlclient-dev \
+    build-essential \
+    pkg-config
+
+  # specific to superset 4.1.1; might change when we upgrade
+  pip uninstall -y numpy pandas
+  pip install "numpy>=1.22,<1.27" "pandas>=2.0.3,<2.1"
+
+  # Install required Python packages
+  pip install mysqlclient
+
+  # pip install --no-cache gevent redis celery flower pytz
+  # pip install --upgrade urllib3 requests botocore boto3 authlib python-dotenv
+  # pip install --upgrade sqlalchemy-bigquery pandas_gbq google-auth
+
+  # pip install sqlalchemy-redshift
+
   # Create bootstrap file if it doesn't exist
   if [ ! -f ~/bootstrap ]; then
     echo "Running Superset with uid {{ .Values.runAsUser }}" > ~/bootstrap
@@ -65,7 +85,7 @@ configFromSecret: '{{ template "superset.fullname" . }}-config'
 
 # -- The name of the secret which we will use to populate env vars in deployed pods
 # This can be useful for secret keys, etc.
-envFromSecret: superset-dani-env
+envFromSecret: superset-bhumi-env
 # -- This can be a list of templated strings
 envFromSecrets: []
 
@@ -186,15 +206,12 @@ configOverrides:
     FEATURE_FLAGS = {
         "ENABLE_TEMPLATE_PROCESSING": True,
         "ALERT_REPORTS": True,
-        "ALERT_REPORT_TABS": True,
         "DASHBOARD_CROSS_FILTERS": True,
         "DASHBOARD_RBAC": True,
         "DRILL_TO_DETAIL": True,
         "HORIZONTAL_FILTER_BAR": True,
         "ESTIMATE_QUERY_COST": True,
         "SSH_TUNNELING": True,
-        "PLAYWRIGHT_REPORTS_AND_THUMBNAILS": True,
-        "ALERT_REPORTS_NOTIFICATION_DRY_RUN": False
     }
 
     # Default cache for Superset objects
@@ -299,19 +316,17 @@ configOverrides:
     WEBDRIVER_BASEURL = "http://{{ template "superset.fullname" . }}:{{ .Values.service.port }}/"
     WEBDRIVER_BASEURL_USER_FRIENDLY = f"https://{os.environ['APPLICATION_HOST']}"
 
-    WEBDRIVER_TYPE = "chrome"
-    WEBDRIVER_OPTION_ARGS = [
-        "--force-device-scale-factor=2.0",
-        "--high-dpi-support=2.0",
-        "--headless",
-        "--disable-gpu",
-        "--disable-dev-shm-usage",
-        # This is required because our process runs as root (in order to install pip packages)
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-extensions",
-    ]
+    WEBDRIVER_TYPE = "firefox"
+
+      # Screenshot timeouts - these are the actual recognized config variables in Superset 4.1.1
+    SCREENSHOT_LOCATE_WAIT = 60  # Time to wait for elements to be located (default is 10)
+    SCREENSHOT_LOAD_WAIT = 120   # Time to wait for page to load (default is 60)
     
+    # Additional screenshot settings
+    SCREENSHOT_SELENIUM_RETRIES = 5  # Number of retries for screenshots
+    SCREENSHOT_SELENIUM_HEADSTART = 3  # Seconds to wait before taking screenshot
+    SCREENSHOT_SELENIUM_ANIMATION_WAIT = 5  # Wait for animations to complete = ""
+
     ENABLE_CORS = True
     CORS_OPTIONS = {
         "supports_credentials": True,
@@ -353,12 +368,8 @@ configOverrides:
 
         # whitelist ourselves so our clients don't need to create accounts for us on their domain
         whitelist = ["@projecttech4dev.org"]
-        if GOOGLE_WHITELISTED_DOMAIN:
-            for wdomain in GOOGLE_WHITELISTED_DOMAIN.split(","):
-                if wdomain != "projecttech4dev.org":
-                    whitelist.append("@" + wdomain)
-
-            
+        if GOOGLE_WHITELISTED_DOMAIN and GOOGLE_WHITELISTED_DOMAIN != "projecttech4dev.org":
+            whitelist.append("@" + GOOGLE_WHITELISTED_DOMAIN)
 
         OAUTH_PROVIDERS = [
             {
@@ -393,20 +404,20 @@ configOverrides:
     TALISMAN_CONFIG = {
         "force_https": False,  # because enabling this will break automated reports
         "content_security_policy": {
-            "style-src": ["'self'", app_host, "'unsafe-inline'","https://fonts.googleapis.com"],
-            "img-src": ["'self'", app_host, "data:", "https://client-superset-assets.s3.ap-south-1.amazonaws.com"],
+            "style-src": ["'self'", app_host, "'unsafe-inline'"],
+            "img-src": ["'self'", app_host, "data:"],
             "worker-src": ["'self'", app_host, "blob:"],
             "connect-src": [
                 "'self'",
                 app_host,
                 "https://api.mapbox.com",
-                "https://events.mapbox.com",
+                "https://events.mapbox.com"
             ],
             "frame-ancestors": [
                 "self",
                 "http://localhost:3000",
                 "https://staging.dalgo.org",
-                "https://dashboard.dalgo.org",
+                "https://dashboard.dalgo.org"
             ],
         },
     }
@@ -473,7 +484,7 @@ extraConfigMountPath: "/app/configs"
 
 image:
   repository: tech4dev/superset
-  tag: 6.0.0
+  tag: 4.1.1_prod
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -499,7 +510,7 @@ ingress:
   annotations:
     # kubernetes.io/tls-acme: "true"
     ## Extend timeout to allow long running queries.
-    cert-manager.io/cluster-issuer: "letsencrypt-production"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
@@ -510,11 +521,11 @@ ingress:
   path: /
   pathType: ImplementationSpecific
   hosts:
-    - danisports.dalgo.org
+    - bhumi.dalgo.org
   tls:
     - hosts:
-        - danisports.dalgo.org
-      secretName: dani-tls
+        - bhumi.dalgo.org
+      secretName: bhumi-tls
   extraHostsRaw: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -610,15 +621,7 @@ supersetNode:
   # -- Labels to be added to supersetNode deployment
   deploymentLabels: {}
   # -- Affinity to be added to supersetNode deployment
-  affinity:
-    podAntiAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 100
-        podAffinityTerm:
-          labelSelector:
-            matchLabels:
-              app: dani
-          topologyKey: kubernetes.io/hostname
+  affinity: {}
   # -- TopologySpreadConstrains to be added to supersetNode deployments
   topologySpreadConstraints: []
   # -- Annotations to be added to supersetNode pods
@@ -655,8 +658,8 @@ supersetNode:
   # -- Resource settings for the supersetNode pods - these settings overwrite might existing values from the global resources object defined above.
   resources:
     requests:
-      memory: "750Mi"
-      cpu: "50m"
+      memory: "500Mi"
+      cpu: "200m"
       ephemeral-storage: 512Mi
     limits:
       memory: "1200Mi"
@@ -717,15 +720,7 @@ supersetWorker:
   # -- Labels to be added to supersetWorker deployment
   deploymentLabels: {}
   # -- Affinity to be added to supersetWorker deployment
-  affinity:
-    podAntiAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 100
-        podAffinityTerm:
-          labelSelector:
-            matchLabels:
-              app: dani-worker
-          topologyKey: kubernetes.io/hostname
+  affinity: {}
   # -- TopologySpreadConstrains to be added to supersetWorker deployments
   topologySpreadConstraints: []
   # -- Annotations to be added to supersetWorker pods
@@ -736,12 +731,18 @@ supersetWorker:
   resources:
     requests:
       memory: "1Gi"
-      cpu: "50m"
+      cpu: "500m"
       ephemeral-storage: 1Gi
     limits:
-      memory: "1.5Gi"
-      cpu: "600m"
+      memory: "2Gi"
+      cpu: "1000m"
       ephemeral-storage: 2Gi
+    # limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    # requests:
+    #  cpu: 100m
+    #  memory: 128Mi
   podSecurityContext: {}
   containerSecurityContext: {}
   strategy: {}
@@ -819,11 +820,9 @@ supersetCeleryBeat:
     requests:
       memory: "150Mi"
       cpu: "50m"
-      ephemeral-storage: 500Mi
     limits:
       memory: "400Mi"
       cpu: "200m"
-      ephemeral-storage: 1Gi
   podSecurityContext: {}
   containerSecurityContext: {}
   # -- Set priorityClassName for CeleryBeat pods
