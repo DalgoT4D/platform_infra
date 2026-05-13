@@ -724,7 +724,7 @@ supersetNode:
       path: /health
       port: http
     initialDelaySeconds: 15
-    timeoutSeconds: 1
+    timeoutSeconds: 5
     failureThreshold: 60
     periodSeconds: 5
     successThreshold: 1
@@ -733,8 +733,8 @@ supersetNode:
       path: /health
       port: http
     initialDelaySeconds: 15
-    timeoutSeconds: 1
-    failureThreshold: 3
+    timeoutSeconds: 5
+    failureThreshold: 5
     periodSeconds: 15
     successThreshold: 1
   readinessProbe:
@@ -742,7 +742,7 @@ supersetNode:
       path: /health
       port: http
     initialDelaySeconds: 15
-    timeoutSeconds: 1
+    timeoutSeconds: 5
     failureThreshold: 3
     periodSeconds: 15
     successThreshold: 1
