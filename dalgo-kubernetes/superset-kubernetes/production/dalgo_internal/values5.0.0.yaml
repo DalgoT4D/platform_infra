@@ -608,7 +608,8 @@ supersetNode:
   #   db_user: "test_superset"
   #   db_pass: "test_superset"
   #   db_name: "test_superset"
-  env: {}
+  env:
+    WORKER_MAX_REQUESTS: 500
   # -- If true, forces deployment to reload on each upgrade
   forceReload: false
   # -- Init containers
