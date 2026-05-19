@@ -9,7 +9,9 @@ kubectl apply -f superset-env.yaml
 
 <!-- helm upgrade --install --values values5.0.0.yaml  dalgo superset/superset --version 0.14.1 --namespace superset --debug -->
 
-helm upgrade --install --values values6.0.0.yaml  dalgo superset/superset --version 0.14.1 --namespace superset --debug
+<!-- helm upgrade --install --values values6.0.0.yaml  dalgo superset/superset --version 0.14.1 --namespace superset --debug -->
+
+helm upgrade --install --values values6.1.0.yaml  dalgo superset/superset --version 0.14.1 --namespace superset --debug
 
 # uninstall
 helm uninstall dalgo -n superset 
