@@ -535,10 +535,6 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
-    # nginx.ingress.kubernetes.io/server-snippet: |
-    #   if ($host = "demosuperset.dalgo.org") {
-    #     return 301 https://demosuperset.dalgo.org$request_uri;
-    #   }
   path: /
   pathType: ImplementationSpecific
   hosts:
@@ -1115,7 +1111,14 @@ init:
   podSecurityContext: {}
   containerSecurityContext: {}
   ## Tolerations to be added to init job pods
-  tolerations: []
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: superset
+      effect: NoSchedule
+  ## NodeSelector to be added to init job pods
+  nodeSelector:
+    workload: superset
   ## Affinity to be added to init job pods
   affinity: {}
   # -- TopologySpreadConstrains to be added to init job
@@ -1201,6 +1204,14 @@ redis:
   ## Master configuration
   ##
   master:
+    # -- Schedule redis on the dedicated superset node group
+    nodeSelector:
+      workload: superset
+    tolerations:
+      - key: dedicated
+        operator: Equal
+        value: superset
+        effect: NoSchedule
     ##
     ## Image configuration
     # image:
@@ -1221,9 +1232,14 @@ redis:
       accessModes:
         - ReadWriteOnce
 
-nodeSelector: {}
+nodeSelector:
+  workload: superset
 
-tolerations: []
+tolerations:
+  - key: dedicated
+    operator: Equal
+    value: superset
+    effect: NoSchedule
 
 affinity: {}
 
