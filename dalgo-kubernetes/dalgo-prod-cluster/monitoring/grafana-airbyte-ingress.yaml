@@ -1,0 +1,32 @@
+# Standalone ALB ingress exposing prod Grafana at grafana-airbyte.dalgo.org.
+# - No group.name => its OWN ALB (dalgo-prod-grafana-alb); does NOT touch the Airbyte ALB.
+# - Subnets pinned explicitly (2 public subnets) so no VPC-wide tagging is needed.
+# - certificate-arn omitted => controller auto-discovers the *.dalgo.org ACM cert by host.
+# - Targets the existing Grafana pods directly (target-type: ip), so the Grafana Service
+#   can stay as-is until DNS is cut over (then flip it to ClusterIP to drop the old classic ELB).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-airbyte
+  namespace: monitoring
+  annotations:
+    alb.ingress.kubernetes.io/load-balancer-name: dalgo-prod-grafana-alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/subnets: subnet-072059f8c76371eea,subnet-0181641712cc0826a
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/healthcheck-path: /api/health
+spec:
+  ingressClassName: alb
+  rules:
+    - host: grafana-airbyte.dalgo.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kube-prometheus-stack-1739860793-grafana
+                port:
+                  number: 80
