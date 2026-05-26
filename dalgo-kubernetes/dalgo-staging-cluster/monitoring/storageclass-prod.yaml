@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp2-prod
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: kubernetes.io/aws-ebs
+reclaimPolicy: Retain # so that the volume is not deleted when the PVC is deleted
+allowVolumeExpansion: false # dynamically resize the volume
+volumeBindingMode: Immediate
+parameters:
+  fsType: "ext4"
+  type: "gp2"
