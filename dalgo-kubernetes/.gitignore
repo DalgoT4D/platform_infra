@@ -1,0 +1,35 @@
+# Consolidated ignores for all clusters under dalgo-kubernetes/
+# (patterns without a leading slash match at any depth)
+
+# --- Secrets / sensitive env files (NEVER commit) ---
+airbyte-config-secrets.yaml
+airbyte-config-prod-secrets.yaml
+prefect-external-service-endpoint.yaml
+superset-env.yaml
+grafana-admin-secret.yaml
+
+# --- Terraform ---
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+*.tfstate
+*.tfstate.backup
+crash.log
+crash.*
+*.tfvars
+*.tfvars.json
+*.tfplan
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# --- Editor / OS ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*.bak

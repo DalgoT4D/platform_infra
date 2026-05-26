@@ -1,0 +1,77 @@
+# kube-prometheus-stack values — dalgo-staging-cluster
+# Chart: prometheus-community/kube-prometheus-stack (69.4.1)
+#
+# - Prometheus, Alertmanager and Grafana all PERSIST to gp3 EBS volumes
+# - Grafana is served through the shared nginx ingress (NO dedicated ELB)
+# - Grafana admin creds come from a pre-created Secret (never committed here)
+
+fullnameOverride: kube-prometheus-stack
+
+# ----------------------------------------------------------------------------
+# Prometheus — metrics storage / retention
+# ----------------------------------------------------------------------------
+prometheus:
+  prometheusSpec:
+    retention: 30d
+    retentionSize: "45GB"
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp3
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+    resources:
+      requests: { cpu: 250m, memory: 1Gi }
+      limits:   { memory: 2Gi }
+
+# ----------------------------------------------------------------------------
+# Alertmanager
+# ----------------------------------------------------------------------------
+alertmanager:
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp3
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 5Gi
+
+# ----------------------------------------------------------------------------
+# Grafana — served via the shared nginx ingress, persisted to gp3
+# ----------------------------------------------------------------------------
+grafana:
+  service:
+    type: ClusterIP            # no dedicated LoadBalancer/ELB
+  persistence:
+    enabled: true
+    type: pvc
+    storageClassName: gp3
+    accessModes: ["ReadWriteOnce"]
+    size: 10Gi
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-staging
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    hosts:
+      - grafana-staging.dalgo.org
+    tls:
+      - hosts: [grafana-staging.dalgo.org]
+        secretName: grafana-staging-tls
+  grafana.ini:
+    server:
+      root_url: https://grafana-staging.dalgo.org
+  # Admin credentials from a pre-created Secret (do NOT commit a password).
+  # Create it first:
+  #   kubectl -n monitoring create secret generic grafana-admin \
+  #     --from-literal=admin-user=admin \
+  #     --from-literal=admin-password='<a-strong-password>'
+  admin:
+    existingSecret: grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
