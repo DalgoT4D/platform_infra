@@ -10,11 +10,11 @@ Runs the **production data platform**: Airbyte + Prefect + monitoring.
 |-----------|------|----------|
 | `airbyte` | Airbyte ingestion stack | **internal ALB** (`airbyte-internal-ingress`, class `alb`) |
 | `prefect` | in-cluster `prefect-worker` (Prefect server runs externally) | none |
-| `monitoring` | kube-prometheus-stack (Grafana, Prometheus, Alertmanager) | Grafana on internet-facing classic ELB |
+| `monitoring` | kube-prometheus-stack (Grafana, Prometheus, Alertmanager) | Grafana via its own internet-facing **ALB** (`dalgo-prod-grafana-alb`, TLS) at `grafana-airbyte.dalgo.org` |
 
 ## Ingress / load balancers
 - Single IngressClass: **`alb`** (AWS LB Controller).
-- LBs: Airbyte internal ALB · Grafana internet-facing ELB.
+- LBs: Airbyte internal ALB · Grafana internet-facing ALB (`dalgo-prod-grafana-alb`) — standalone ingress `monitoring/grafana-airbyte-ingress.yaml`.
 
 ## Folder structure
 ```

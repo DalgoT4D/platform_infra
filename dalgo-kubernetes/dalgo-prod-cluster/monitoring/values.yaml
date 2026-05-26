@@ -1039,8 +1039,14 @@ grafana:
     ##
     pspEnabled: false
 
+  # Exposed via the standalone ALB ingress (grafana-airbyte-ingress.yaml), NOT a LoadBalancer.
+  # Keep ClusterIP so a helm upgrade never recreates a Grafana ELB.
+  service:
+    type: ClusterIP
+
   ingress:
-    ## If true, Grafana Ingress will be created
+    ## Grafana Ingress is managed OUT-OF-BAND in grafana-airbyte-ingress.yaml (ALB at
+    ## grafana-airbyte.dalgo.org). Keep this disabled to avoid a duplicate ingress/ALB.
     ##
     enabled: false
 
