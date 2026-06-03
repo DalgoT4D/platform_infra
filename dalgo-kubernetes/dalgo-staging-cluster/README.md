@@ -10,12 +10,12 @@ Hosts the **full staging data platform**: Airbyte, Prefect, Superset, and monito
 | `airbyte` | Airbyte ingestion stack | **internal ALB** (`airbyte-internal-ingress`, class `alb`) |
 | `prefect` | in-cluster `prefect-worker` (Prefect **server** runs on a standalone EC2 box, reached via a ClusterIP + manual endpoint) | none |
 | `superset` | Superset staging tenants (`demosuperset`, `t4dsuperset`) | **public nginx** ingress + cert-manager LetsEncrypt |
-| `monitoring` | kube-prometheus-stack (Grafana, Prometheus, Alertmanager) | Grafana on internet-facing classic ELB |
+| `monitoring` | kube-prometheus-stack (Grafana, Prometheus, Alertmanager) — persistent (gp3) | Grafana via the shared **nginx NLB** at `grafana-staging.dalgo.org` |
 | `ingress-nginx` / `cert-manager` | nginx controller + LetsEncrypt issuer | — |
 
 ## Ingress / load balancers
-- Two IngressClasses: **`alb`** (AWS LB Controller — used `internal` for Airbyte) and **`nginx`** (ingress-nginx — public, for Superset).
-- LBs: Airbyte internal ALB · Grafana internet-facing ELB · nginx internet-facing NLB (`dalgo-staging-nginx-elb`).
+- Two IngressClasses: **`alb`** (AWS LB Controller — used `internal` for Airbyte) and **`nginx`** (ingress-nginx — public, for Superset **and Grafana**).
+- LBs: Airbyte internal ALB · nginx internet-facing NLB (`dalgo-staging-nginx-elb`) — fronts **Superset + Grafana**.
 
 ## Node groups
 `static-control`, `dynamic` (jobs), `prefect-worker`, and `supersets` (dedicated, tainted `dedicated=superset:NoSchedule` / label `workload=superset`).
