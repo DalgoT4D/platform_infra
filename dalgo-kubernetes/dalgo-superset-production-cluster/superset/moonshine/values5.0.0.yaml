@@ -427,7 +427,7 @@ configOverrides:
                 "http://localhost:3000",
                 "https://staging-app.dalgo.org",
                 "https://insights.dalgo.org",
-                "https://api.glific.test:3000",
+                "https://glific.test:3000",
                 "https://*.glific.com"
             ],
         },
