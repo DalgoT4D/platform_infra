@@ -425,8 +425,8 @@ configOverrides:
             "frame-ancestors": [
                 "self",
                 "http://localhost:3000",
-                "https://staging.dalgo.org",
-                "https://dashboard.dalgo.org",
+                "https://staging-app.dalgo.org",
+                "https://insights.dalgo.org",
                 "https://api.glific.test:3000",
                 "https://*.glific.com"
             ],
