@@ -567,10 +567,10 @@ hostAliases: []
 # Superset node configuration
 supersetNode:
   replicas:
-    enabled: false
+    enabled: true
     replicaCount: 1
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 5
     targetCPUUtilizationPercentage: 85
@@ -696,10 +696,10 @@ supersetNode:
 # Superset Celery worker configuration
 supersetWorker:
   replicas:
-    enabled: false
+    enabled: true
     replicaCount: 1
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 5
     targetCPUUtilizationPercentage: 85
