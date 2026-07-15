@@ -443,6 +443,12 @@ configOverrides:
         "colors": ['#8C5A3C', '#D6AD8A'],
         "isDefault": False
     },
+    {
+        "id": "peepul_combo_charts",
+        "label": "Peepul - Combo Charts",
+        "colors": ['#2D2B70', '#D5D4EC', '#67CBDB', '#D4EEF2', '#915C3D', '#FFD666'],
+        "isDefault": False
+    },
     ]
 
   # Branding
