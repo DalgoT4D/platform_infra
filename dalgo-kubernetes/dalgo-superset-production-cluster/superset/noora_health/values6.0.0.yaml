@@ -70,7 +70,10 @@ envFromSecret: superset-noora-env
 envFromSecrets: []
 
 # -- Extra environment variables that will be passed into pods
-extraEnv: {}
+extraEnv:
+  # Recycle the gunicorn worker after 5000 requests to mitigate memory leaks.
+  # Single worker per pod, so no jitter needed (nothing to stagger against).
+  WORKER_MAX_REQUESTS: 5000
   # Different gunicorn settings, refer to the gunicorn documentation
   # https://docs.gunicorn.org/en/stable/settings.html#
   # These variables are used as Flags at the gunicorn startup
