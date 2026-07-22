@@ -414,7 +414,8 @@ configOverrides:
                 "http://staging.cityfinance.in",
                 "https://www.cityfinance.in",
                 "https://alb.cityfinance.in/",
-                "https://albstaging.cityfinance.in/"
+                "https://albstaging.cityfinance.in/",
+                "https://alb-cityfinance-staging-265261160.ap-south-1.elb.amazonaws.com/"
             ],
         },
     }
