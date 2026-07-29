@@ -42,7 +42,7 @@
           }
         ],
         "title": "Image",
-        "default": "tech4dev/prefect-eks-job-runner:0.1",
+        "default": "tech4dev/prefect-eks-job-runner:0.3",
         "examples": [
           "docker.io/prefecthq/prefect:3-latest"
         ],
@@ -51,6 +51,9 @@
       "labels": {
         "type": "object",
         "title": "Labels",
+        "default": {
+          "__prefect_kind": "json"
+        },
         "description": "Labels applied to infrastructure created by a worker.",
         "additionalProperties": {
           "type": "string"
@@ -199,17 +202,17 @@
                 "args": "{{ command }}",
                 "name": "prefect-job",
                 "image": "{{ image }}",
-                "imagePullPolicy": "{{ image_pull_policy }}",
                 "resources": {
+                  "limits": {
+                    "cpu": "1",
+                    "memory": "1.5Gi"
+                  },
                   "requests": {
                     "cpu": "500m",
                     "memory": "512Mi"
-                  },
-                  "limits": {
-                    "cpu": "1",
-                    "memory": "1Gi"
                   }
-                }
+                },
+                "imagePullPolicy": "{{ image_pull_policy }}"
               }
             ],
             "completions": 1,
