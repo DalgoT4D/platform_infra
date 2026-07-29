@@ -411,11 +411,11 @@ configOverrides:
                 "https://dashboard.dalgo.org",
                 "https://dev.cityfinance.in",
                 "http://localhost:4200",
-                "http://staging.cityfinance.in",
+                "https://staging.cityfinance.in",
                 "https://www.cityfinance.in",
-                "https://alb.cityfinance.in/",
-                "https://albstaging.cityfinance.in/",
-                "https://alb-cityfinance-staging-265261160.ap-south-1.elb.amazonaws.com/"
+                "https://alb.cityfinance.in",
+                "https://albstaging.cityfinance.in",
+                "https://alb-cityfinance-staging-265261160.ap-south-1.elb.amazonaws.com"
             ],
         },
     }
