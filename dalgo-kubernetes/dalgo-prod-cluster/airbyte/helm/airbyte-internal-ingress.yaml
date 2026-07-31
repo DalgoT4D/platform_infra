@@ -9,12 +9,14 @@ metadata:
     kubernetes.io/ingress.class: alb
     # Create INTERNAL load balancer (not internet-facing)
     alb.ingress.kubernetes.io/scheme: internal
-    # Auto-discover private subnets for internal load balancer (should work now with proper tags)
-    alb.ingress.kubernetes.io/subnets: auto
     # Use IP targets for better performance with pods
     alb.ingress.kubernetes.io/target-type: ip
     # Connection timeout (30 minutes)
     alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=1800
+    # HTTPS - listen on both HTTP and HTTPS, redirect HTTP to HTTPS
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:024209611402:certificate/73bdd623-9f8c-4daa-99a1-113189dd05b4
     # Health check settings
     alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
     alb.ingress.kubernetes.io/healthcheck-path: /health
@@ -26,7 +28,8 @@ spec:
   # Use AWS Load Balancer Controller (not nginx)
   ingressClassName: alb
   rules:
-    - http:
+    - host: airbyte-internal.dalgo.org
+      http:
         paths:
           # Route /api/v1/connector* to connector-builder-server
           - path: /api/v1/connector_builder/
