@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(**/airbyte-config-secrets.yaml)",
+      "Read(**/prefect-external-service-endpoint.yaml)",
+      "Read(**/superset-env.yaml)",
+      "Write(**/airbyte-config-secrets.yaml)",
+      "Write(**/prefect-external-service-endpoint.yaml)",
+      "Write(**/superset-env.yaml)",
+      "Edit(**/airbyte-config-secrets.yaml)",
+      "Edit(**/prefect-external-service-endpoint.yaml)",
+      "Edit(**/superset-env.yaml)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); cmd=$(echo \"$input\" | jq -r '.tool_input.command // \"\"'); if echo \"$cmd\" | grep -qE '(airbyte-config-secrets\\.yaml|prefect-external-service-endpoint\\.yaml|superset-env\\.yaml)'; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: command references a restricted sensitive file\"}}'; fi",
+            "statusMessage": "Checking command against restricted files..."
+          }
+        ]
+      }
+    ]
+  }
+}
