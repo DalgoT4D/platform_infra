@@ -194,7 +194,8 @@ configOverrides:
         "ESTIMATE_QUERY_COST": True,
         "SSH_TUNNELING": True,
         "PLAYWRIGHT_REPORTS_AND_THUMBNAILS": True,
-        "ALERT_REPORTS_NOTIFICATION_DRY_RUN": False
+        "ALERT_REPORTS_NOTIFICATION_DRY_RUN": False,
+        "ENABLE_JAVASCRIPT_CONTROLS": True
     }
 
     # Default cache for Superset objects
