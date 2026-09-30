@@ -364,6 +364,7 @@ configOverrides:
             ends_with(email, '@projecttech4dev.org') && 'default_basic' ||
             ends_with(email, '@oneheartworldwide.org') && 'default_basic' ||
             ends_with(email, '@gmail.com') && 'default_basic' ||
+            ends_with(email, '@irrationallabs.com') && 'default_basic' ||
             'Public'
         """
 
