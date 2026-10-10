@@ -1,3 +1,39 @@
+########################################
+# Versions (Terraform + AWS provider versions: cluster.tf)
+########################################
+
+variable "cluster_version" {
+  description = "Kubernetes version for control plane and node groups"
+  type        = string
+  default     = "1.36"
+}
+
+# Change = rolling replace of all nodes. Latest: SSM param
+# /aws/service/eks/optimized-ami/<cluster_version>/amazon-linux-2023/arm64/standard/recommended/release_version
+variable "node_ami_release_version" {
+  description = "Node AMI release (all node groups)"
+  type        = string
+  default     = "1.36.4-20261003"
+}
+
+# Bump with cluster_version. Latest: aws eks describe-addon-versions --kubernetes-version <v> --addon-name <name>
+variable "addon_versions" {
+  description = "EKS managed add-on versions"
+  type        = map(string)
+  default = {
+    "vpc-cni"                = "v1.23.2-eksbuild.1"
+    "kube-proxy"             = "v1.36.0-eksbuild.45"
+    "eks-pod-identity-agent" = "v1.4.0-eksbuild.3"
+    "coredns"                = "v1.14.7-eksbuild.11"
+    "metrics-server"         = "v0.9.0-eksbuild.11"
+    "aws-ebs-csi-driver"     = "v1.66.0-eksbuild.1"
+  }
+}
+
+########################################
+# Account, network, access
+########################################
+
 variable "aws_region" {
   description = "The AWS region"
   type        = string
@@ -18,12 +54,6 @@ variable "cluster_name" {
   description = "EKS cluster name"
   type        = string
   default     = "dalgo-staging-cluster"
-}
-
-variable "cluster_version" {
-  description = "Kubernetes version for control plane and node groups"
-  type        = string
-  default     = "1.36"
 }
 
 variable "vpc_id" {

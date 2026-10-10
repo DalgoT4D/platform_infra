@@ -1,8 +1,7 @@
 # Dalgo staging EKS cluster (account 323443472031).
 # LB controller and cluster-autoscaler are installed with helm (see cluster/ingress, cluster/autoscaler).
 
-# State + lock live in S3 (use_lockfile needs Terraform >= 1.10; no DynamoDB).
-# Different profile name? `terraform init -backend-config="profile=<yours>"`.
+# State + lock in S3. Other profile: terraform init -backend-config="profile=<yours>"
 terraform {
   required_version = ">= 1.11"
 
@@ -86,24 +85,6 @@ resource "aws_iam_role" "eks_node_group_role" {
   assume_role_policy = data.aws_iam_policy_document.eks_node_assume_role.json
 }
 
-# resource "aws_iam_policy" "cloudwatch_metrics" {
-#   name        = "${local.iam_prefix}-cloudwatch-metrics"
-#   description = "Lets nodes push/read CloudWatch metrics"
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [{
-#       Effect = "Allow"
-#       Action = [
-#         "cloudwatch:PutMetricData",
-#         "cloudwatch:GetMetricData",
-#         "cloudwatch:ListMetrics",
-#         "ec2:DescribeVolumes",
-#         "ec2:DescribeTags",
-#       ]
-#       Resource = "*"
-#     }]
-#   })
-# }
 
 # EC2FullAccess / S3FullAccess (old node roles) dropped: unused, apps get their own roles.
 resource "aws_iam_role_policy_attachment" "eks_node_policies" {
@@ -112,9 +93,6 @@ resource "aws_iam_role_policy_attachment" "eks_node_policies" {
     "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
     "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-    # "arn:aws:iam::aws:policy/AmazonEC2FullAccess", ## CHECK THIS.
-    # "arn:aws:iam::aws:policy/AmazonS3FullAccess", ## unused for 400+ days on old staging
-    # aws_iam_policy.cloudwatch_metrics.arn,
   ])
 
   role       = aws_iam_role.eks_node_group_role.name
@@ -226,6 +204,7 @@ resource "aws_eks_node_group" "eks_node_group" {
   node_role_arn   = aws_iam_role.eks_node_group_role.arn
   subnet_ids      = var.node_subnet_ids
   version         = var.cluster_version
+  release_version = var.node_ami_release_version
 
   ami_type       = "AL2023_ARM_64_STANDARD" ## CHECK if we can update this
   capacity_type  = "ON_DEMAND"
@@ -295,10 +274,12 @@ resource "aws_autoscaling_group_tag" "node_ec2_tags" {
 ########################################
 # Managed add-ons
 ########################################
+# Versions: var.addon_versions. Uninstall = delete block + apply.
 
 resource "aws_eks_addon" "vpc_cni" {
   cluster_name                = aws_eks_cluster.eks_cluster.name
   addon_name                  = "vpc-cni"
+  addon_version               = var.addon_versions["vpc-cni"]
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 }
@@ -306,6 +287,7 @@ resource "aws_eks_addon" "vpc_cni" {
 resource "aws_eks_addon" "kube_proxy" {
   cluster_name                = aws_eks_cluster.eks_cluster.name
   addon_name                  = "kube-proxy"
+  addon_version               = var.addon_versions["kube-proxy"]
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 }
@@ -314,6 +296,7 @@ resource "aws_eks_addon" "kube_proxy" {
 resource "aws_eks_addon" "pod_identity_agent" {
   cluster_name                = aws_eks_cluster.eks_cluster.name
   addon_name                  = "eks-pod-identity-agent"
+  addon_version               = var.addon_versions["eks-pod-identity-agent"]
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 }
@@ -321,6 +304,7 @@ resource "aws_eks_addon" "pod_identity_agent" {
 resource "aws_eks_addon" "coredns" {
   cluster_name                = aws_eks_cluster.eks_cluster.name
   addon_name                  = "coredns"
+  addon_version               = var.addon_versions["coredns"]
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 
@@ -331,6 +315,7 @@ resource "aws_eks_addon" "coredns" {
 resource "aws_eks_addon" "metrics_server" {
   cluster_name                = aws_eks_cluster.eks_cluster.name
   addon_name                  = "metrics-server"
+  addon_version               = var.addon_versions["metrics-server"]
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 
@@ -340,6 +325,7 @@ resource "aws_eks_addon" "metrics_server" {
 resource "aws_eks_addon" "ebs_csi" {
   cluster_name                = aws_eks_cluster.eks_cluster.name
   addon_name                  = "aws-ebs-csi-driver"
+  addon_version               = var.addon_versions["aws-ebs-csi-driver"]
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 
