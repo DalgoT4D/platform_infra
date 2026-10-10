@@ -1,9 +1,10 @@
 # Dalgo staging EKS cluster (account 323443472031).
 # LB controller and cluster-autoscaler are installed with helm (see cluster/ingress, cluster/autoscaler).
 
-# State is local for now. To move to S3: uncomment backend, then `terraform init -migrate-state`.
+# State + lock live in S3 (use_lockfile needs Terraform >= 1.10; no DynamoDB).
+# Different profile name? `terraform init -backend-config="profile=<yours>"`.
 terraform {
-  required_version = ">= 1.5"
+  required_version = ">= 1.11"
 
   required_providers {
     aws = {
@@ -12,14 +13,14 @@ terraform {
     }
   }
 
-  # backend "s3" {
-  #   bucket         = "dalgo-staging-tf-state"
-  #   key            = "eks/dalgo-staging-cluster/terraform.tfstate"
-  #   region         = "ap-south-1"
-  #   dynamodb_table = "dalgo-staging-tf-state-locks"
-  #   encrypt        = true
-  #   profile        = "dalgo-staging"
-  # }
+  backend "s3" {
+    bucket       = "terraform-state-and-lock-bucket"
+    key          = "eks/dalgo-staging-cluster/terraform.tfstate"
+    region       = "ap-south-1"
+    profile      = "dalgo-staging-admin"
+    encrypt      = true
+    use_lockfile = true
+  }
 }
 
 provider "aws" {
