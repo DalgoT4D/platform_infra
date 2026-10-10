@@ -6,5 +6,6 @@ provisioner: ebs.csi.aws.com
 parameters:
   type: gp3
 reclaimPolicy: Retain
-volumeBindingMode: Immediate
+# create the disk after the pod is scheduled, in the pod's AZ (nodes are 1b only)
+volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true

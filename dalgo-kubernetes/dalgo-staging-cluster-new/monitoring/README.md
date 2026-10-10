@@ -1,4 +1,4 @@
-Helm chart used: kube-prometheus-stack from prometheus-community (staging runs 69.4.1).
+Helm chart used: kube-prometheus-stack from prometheus-community (staging runs 92.3.0).
 
 Changes from the chart's default values.yaml:
 
@@ -20,7 +20,7 @@ kubectl apply -f grafana-admin-secret.yaml
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update prometheus-community
 helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
-  -n monitoring -f values.yaml --version 69.4.1
+  -n monitoring -f values.yaml --version 92.3.0
 
 ## Not copied from the old cluster
 

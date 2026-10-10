@@ -1,8 +1,8 @@
 # kube-prometheus-stack values — dalgo-staging-cluster
-# Chart: prometheus-community/kube-prometheus-stack (69.4.1)
+# Chart: prometheus-community/kube-prometheus-stack (92.3.0)
 #
 # - Prometheus, Alertmanager and Grafana all PERSIST to gp3 EBS volumes
-# - Grafana is served through the shared nginx ingress (NO dedicated ELB)
+# - Grafana is served through the shared public ALB (group dalgo-staging-public)
 # - Grafana admin creds come from a pre-created Secret (never committed here)
 
 fullnameOverride: kube-prometheus-stack
@@ -41,7 +41,7 @@ alertmanager:
               storage: 5Gi
 
 # ----------------------------------------------------------------------------
-# Grafana — served via the shared nginx ingress, persisted to gp3
+# Grafana — served via the shared public ALB, persisted to gp3
 # ----------------------------------------------------------------------------
 grafana:
   service:
