@@ -117,7 +117,7 @@ resource "aws_eks_cluster" "eks_cluster" {
   vpc_config {
     # control plane ENIs, 2+ AZs
     subnet_ids              = data.aws_subnet.cluster_subnets[*].id
-    endpoint_private_access = true # in-VPC callers reach the API without NAT
+    endpoint_private_access = true # in-VPC callers reach the API without NAT, control plane enis are in private subnet. 
     endpoint_public_access  = true # kubectl from laptops
   }
 
@@ -126,7 +126,8 @@ resource "aws_eks_cluster" "eks_cluster" {
   depends_on = [aws_iam_role_policy_attachment.eks_cluster_policy]
 }
 
-# staging EC2 -> cluster (all ports). Laptop kubectl uses the public endpoint, not this.
+# staging EC2 -> cluster (all ports) on private end points. Laptop kubectl uses the public endpoint, not this.
+# staging amchine can direclty talk to cluster without traffic going outside the vpc. 
 resource "aws_security_group_rule" "whitelist_security_group_rules" {
   count = length(var.api_whitelist_security_group_ids)
 
