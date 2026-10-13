@@ -119,7 +119,7 @@
         ],
         "type": "string",
         "title": "Image Pull Policy",
-        "default": "Always",
+        "default": "IfNotPresent",
         "description": "The Kubernetes image pull policy to use for job containers."
       },
       "service_account_name": {
