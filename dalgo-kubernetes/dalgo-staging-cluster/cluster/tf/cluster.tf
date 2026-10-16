@@ -474,7 +474,7 @@ resource "kubernetes_deployment" "cluster_autoscaler" {
             "--cloud-provider=aws",
             "--skip-nodes-with-local-storage=false",
             "--expander=least-waste",
-            "--node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/dalgo-superset-staging-cluster"
+            "--node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/dalgo-superset-staging-cluster" ## CHECK THIS
           ]
 
           env {

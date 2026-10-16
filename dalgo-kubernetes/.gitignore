@@ -20,6 +20,7 @@ crash.*
 *.tfvars
 *.tfvars.json
 *.tfplan
+tfplan
 override.tf
 override.tf.json
 *_override.tf
