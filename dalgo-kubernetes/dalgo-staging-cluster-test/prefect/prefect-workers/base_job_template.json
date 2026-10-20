@@ -215,7 +215,19 @@
                     "cpu": "1",
                     "memory": "1Gi"
                   }
-                }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "clientdbts",
+                    "mountPath": "/home/ddp/clientdbts"
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "clientdbts",
+                "emptyDir": {}
               }
             ],
             "completions": 1,
