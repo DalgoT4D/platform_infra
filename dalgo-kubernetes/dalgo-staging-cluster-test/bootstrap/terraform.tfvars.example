@@ -1,3 +1,5 @@
+# Set any variable from variables.tf here to override its default (e.g. nat_az = "ap-south-1a"). Unset ones keep their default.
+
 aws_region     = "ap-south-1"
 aws_profile    = "dalgo-staging-admin"
 aws_account_id = ""

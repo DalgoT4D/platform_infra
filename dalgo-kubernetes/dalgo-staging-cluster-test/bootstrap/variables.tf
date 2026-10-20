@@ -1,3 +1,5 @@
+# Defaults below apply unless set in terraform.tfvars. Any variable here can be overridden there (e.g. nat_az = "ap-south-1a").
+
 ########################################
 # Account
 ########################################

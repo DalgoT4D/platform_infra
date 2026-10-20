@@ -1,3 +1,5 @@
+# Set any variable from variables.tf here to override its default (e.g. node_subnet_azs = ["ap-south-1a"]). Unset ones keep their default.
+
 aws_region     = "ap-south-1"
 aws_profile    = "dalgo-staging"
 aws_account_id = ""

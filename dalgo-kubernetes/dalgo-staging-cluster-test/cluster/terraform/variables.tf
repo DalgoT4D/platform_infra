@@ -1,3 +1,5 @@
+# Defaults below apply unless set in terraform.tfvars. Any variable here can be overridden there (e.g. node_subnet_azs = ["ap-south-1a"]).
+
 ########################################
 # Versions (Terraform + AWS provider versions: cluster.tf)
 ########################################
