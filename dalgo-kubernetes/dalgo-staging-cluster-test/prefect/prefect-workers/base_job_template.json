@@ -6,7 +6,8 @@
         "type": "object",
         "title": "Environment Variables",
         "default": {
-          "PREFECT_DEBUG_MODE": "False"
+          "PREFECT_DEBUG_MODE": "False",
+          "CLIENTDBT_ROOT": "/home/ddp/clientdbts"
         },
         "description": "Environment variables to set when starting a flow run.",
         "additionalProperties": {
