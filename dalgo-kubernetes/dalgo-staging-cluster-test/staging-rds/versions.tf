@@ -12,7 +12,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket       = "test-terraform-state-and-lock-bucket"
+    bucket       = "test-state-and-lock-bucket-staging"
     key          = "test/staging-rds/dalgo-staging/terraform.tfstate"
     region       = "ap-south-1"
     profile      = "dalgo-staging-admin"
@@ -42,7 +42,7 @@ data "terraform_remote_state" "bootstrap" {
   backend = "s3"
 
   config = {
-    bucket  = "test-terraform-state-and-lock-bucket"
+    bucket  = "test-state-and-lock-bucket-staging"
     key     = "test/bootstrap/dalgo-staging/terraform.tfstate"
     region  = "ap-south-1"
     profile = "dalgo-staging-admin"

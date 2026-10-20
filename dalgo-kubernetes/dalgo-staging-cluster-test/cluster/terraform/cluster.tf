@@ -13,7 +13,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket       = "test-terraform-state-and-lock-bucket"
+    bucket       = "test-state-and-lock-bucket-staging"
     key          = "test/eks/dalgo-staging-cluster/terraform.tfstate"
     region       = "ap-south-1"
     profile      = "dalgo-staging-admin"
