@@ -10,7 +10,6 @@ grafana-admin-secret.yaml
 
 # --- Terraform ---
 .terraform/
-.terraform.lock.hcl
 terraform.tfstate
 terraform.tfstate.backup
 *.tfstate
@@ -20,6 +19,7 @@ crash.*
 *.tfvars
 *.tfvars.json
 *.tfplan
+tfplan
 override.tf
 override.tf.json
 *_override.tf
