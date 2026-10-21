@@ -1,0 +1,8 @@
+# Filled-in secrets: copy the .example file, fill it, never commit the result
+airbyte/helm/airbyte-config-secrets.yaml
+superset/demosuperset/superset-env.yaml
+monitoring/grafana-admin-secret.yaml
+prefect/prefect-workers/prefect-external-service-endpoint.yaml
+*-secret.yaml
+*-secrets.yaml
+!*.example.yaml
