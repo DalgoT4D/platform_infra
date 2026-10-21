@@ -1,0 +1,16 @@
+# Set any variable from variables.tf here to override its default (e.g. node_subnet_azs = ["ap-south-1a"]). Unset ones keep their default.
+
+aws_region     = "ap-south-1"
+aws_profile    = "dalgo-staging"
+aws_account_id = ""
+
+cluster_name    = "test-dalgo-staging-cluster"
+cluster_version = "1.36"
+
+# SSO PowerUserAccess role (NOT the admin role running terraform: it already gets cluster-admin)
+# aws iam list-roles --query "Roles[?contains(RoleName,'PowerUserAccess')].Arn" --output text
+admin_principal_arns = [""]
+
+# VPC, subnet and SG IDs come from ../../bootstrap state. AZ choices (defaults in variables.tf):
+# cluster_subnet_azs = ["ap-south-1a", "ap-south-1b"]
+# node_subnet_azs    = ["ap-south-1b"]
