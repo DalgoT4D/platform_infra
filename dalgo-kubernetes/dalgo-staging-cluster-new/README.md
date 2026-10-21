@@ -29,7 +29,6 @@ airbyte/helm/        Airbyte values 1.8.3, secrets example, internal ALB ingress
 prefect/             prefect-worker values + external Prefect server service/endpoint
 superset/            demosuperset values + env example
 monitoring/          kube-prometheus-stack values, gp3 StorageClass, grafana secret example
-NETWORKING.md        how packets move through all of this
 ```
 
 ## Order to bring it up
@@ -40,4 +39,8 @@ NETWORKING.md        how packets move through all of this
 5. `airbyte`, `prefect`, `superset`: each folder's README.
 6. DNS: Cloudflare CNAMEs → public ALB; private zone alias → internal ALB.
 
-Values still pointing at the old account are marked `# MIGRATION` (RDS endpoint, S3 bucket); `<acm_certificate_arn>` placeholders come from `terraform output`.
+## Secrets
+Each `*.example.yaml` has a filled-in twin (`airbyte-config-secrets.yaml`, `prefect-external-service-endpoint.yaml`, `superset-env.yaml`, `grafana-admin-secret.yaml`). Those, `terraform.tfvars`, state and plan files are gitignored: never commit them.
+
+## Account-specific values
+The RDS endpoint, S3 bucket and ACM certificate ARN are already set for this account. `# MIGRATION` comments record the old-account value they replaced. If the cluster is rebuilt, take the new ARN from `terraform output acm_certificate_arn` and update it in `airbyte/helm/airbyte-internal-ingress.yaml`, `superset/demosuperset/values6.0.0.yaml` and `monitoring/values.yaml`.

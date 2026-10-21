@@ -2,8 +2,6 @@
 
 Run once per new cluster, after `terraform apply` in `cluster/terraform`.
 
-
-
 ## Install
 
 ```bash
@@ -47,16 +45,14 @@ kubectl -n kube-system logs -l app.kubernetes.io/name=aws-cluster-autoscaler --t
   | grep -iE 'forbidden|denied|credential|imds|unknown flag'
 ```
 
-<!-- ## Test
+## Test (optional)
 
 ```bash
 kubectl create deployment big --image=busybox --replicas=6 -- sleep 3600
 kubectl set resources deployment big --requests=cpu=900m
 kubectl get events -A --field-selector source=cluster-autoscaler   # expect TriggeredScaleUp
 kubectl delete deployment big                                       # extra nodes removed ~10 min later
-``` -->
-
----
+```
 
 ## Notes
 

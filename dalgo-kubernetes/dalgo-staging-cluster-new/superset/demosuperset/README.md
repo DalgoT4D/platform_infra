@@ -1,20 +1,31 @@
-# release-name
-demosuperset
+# demosuperset
+
+Release name `demosuperset`, namespace `superset`. Runs on the dedicated `supersets` node group
+and is exposed on the internet-facing ALB at demosuperset.dalgo.org.
+
+## Install
+
+```bash
+helm repo add superset https://apache.github.io/superset
+helm repo update superset
 
 # namespace first: the env secret below goes into it
 kubectl create namespace superset
 
-# apply the env
+# env: copy superset-env.example.yaml, fill in, never commit the filled file
 kubectl apply -f superset-env.yaml
 
-# before the first install: replace <acm_certificate_arn> in values6.0.0.yaml
-# (terraform output acm_certificate_arn in cluster/terraform). Ingress is now an ALB.
+helm upgrade --install demosuperset superset/superset -n superset --values values6.0.0.yaml --version 0.14.1
+```
 
-# install/upgrade
-helm upgrade --install --values values6.0.0.yaml  demosuperset superset/superset --version 0.14.1 --namespace superset --create-namespace --debug
+Uninstall:
 
-# uninstall
+```bash
 helm uninstall demosuperset -n superset
+```
 
-# port forward
-kubectl port-forward service/demosuperset  8088:8088 --namespace superset
+Port forward (bypass the ALB):
+
+```bash
+kubectl port-forward service/demosuperset 8088:8088 -n superset
+```

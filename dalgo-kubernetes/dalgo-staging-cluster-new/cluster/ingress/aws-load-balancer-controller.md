@@ -16,7 +16,7 @@ Two ALBs on staging:
 ```bash
 cd cluster/terraform
 terraform output vpc_id
-terraform output acm_certificate_arn      # replace <acm_certificate_arn> in the Ingress files
+terraform output acm_certificate_arn      # already set in the Ingress files; update them if the cert changes
 terraform output acm_validation_records   # add these CNAMEs in Cloudflare (DNS only), once
 ```
 

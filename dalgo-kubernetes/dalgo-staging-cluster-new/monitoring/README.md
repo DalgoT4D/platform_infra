@@ -1,4 +1,6 @@
-Helm chart used: kube-prometheus-stack from prometheus-community (staging runs 92.3.0).
+# Monitoring
+
+Helm chart: kube-prometheus-stack from prometheus-community (staging runs 92.3.0).
 
 Changes from the chart's default values.yaml:
 
@@ -9,18 +11,19 @@ Changes from the chart's default values.yaml:
 
 ## Install
 
+```bash
 # storage class (needs the aws-ebs-csi-driver add-on with its Pod Identity role working)
 kubectl apply -f storageclass-gp3.yaml
 
-# grafana admin secret (copy the example, fill in, never commit the filled file)
+# grafana admin secret: copy grafana-admin-secret.example.yaml, fill in, never commit the filled file
 kubectl create namespace monitoring
 kubectl apply -f grafana-admin-secret.yaml
 
-# before the first install: replace <acm_certificate_arn> in values.yaml
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update prometheus-community
 helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
   -n monitoring -f values.yaml --version 92.3.0
+```
 
 ## Not copied from the old cluster
 
