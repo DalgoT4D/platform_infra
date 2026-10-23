@@ -1,0 +1,11 @@
+# Set any variable from variables.tf here to override its default (e.g. subnet_az = "ap-south-1a"). Unset ones keep their default.
+
+aws_region     = "ap-south-1"
+aws_profile    = "dalgo-staging-admin"
+aws_account_id = ""
+
+# existing key pair (created in the EC2 console)
+key_pair_name = "test-dalgo-staging-key-pair"
+
+# Everything else defaults to the current box (variables.tf). Override only what differs, e.g.:
+# instance_type = "m6g.large"
