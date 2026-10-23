@@ -34,8 +34,12 @@ resource "aws_db_parameter_group" "staging" {
 ########################################
 
 resource "aws_db_instance" "staging" {
-  identifier     = var.identifier
-  engine         = "postgres"
+  identifier = var.identifier
+  engine     = "postgres"
+
+  # null: new empty DB. Set: restore from that snapshot (databases, users and their passwords come with it).
+  snapshot_identifier = var.snapshot_identifier
+
   engine_version = var.engine_version
   instance_class = var.instance_class
 
@@ -53,6 +57,7 @@ resource "aws_db_instance" "staging" {
 
   # Fixed password from tfvars (kept in the team vault). Write-only: sent to AWS, never stored in state.
   # To change it: new value in tfvars + bump password_wo_version.
+  # On restore the master user comes from the snapshot; the password is still set from tfvars.
   username            = var.master_username
   password_wo         = var.master_password
   password_wo_version = var.master_password_version
@@ -66,11 +71,17 @@ resource "aws_db_instance" "staging" {
   engine_lifecycle_support   = "open-source-rds-extended-support-disabled"
   ca_cert_identifier         = "rds-ca-rsa2048-g1"
 
-  deletion_protection       = false
+  deletion_protection       = true
   skip_final_snapshot       = false
   final_snapshot_identifier = "${var.identifier}-final"
 
   tags = {
     Name = var.identifier
+  }
+
+  # both only matter at create, and a diff on either forces a new (empty) DB:
+  # clearing the snapshot later, or a snapshot whose master user isn't var.master_username
+  lifecycle {
+    ignore_changes = [snapshot_identifier, username]
   }
 }

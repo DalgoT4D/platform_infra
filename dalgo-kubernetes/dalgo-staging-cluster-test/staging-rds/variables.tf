@@ -76,6 +76,12 @@ variable "master_password_version" {
   default     = 1
 }
 
+variable "snapshot_identifier" {
+  description = "Snapshot to restore from (name or ARN). null = new empty DB. engine_version must match the snapshot's major."
+  type        = string
+  default     = null
+}
+
 variable "max_connections" {
   description = "max_connections parameter (applied on reboot)"
   type        = number
