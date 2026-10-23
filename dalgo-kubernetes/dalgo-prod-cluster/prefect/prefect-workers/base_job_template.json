@@ -42,7 +42,7 @@
           }
         ],
         "title": "Image",
-        "default": "tech4dev/prefect-eks-job-runner:0.3",
+        "default": "tech4dev/prefect-eks-job-runner:0.5",
         "examples": [
           "docker.io/prefecthq/prefect:3-latest"
         ],
