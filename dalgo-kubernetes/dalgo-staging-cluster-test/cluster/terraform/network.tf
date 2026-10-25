@@ -6,8 +6,8 @@ data "terraform_remote_state" "bootstrap" {
   backend = "s3"
 
   config = {
-    bucket  = "test-state-and-lock-bucket-staging"
-    key     = "test/bootstrap/dalgo-staging/terraform.tfstate"
+    bucket  = "terraform-state-and-lock-bucket"
+    key     = "dalgo-staging/bootstrap/terraform.tfstate"
     region  = "ap-south-1"
     profile = "dalgo-staging-admin"
   }
@@ -39,7 +39,7 @@ resource "aws_acm_certificate" "wildcard" {
 
   tags = {
     # "*" not allowed in tag values
-    Name = "test-${replace(var.acm_domain, "*", "wildcard")}"
+    Name = "dalgo-staging-${replace(var.acm_domain, "*", "wildcard")}"
   }
 }
 
@@ -53,5 +53,10 @@ resource "aws_route53_zone" "airbyte_internal" {
 
   vpc {
     vpc_id = local.vpc_id
+  }
+
+  tags = {
+    Name   = var.airbyte_internal_domain
+    Subset = "airbyte"
   }
 }

@@ -6,6 +6,10 @@ resource "aws_db_subnet_group" "staging" {
   name        = "${var.identifier}-subnet-group"
   description = "Private subnets for ${var.identifier}"
   subnet_ids  = values(local.bootstrap.private_subnet_ids)
+
+  tags = {
+    Name = "${var.identifier}-subnet-group"
+  }
 }
 
 ########################################
@@ -22,6 +26,10 @@ resource "aws_db_parameter_group" "staging" {
     name         = "max_connections"
     value        = var.max_connections
     apply_method = "pending-reboot"
+  }
+
+  tags = {
+    Name = "${var.identifier}-pg-${var.engine_version}-param-group"
   }
 
   lifecycle {

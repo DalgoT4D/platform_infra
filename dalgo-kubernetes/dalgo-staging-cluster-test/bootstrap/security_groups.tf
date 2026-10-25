@@ -2,16 +2,16 @@
 # (cluster/terraform adds "4200 from cluster SG" to the staging EC2 SG). Inline blocks would delete them.
 
 ########################################
-# Staging EC2 (Prefect server box)
+# Staging EC2 (backend, webapp, Prefect server box)
 ########################################
 
 resource "aws_security_group" "staging_ec2" {
-  name        = "test-dalgo-staging-ec2-sg"
+  name        = "${local.name}-ec2-sg"
   description = "sg for dalgo staging machine"
   vpc_id      = aws_vpc.main.id
 
   tags = {
-    Name = "test-dalgo-staging-ec2-sg"
+    Name = "${local.name}-ec2-sg"
   }
 }
 
@@ -24,6 +24,10 @@ resource "aws_vpc_security_group_ingress_rule" "staging_ec2_ssh" {
   from_port         = 22
   to_port           = 22
   cidr_ipv4         = each.value
+
+  tags = {
+    Name = "${local.name}-ec2-ssh-${each.value}"
+  }
 }
 
 resource "aws_vpc_security_group_egress_rule" "staging_ec2_all" {
@@ -31,6 +35,10 @@ resource "aws_vpc_security_group_egress_rule" "staging_ec2_all" {
   description       = "All outbound"
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
+
+  tags = {
+    Name = "${local.name}-ec2-all-outbound"
+  }
 }
 
 ########################################
@@ -38,12 +46,12 @@ resource "aws_vpc_security_group_egress_rule" "staging_ec2_all" {
 ########################################
 
 resource "aws_security_group" "rds" {
-  name        = "test-dalgo-staging-rds-sg"
+  name        = "${local.name}-rds-sg"
   description = "dalgo staging rds security group"
   vpc_id      = aws_vpc.main.id
 
   tags = {
-    Name = "test-dalgo-staging-rds-sg"
+    Name = "${local.name}-rds-sg"
   }
 }
 
@@ -54,6 +62,10 @@ resource "aws_vpc_security_group_ingress_rule" "rds_from_staging_ec2" {
   from_port                    = 5432
   to_port                      = 5432
   referenced_security_group_id = aws_security_group.staging_ec2.id
+
+  tags = {
+    Name = "${local.name}-rds-from-ec2"
+  }
 }
 
 resource "aws_vpc_security_group_egress_rule" "rds_all" {
@@ -61,6 +73,10 @@ resource "aws_vpc_security_group_egress_rule" "rds_all" {
   description       = "All outbound"
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
+
+  tags = {
+    Name = "${local.name}-rds-all-outbound"
+  }
 }
 
 ########################################
@@ -69,12 +85,12 @@ resource "aws_vpc_security_group_egress_rule" "rds_all" {
 
 # No egress rules: attached next to staging_ec2, which allows all outbound.
 resource "aws_security_group" "cloudflare_https" {
-  name        = "test-whitelist-cloudflare-ip-range-https"
+  name        = "${local.name}-whitelist-cloudflare-ip-range-https"
   description = "allow cloudflare ip range on https"
   vpc_id      = aws_vpc.main.id
 
   tags = {
-    Name = "test-whitelist-cloudflare-ip-range-https"
+    Name = "${local.name}-whitelist-cloudflare-ip-range-https"
   }
 }
 
@@ -87,6 +103,10 @@ resource "aws_vpc_security_group_ingress_rule" "cloudflare_https_v4" {
   from_port         = 443
   to_port           = 443
   cidr_ipv4         = each.value
+
+  tags = {
+    Name = "${local.name}-cloudflare-https-${each.value}"
+  }
 }
 
 resource "aws_vpc_security_group_ingress_rule" "cloudflare_https_v6" {
@@ -98,4 +118,8 @@ resource "aws_vpc_security_group_ingress_rule" "cloudflare_https_v6" {
   from_port         = 443
   to_port           = 443
   cidr_ipv6         = each.value
+
+  tags = {
+    Name = "${local.name}-cloudflare-https-${each.value}"
+  }
 }

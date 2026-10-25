@@ -1,4 +1,4 @@
-# Defaults below apply unless set in terraform.tfvars. Any variable here can be overridden there (e.g. nat_az = "ap-south-1a").
+# Defaults below apply unless set in terraform.tfvars. Any variable here can be overridden there (e.g. nat_az = "ap-south-1b").
 
 ########################################
 # Account
@@ -25,9 +25,9 @@ variable "aws_account_id" {
 ########################################
 
 variable "vpc_name" {
-  description = "Name tag of the VPC"
+  description = "Prefix of every Name tag (VPC: <vpc_name>-vpc, NAT: <vpc_name>-nat-gateway, ...)"
   type        = string
-  default     = "test-dalgo-staging"
+  default     = "dalgo-staging"
 }
 
 variable "vpc_cidr" {
@@ -36,9 +36,12 @@ variable "vpc_cidr" {
   default     = "172.31.0.0/16"
 }
 
-# AZ => CIDR. One public subnet per AZ.
+# AZ => CIDR. One public + one private subnet per AZ.
+# Data path (EC2, RDS, EKS nodes, NAT) is in ap-south-1a only: no cross-AZ transfer.
+# ap-south-1b only adds availability for the EKS control plane and the ALBs (both need 2 AZs).
+# ap-south-1c is spare (RDS subnet group and future use); nothing is placed there.
 variable "public_subnets" {
-  description = "Public subnets (ALB, NAT, staging EC2), keyed by AZ"
+  description = "Public subnets (internet-facing ALBs, NAT, staging EC2), keyed by AZ"
   type        = map(string)
   default = {
     "ap-south-1a" = "172.31.32.0/20"
@@ -58,9 +61,15 @@ variable "private_subnets" {
 }
 
 variable "nat_az" {
-  description = "AZ of the public subnet that holds the (single) NAT gateway"
+  description = "AZ of the public subnet that holds the (single) NAT gateway. Same AZ as the nodes: no cross-AZ NAT traffic."
   type        = string
-  default     = "ap-south-1b"
+  default     = "ap-south-1a"
+}
+
+variable "alb_azs" {
+  description = "AZs whose subnets get the kubernetes.io/role/(internal-)elb tag, i.e. where the LB controller puts ALBs (min 2)"
+  type        = list(string)
+  default     = ["ap-south-1a", "ap-south-1b"]
 }
 
 ########################################

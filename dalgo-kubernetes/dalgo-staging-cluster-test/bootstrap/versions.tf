@@ -1,7 +1,7 @@
 # Account bootstrap: VPC, subnets, IGW, NAT, route tables, security groups.
-# Apply first. staging-ec2/ and cluster/terraform read from it.
+# Apply first. staging-ec2/, staging-rds/ and cluster/terraform read from it.
 
-# State + lock in S3. Bucket must exist first (new account: create it by hand or in a later state stack).
+# State + lock in S3. Bucket must exist first (created by hand).
 terraform {
   required_version = ">= 1.11"
 
@@ -13,8 +13,8 @@ terraform {
   }
 
   backend "s3" {
-    bucket       = "test-state-and-lock-bucket-staging"
-    key          = "test/bootstrap/dalgo-staging/terraform.tfstate"
+    bucket       = "terraform-state-and-lock-bucket"
+    key          = "dalgo-staging/bootstrap/terraform.tfstate"
     region       = "ap-south-1"
     profile      = "dalgo-staging-admin"
     encrypt      = true
@@ -29,10 +29,12 @@ provider "aws" {
   # refuse to run against any other account
   allowed_account_ids = [var.aws_account_id]
 
+  # Subset: shared (network is used by airbyte, prefect, superset and monitoring)
   default_tags {
     tags = {
-      Environment = "test-staging"
-      Product     = "Dalgo"
+      Product     = "dalgo"
+      Environment = "staging"
+      Subset      = "shared"
       ManagedBy   = "terraform"
     }
   }

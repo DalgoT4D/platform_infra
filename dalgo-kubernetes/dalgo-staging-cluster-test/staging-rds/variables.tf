@@ -1,4 +1,4 @@
-# Defaults below apply unless set in terraform.tfvars. Any variable here can be overridden there (e.g. availability_zone = "ap-south-1a").
+# Defaults below apply unless set in terraform.tfvars. Any variable here can be overridden there (e.g. availability_zone = "ap-south-1b").
 
 ########################################
 # Account
@@ -27,7 +27,7 @@ variable "aws_account_id" {
 variable "identifier" {
   description = "RDS instance identifier (also the endpoint hostname prefix)"
   type        = string
-  default     = "test-dalgo-staging-rds"
+  default     = "dalgo-staging-rds"
 }
 
 # Major only: minor versions are upgraded by AWS (auto_minor_version_upgrade),
@@ -51,9 +51,9 @@ variable "allocated_storage" {
 }
 
 variable "availability_zone" {
-  description = "AZ of the instance. Same as the EKS nodes keeps traffic in one AZ."
+  description = "AZ of the instance. Same as the EC2 and the EKS nodes keeps traffic in one AZ."
   type        = string
-  default     = "ap-south-1b"
+  default     = "ap-south-1a"
 }
 
 variable "master_username" {

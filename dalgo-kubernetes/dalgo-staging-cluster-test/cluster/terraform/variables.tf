@@ -1,4 +1,4 @@
-# Defaults below apply unless set in terraform.tfvars. Any variable here can be overridden there (e.g. node_subnet_azs = ["ap-south-1a"]).
+# Defaults below apply unless set in terraform.tfvars. Any variable here can be overridden there (e.g. node_subnet_azs = ["ap-south-1b"]).
 
 ########################################
 # Versions (Terraform + AWS provider versions: cluster.tf)
@@ -55,21 +55,21 @@ variable "aws_account_id" {
 variable "cluster_name" {
   description = "EKS cluster name"
   type        = string
-  default     = "test-dalgo-staging-cluster"
+  default     = "dalgo-staging-cluster"
 }
 
 # VPC, subnet and SG IDs come from ../../bootstrap state (network.tf). Only the AZ choices live here.
 
 variable "cluster_subnet_azs" {
-  description = "AZs of the private subnets for the EKS control plane ENIs (min 2, different AZs)"
+  description = "AZs of the private subnets for the EKS control plane ENIs (min 2, different AZs). 1b is only for availability."
   type        = list(string)
   default     = ["ap-south-1a", "ap-south-1b"]
 }
 
 variable "node_subnet_azs" {
-  description = "AZ(s) of the private subnet(s) where worker nodes run. One AZ: no cross-AZ data transfer, EBS volumes and pods stay together."
+  description = "AZ(s) of the private subnet(s) where worker nodes run. One AZ (same as EC2, RDS, NAT): no cross-AZ data transfer, EBS volumes and pods stay together."
   type        = list(string)
-  default     = ["ap-south-1b"]
+  default     = ["ap-south-1a"]
 }
 
 variable "acm_domain" {
@@ -81,7 +81,7 @@ variable "acm_domain" {
 variable "airbyte_internal_domain" {
   description = "Hostname of the internal airbyte ALB (private hosted zone)"
   type        = string
-  default     = "test-airbyte-staging-internal.dalgo.org"
+  default     = "airbyte-staging-internal.dalgo.org"
 }
 
 variable "cluster_log_types" {
@@ -109,7 +109,7 @@ variable "node_groups" {
     min_size       = number
     max_size       = number
     desired_size   = number
-    subset         = string # Subset tag; also gives the EC2 Name: dalgo-<subset>-staging-eks-node
+    subset         = string # Subset tag (airbyte | prefect | superset | monitoring); also gives the EC2 Name: dalgo-staging-<subset>-eks-node
     disk_size      = optional(number, 20)
     labels         = optional(map(string), {})
     taints = optional(list(object({
@@ -122,7 +122,7 @@ variable "node_groups" {
   # Mirrors node groups on the old staging cluster
   default = {
     "static-control" = {
-      subset         = "Airbyte"
+      subset         = "airbyte"
       instance_types = ["t4g.large"]
       min_size       = 1
       max_size       = 3
@@ -130,7 +130,7 @@ variable "node_groups" {
       labels         = { type = "static" }
     }
     "dynamic" = {
-      subset         = "Airbyte"
+      subset         = "airbyte"
       instance_types = ["t4g.large"]
       min_size       = 1
       max_size       = 4
@@ -138,7 +138,7 @@ variable "node_groups" {
       labels         = { type = "jobs" }
     }
     "prefect-worker" = {
-      subset         = "Prefect"
+      subset         = "prefect"
       instance_types = ["t4g.medium"]
       min_size       = 1
       max_size       = 4
@@ -146,7 +146,7 @@ variable "node_groups" {
       labels         = { type = "prefect-worker" }
     }
     "supersets" = {
-      subset         = "Superset"
+      subset         = "superset"
       instance_types = ["t4g.large"]
       min_size       = 1
       max_size       = 3

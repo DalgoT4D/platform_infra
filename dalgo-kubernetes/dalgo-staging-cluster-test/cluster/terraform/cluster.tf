@@ -13,8 +13,8 @@ terraform {
   }
 
   backend "s3" {
-    bucket       = "test-state-and-lock-bucket-staging"
-    key          = "test/eks/dalgo-staging-cluster/terraform.tfstate"
+    bucket       = "terraform-state-and-lock-bucket"
+    key          = "dalgo-staging/eks/terraform.tfstate"
     region       = "ap-south-1"
     profile      = "dalgo-staging-admin"
     encrypt      = true
@@ -29,17 +29,20 @@ provider "aws" {
   # refuse to run against any other account
   allowed_account_ids = [var.aws_account_id]
 
+  # Subset: shared by default (cluster, IAM, add-ons serve every app); node groups and the
+  # airbyte zone override it. default_tags don't reach node EC2s: see node_ec2_tags below.
   default_tags {
     tags = {
-      Environment = "test-staging"
-      Product     = "Dalgo"
+      Product     = "dalgo"
+      Environment = "staging"
+      Subset      = "shared"
       ManagedBy   = "terraform"
     }
   }
 }
 
 locals {
-  iam_prefix = "test-dalgo-staging-eks"
+  iam_prefix = "dalgo-staging-eks"
 }
 
 ########################################
@@ -59,6 +62,10 @@ data "aws_iam_policy_document" "eks_cluster_assume_role" {
 resource "aws_iam_role" "eks_cluster_role" {
   name               = "${local.iam_prefix}-cluster-role"
   assume_role_policy = data.aws_iam_policy_document.eks_cluster_assume_role.json
+
+  tags = {
+    Name = "${local.iam_prefix}-cluster-role"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
@@ -83,6 +90,10 @@ data "aws_iam_policy_document" "eks_node_assume_role" {
 resource "aws_iam_role" "eks_node_group_role" {
   name               = "${local.iam_prefix}-node-role"
   assume_role_policy = data.aws_iam_policy_document.eks_node_assume_role.json
+
+  tags = {
+    Name = "${local.iam_prefix}-node-role"
+  }
 }
 
 
@@ -123,41 +134,53 @@ resource "aws_eks_cluster" "eks_cluster" {
 
   enabled_cluster_log_types = var.cluster_log_types
 
+  tags = {
+    Name = var.cluster_name
+  }
+
   depends_on = [aws_iam_role_policy_attachment.eks_cluster_policy]
 }
 
 # staging EC2 -> cluster (all ports) on private end points. Laptop kubectl uses the public endpoint, not this.
 # staging amchine can direclty talk to cluster without traffic going outside the vpc. 
-resource "aws_security_group_rule" "whitelist_security_group_rules" {
-  description              = "Allow traffic from the staging EC2 SG (kubectl / debugging)"
-  type                     = "ingress"
-  from_port                = 0
-  to_port                  = 65535
-  protocol                 = "-1"
-  source_security_group_id = local.staging_ec2_sg_id
-  security_group_id        = aws_eks_cluster.eks_cluster.vpc_config[0].cluster_security_group_id
+resource "aws_vpc_security_group_ingress_rule" "whitelist_security_group_rules" {
+  description                  = "Allow traffic from the staging EC2 SG (kubectl / debugging)"
+  ip_protocol                  = "-1"
+  referenced_security_group_id = local.staging_ec2_sg_id
+  security_group_id            = aws_eks_cluster.eks_cluster.vpc_config[0].cluster_security_group_id
+
+  tags = {
+    Name = "${var.cluster_name}-from-staging-ec2"
+  }
 }
 
 # cluster -> Prefect server on staging EC2 (4200)
-resource "aws_security_group_rule" "prefect_server_from_cluster" {
-  description              = "Prefect server API from EKS pods"
-  type                     = "ingress"
-  from_port                = 4200
-  to_port                  = 4200
-  protocol                 = "tcp"
-  source_security_group_id = aws_eks_cluster.eks_cluster.vpc_config[0].cluster_security_group_id
-  security_group_id        = local.staging_ec2_sg_id
+resource "aws_vpc_security_group_ingress_rule" "prefect_server_from_cluster" {
+  description                  = "Prefect server API from EKS pods"
+  ip_protocol                  = "tcp"
+  from_port                    = 4200
+  to_port                      = 4200
+  referenced_security_group_id = aws_eks_cluster.eks_cluster.vpc_config[0].cluster_security_group_id
+  security_group_id            = local.staging_ec2_sg_id
+
+  tags = {
+    Name   = "${var.cluster_name}-to-prefect-server"
+    Subset = "prefect"
+  }
 }
 
 # cluster -> staging RDS (5432)
-resource "aws_security_group_rule" "rds_from_cluster" {
-  description              = "Postgres from EKS pods"
-  type                     = "ingress"
-  from_port                = 5432
-  to_port                  = 5432
-  protocol                 = "tcp"
-  source_security_group_id = aws_eks_cluster.eks_cluster.vpc_config[0].cluster_security_group_id
-  security_group_id        = local.rds_sg_id
+resource "aws_vpc_security_group_ingress_rule" "rds_from_cluster" {
+  description                  = "Postgres from EKS pods"
+  ip_protocol                  = "tcp"
+  from_port                    = 5432
+  to_port                      = 5432
+  referenced_security_group_id = aws_eks_cluster.eks_cluster.vpc_config[0].cluster_security_group_id
+  security_group_id            = local.rds_sg_id
+
+  tags = {
+    Name = "${var.cluster_name}-to-rds"
+  }
 }
 
 ########################################
@@ -171,6 +194,10 @@ resource "aws_eks_access_entry" "admins" {
 
   cluster_name  = aws_eks_cluster.eks_cluster.name
   principal_arn = each.value
+
+  tags = {
+    Name = "${var.cluster_name}-admin-${element(split("/", each.value), length(split("/", each.value)) - 1)}"
+  }
 }
 
 resource "aws_eks_access_policy_association" "admins" {
@@ -195,7 +222,7 @@ resource "aws_eks_node_group" "eks_node_group" {
   for_each = var.node_groups
 
   cluster_name    = aws_eks_cluster.eks_cluster.name
-  node_group_name = "test-staging-node-group-${each.key}"
+  node_group_name = "dalgo-staging-node-group-${each.key}"
   node_role_arn   = aws_iam_role.eks_node_group_role.arn
   subnet_ids      = local.node_subnet_ids
   version         = var.cluster_version
@@ -231,6 +258,11 @@ resource "aws_eks_node_group" "eks_node_group" {
     }
   }
 
+  tags = {
+    Name   = "dalgo-staging-node-group-${each.key}"
+    Subset = each.value.subset
+  }
+
   # autoscaler owns desired_size
   lifecycle {
     ignore_changes = [scaling_config[0].desired_size]
@@ -245,10 +277,11 @@ locals {
   node_ec2_tags = merge([
     for ng_key, ng in var.node_groups : {
       for tag_key, tag_value in {
-        Name        = "test-dalgo-${lower(ng.subset)}-staging-eks-node"
-        Product     = "Dalgo"
-        Environment = "test-staging"
+        Name        = "dalgo-staging-${ng.subset}-eks-node"
+        Product     = "dalgo"
+        Environment = "staging"
         Subset      = ng.subset
+        ManagedBy   = "terraform"
       } : "${ng_key}/${tag_key}" => { node_group = ng_key, key = tag_key, value = tag_value }
     }
   ]...)
@@ -277,6 +310,10 @@ resource "aws_eks_addon" "vpc_cni" {
   addon_version               = var.addon_versions["vpc-cni"]
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
+
+  tags = {
+    Name = "${var.cluster_name}-vpc-cni"
+  }
 }
 
 resource "aws_eks_addon" "kube_proxy" {
@@ -285,6 +322,10 @@ resource "aws_eks_addon" "kube_proxy" {
   addon_version               = var.addon_versions["kube-proxy"]
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
+
+  tags = {
+    Name = "${var.cluster_name}-kube-proxy"
+  }
 }
 
 # gives pods their Pod Identity credentials
@@ -294,6 +335,10 @@ resource "aws_eks_addon" "pod_identity_agent" {
   addon_version               = var.addon_versions["eks-pod-identity-agent"]
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
+
+  tags = {
+    Name = "${var.cluster_name}-eks-pod-identity-agent"
+  }
 }
 
 resource "aws_eks_addon" "coredns" {
@@ -302,6 +347,10 @@ resource "aws_eks_addon" "coredns" {
   addon_version               = var.addon_versions["coredns"]
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
+
+  tags = {
+    Name = "${var.cluster_name}-coredns"
+  }
 
   depends_on = [aws_eks_node_group.eks_node_group]
 }
@@ -314,6 +363,10 @@ resource "aws_eks_addon" "metrics_server" {
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 
+  tags = {
+    Name = "${var.cluster_name}-metrics-server"
+  }
+
   depends_on = [aws_eks_node_group.eks_node_group]
 }
 
@@ -323,6 +376,10 @@ resource "aws_eks_addon" "ebs_csi" {
   addon_version               = var.addon_versions["aws-ebs-csi-driver"]
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
+
+  tags = {
+    Name = "${var.cluster_name}-aws-ebs-csi-driver"
+  }
 
   # start after Pod Identity is ready, so the controller gets credentials
   depends_on = [
@@ -371,12 +428,20 @@ resource "aws_eks_pod_identity_association" "pod_roles" {
   namespace       = "kube-system"
   service_account = each.value
   role_arn        = local.pod_role_arns[each.key]
+
+  tags = {
+    Name = "${var.cluster_name}-${each.value}"
+  }
 }
 
 # EBS CSI driver
 resource "aws_iam_role" "ebs_csi" {
   name               = "${local.iam_prefix}-ebs-csi-driver"
   assume_role_policy = data.aws_iam_policy_document.pod_identity_assume_role.json
+
+  tags = {
+    Name = "${local.iam_prefix}-ebs-csi-driver"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "ebs_csi" {
@@ -410,11 +475,19 @@ resource "aws_iam_policy" "cluster_autoscaler" {
       Resource = "*"
     }]
   })
+
+  tags = {
+    Name = "${local.iam_prefix}-cluster-autoscaler"
+  }
 }
 
 resource "aws_iam_role" "cluster_autoscaler" {
   name               = "${local.iam_prefix}-cluster-autoscaler"
   assume_role_policy = data.aws_iam_policy_document.pod_identity_assume_role.json
+
+  tags = {
+    Name = "${local.iam_prefix}-cluster-autoscaler"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "cluster_autoscaler" {
@@ -427,11 +500,19 @@ resource "aws_iam_policy" "lb_controller" {
   name        = "${local.iam_prefix}-aws-load-balancer-controller"
   description = "Permissions for aws-load-balancer-controller"
   policy      = file("${path.module}/aws_load_balancer_controller_iam_policy.json")
+
+  tags = {
+    Name = "${local.iam_prefix}-aws-load-balancer-controller"
+  }
 }
 
 resource "aws_iam_role" "lb_controller" {
   name               = "${local.iam_prefix}-aws-load-balancer-controller"
   assume_role_policy = data.aws_iam_policy_document.pod_identity_assume_role.json
+
+  tags = {
+    Name = "${local.iam_prefix}-aws-load-balancer-controller"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "lb_controller" {

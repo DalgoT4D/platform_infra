@@ -1,4 +1,4 @@
-# Defaults below apply unless set in terraform.tfvars. Any variable here can be overridden there (e.g. subnet_az = "ap-south-1a").
+# Defaults below apply unless set in terraform.tfvars. Any variable here can be overridden there (e.g. subnet_az = "ap-south-1b").
 
 ########################################
 # Account
@@ -27,7 +27,7 @@ variable "aws_account_id" {
 variable "instance_name" {
   description = "Name tag of the instance"
   type        = string
-  default     = "test-dalgo-staging-arm"
+  default     = "dalgo-staging-ec2"
 }
 
 variable "instance_type" {
@@ -37,9 +37,9 @@ variable "instance_type" {
 }
 
 variable "subnet_az" {
-  description = "AZ of the public subnet the box runs in"
+  description = "AZ of the public subnet the box runs in. Same AZ as RDS and the EKS nodes."
   type        = string
-  default     = "ap-south-1b"
+  default     = "ap-south-1a"
 }
 
 # Latest match is picked on first apply only (ami is in ignore_changes).
@@ -70,5 +70,5 @@ variable "root_volume_encrypted" {
 variable "key_pair_name" {
   description = "Name of an existing EC2 key pair for SSH into the box"
   type        = string
-  default     = "test-dalgo-staging-key-pair"
+  default     = "dalgo-staging-key-pair"
 }

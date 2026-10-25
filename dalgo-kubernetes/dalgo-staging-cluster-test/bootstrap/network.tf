@@ -1,3 +1,7 @@
+locals {
+  name = var.vpc_name
+}
+
 ########################################
 # VPC + internet gateway
 ########################################
@@ -8,7 +12,7 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true # EKS + private R53 zone need both
 
   tags = {
-    Name = var.vpc_name
+    Name = "${local.name}-vpc"
   }
 }
 
@@ -16,7 +20,7 @@ resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.vpc_name}-igw"
+    Name = "${local.name}-igw"
   }
 }
 
@@ -24,9 +28,7 @@ resource "aws_internet_gateway" "main" {
 # Subnets
 ########################################
 
-# ELB role tags tell the LB controller where to put ALBs.
-# NOTE: cluster/terraform still sets the same tags with aws_ec2_tag. Same values, so no conflict;
-# a cluster destroy removes them and the next apply here puts them back.
+# ELB role tags tell the LB controller where to put ALBs: only the var.alb_azs subnets get them.
 resource "aws_subnet" "public" {
   for_each = var.public_subnets
 
@@ -35,10 +37,10 @@ resource "aws_subnet" "public" {
   cidr_block              = each.value
   map_public_ip_on_launch = true
 
-  tags = {
-    Name                     = "test-public-subnet-${each.key}"
-    "kubernetes.io/role/elb" = "1" # internet-facing ALBs (Superset, Grafana)
-  }
+  tags = merge(
+    { Name = "${local.name}-public-subnet-${each.key}" },
+    contains(var.alb_azs, each.key) ? { "kubernetes.io/role/elb" = "1" } : {}, # internet-facing ALBs (Superset, Grafana)
+  )
 }
 
 resource "aws_subnet" "private" {
@@ -48,10 +50,10 @@ resource "aws_subnet" "private" {
   availability_zone = each.key
   cidr_block        = each.value
 
-  tags = {
-    Name                              = "test-private-subnet-${each.key}"
-    "kubernetes.io/role/internal-elb" = "1" # internal ALBs (Airbyte)
-  }
+  tags = merge(
+    { Name = "${local.name}-private-subnet-${each.key}" },
+    contains(var.alb_azs, each.key) ? { "kubernetes.io/role/internal-elb" = "1" } : {}, # internal ALBs (Airbyte)
+  )
 }
 
 ########################################
@@ -62,7 +64,7 @@ resource "aws_eip" "nat" {
   domain = "vpc"
 
   tags = {
-    Name = "test-staging-nat-elastic-ip"
+    Name = "${local.name}-nat-eip"
   }
 }
 
@@ -71,7 +73,7 @@ resource "aws_nat_gateway" "main" {
   subnet_id     = aws_subnet.public[var.nat_az].id
 
   tags = {
-    Name = "test-staging-nat-gateway"
+    Name = "${local.name}-nat-gateway"
   }
 
   depends_on = [aws_internet_gateway.main]
@@ -91,7 +93,7 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name = "test-public-route-table"
+    Name = "${local.name}-public-route-table"
   }
 }
 
@@ -112,7 +114,7 @@ resource "aws_route_table" "private" {
   }
 
   tags = {
-    Name = "test-private-route-table"
+    Name = "${local.name}-private-route-table"
   }
 }
 

@@ -6,9 +6,11 @@ metadata:
   namespace: airbyte
   annotations:
     # Own ALB group: internal and internet-facing Ingresses can't share an ALB
-    alb.ingress.kubernetes.io/group.name: test-dalgo-staging-internal
+    alb.ingress.kubernetes.io/group.name: dalgo-staging-internal
     # Create INTERNAL load balancer (not internet-facing)
     alb.ingress.kubernetes.io/scheme: internal
+    # Tags on the ALB, its target groups and SGs
+    alb.ingress.kubernetes.io/tags: Name=dalgo-staging-airbyte-internal-alb,Product=dalgo,Environment=staging,Subset=airbyte
     # Private subnets are auto-discovered via the kubernetes.io/role/internal-elb=1 tag
     # Use IP targets for better performance with pods
     alb.ingress.kubernetes.io/target-type: ip
@@ -30,7 +32,7 @@ spec:
   # Use AWS Load Balancer Controller (not nginx)
   ingressClassName: alb
   rules:
-    - host: test-airbyte-staging-internal.dalgo.org
+    - host: airbyte-staging-internal.dalgo.org
       http:
         paths:
           # Route /api/v1/connector* to connector-builder-server

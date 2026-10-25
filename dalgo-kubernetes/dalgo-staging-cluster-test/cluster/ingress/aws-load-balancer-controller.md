@@ -42,7 +42,12 @@ helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-contro
   --set vpcId=<vpc_id> \
   --set serviceAccount.create=true \
   --set serviceAccount.name=aws-load-balancer-controller \
+  --set defaultTags.Product=dalgo \
+  --set defaultTags.Environment=staging \
+  --set defaultTags.ManagedBy=aws-load-balancer-controller \
   --version 1.13.0
+# defaultTags go on every ALB / target group / SG the controller creates and win over Ingress tags,
+# so Name and Subset are set per Ingress (alb.ingress.kubernetes.io/tags), not here.
 ```
 
 Check:

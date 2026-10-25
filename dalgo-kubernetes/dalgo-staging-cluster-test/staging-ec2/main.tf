@@ -39,6 +39,10 @@ resource "aws_instance" "staging" {
     throughput            = 125
     encrypted             = var.root_volume_encrypted
     delete_on_termination = true
+
+    tags = {
+      Name = "${var.instance_name}-root-volume"
+    }
   }
 
   # IMDSv2 only; hop limit 2 so containers on the box can reach it
