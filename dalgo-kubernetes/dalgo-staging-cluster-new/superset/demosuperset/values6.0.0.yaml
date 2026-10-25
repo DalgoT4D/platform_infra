@@ -536,7 +536,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     # ACM wildcard cert: `terraform output acm_certificate_arn` in cluster/terraform
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:323443472031:certificate/2b7e6652-cdd5-4906-8ea9-b2fb08658676
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:323443472031:certificate/33cfb0f1-f5ac-417e-a2cd-85fa4347ddd9
     ## Extend timeout to allow long running queries. Applies to the whole ALB,
     ## keep the same value on every Ingress in the group.
     alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=300

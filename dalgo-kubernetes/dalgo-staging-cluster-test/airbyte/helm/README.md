@@ -2,14 +2,14 @@ helm repo add airbyte https://airbytehq.github.io/helm-charts
 helm repo update airbyte
 
 # namespace first: the secret below goes into it
-kubectl create namespace airbyte
+kubectl create namespace airbyte-staging
 
 # secrets (copy the example, fill in, never commit the filled file)
-kubectl apply -n airbyte -f airbyte-config-secrets.yaml
+kubectl apply -n airbyte-staging -f airbyte-config-secrets.yaml
 
-helm upgrade --install airbyte airbyte/airbyte --namespace airbyte --create-namespace --values values1.8.3.yaml --version 1.8.3
+helm upgrade --install airbyte airbyte/airbyte --namespace airbyte-staging --create-namespace --values values1.8.3.yaml --version 1.8.3
 
-helm uninstall airbyte -n airbyte
+helm uninstall airbyte -n airbyte-staging
 
 ## Before the first install (new account)
 

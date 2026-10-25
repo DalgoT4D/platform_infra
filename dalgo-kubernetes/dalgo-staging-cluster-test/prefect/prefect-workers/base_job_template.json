@@ -72,7 +72,7 @@
       "namespace": {
         "type": "string",
         "title": "Namespace",
-        "default": "prefect",
+        "default": "prefect-staging",
         "description": "The Kubernetes namespace to create jobs within."
       },
       "backoff_limit": {

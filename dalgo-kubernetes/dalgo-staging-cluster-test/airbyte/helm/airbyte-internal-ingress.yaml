@@ -3,7 +3,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: airbyte-internal-ingress
-  namespace: airbyte
+  namespace: airbyte-staging
   annotations:
     # Own ALB group: internal and internet-facing Ingresses can't share an ALB
     alb.ingress.kubernetes.io/group.name: dalgo-staging-internal
@@ -20,7 +20,7 @@ metadata:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     # ACM wildcard cert: `terraform output acm_certificate_arn` in cluster/terraform
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:323443472031:certificate/e1fe9116-b589-4e04-bf1b-1ef4113960ec
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:323443472031:certificate/33cfb0f1-f5ac-417e-a2cd-85fa4347ddd9
     # Health check settings
     alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
     alb.ingress.kubernetes.io/healthcheck-path: /health
