@@ -70,5 +70,5 @@ variable "root_volume_encrypted" {
 variable "key_pair_name" {
   description = "Name of an existing EC2 key pair for SSH into the box"
   type        = string
-  default     = "dalgo-staging-key-pair"
+  default     = "dalgo-staging-ec2-rsa-key-pair"
 }
