@@ -3,14 +3,15 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: airbyte-internal-ingress
-  namespace: airbyte
+  namespace: airbyte-staging
   annotations:
-    # Explicitly use AWS Load Balancer Controller
-    kubernetes.io/ingress.class: alb
+    # Own ALB group: internal and internet-facing Ingresses can't share an ALB
+    alb.ingress.kubernetes.io/group.name: dalgo-staging-internal
     # Create INTERNAL load balancer (not internet-facing)
     alb.ingress.kubernetes.io/scheme: internal
-    # Auto-discover private subnets for internal load balancer (should work now with proper tags)
-    alb.ingress.kubernetes.io/subnets: subnet-08e4502bf3a55222b, subnet-07578870c36500e08
+    # Tags on the ALB, its target groups and SGs
+    alb.ingress.kubernetes.io/tags: Name=dalgo-staging-airbyte-internal-alb,Product=dalgo,Environment=staging,Subset=airbyte
+    # Private subnets are auto-discovered via the kubernetes.io/role/internal-elb=1 tag
     # Use IP targets for better performance with pods
     alb.ingress.kubernetes.io/target-type: ip
     # Connection timeout (30 minutes)
@@ -18,7 +19,8 @@ metadata:
     # HTTPS - listen on both HTTP and HTTPS, redirect HTTP to HTTPS
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:024209611402:certificate/73bdd623-9f8c-4daa-99a1-113189dd05b4
+    # ACM wildcard cert: `terraform output acm_certificate_arn` in cluster/terraform
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:323443472031:certificate/33cfb0f1-f5ac-417e-a2cd-85fa4347ddd9
     # Health check settings
     alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
     alb.ingress.kubernetes.io/healthcheck-path: /health

@@ -1,8 +1,8 @@
 # kube-prometheus-stack values — dalgo-staging-cluster
-# Chart: prometheus-community/kube-prometheus-stack (69.4.1)
+# Chart: prometheus-community/kube-prometheus-stack (92.3.0)
 #
 # - Prometheus, Alertmanager and Grafana all PERSIST to gp3 EBS volumes
-# - Grafana is served through the shared nginx ingress (NO dedicated ELB)
+# - Grafana is served through the shared public ALB (group dalgo-staging-public)
 # - Grafana admin creds come from a pre-created Secret (never committed here)
 
 fullnameOverride: kube-prometheus-stack
@@ -41,7 +41,7 @@ alertmanager:
               storage: 5Gi
 
 # ----------------------------------------------------------------------------
-# Grafana — served via the shared nginx ingress, persisted to gp3
+# Grafana — served via the shared public ALB, persisted to gp3
 # ----------------------------------------------------------------------------
 grafana:
   service:
@@ -54,21 +54,31 @@ grafana:
     size: 10Gi
   ingress:
     enabled: true
-    ingressClassName: nginx
+    ingressClassName: alb
     annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-staging
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+      # Shared internet-facing ALB (same group as superset)
+      alb.ingress.kubernetes.io/group.name: dalgo-staging-public
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      # Tags on the ALB / target groups / SGs. ALB is shared with superset: keep these identical on both Ingresses
+      alb.ingress.kubernetes.io/tags: Name=dalgo-staging-public-alb,Product=dalgo,Environment=staging,Subset=shared
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/ssl-redirect: '443'
+      # ACM wildcard cert: `terraform output acm_certificate_arn` in cluster/terraform
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:323443472031:certificate/33cfb0f1-f5ac-417e-a2cd-85fa4347ddd9
+      # Applies to the whole ALB, keep the same value on every Ingress in the group
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=300
+      alb.ingress.kubernetes.io/healthcheck-path: /api/health
     hosts:
       - grafana-staging.dalgo.org
-    tls:
-      - hosts: [grafana-staging.dalgo.org]
-        secretName: grafana-staging-tls
+    # TLS is terminated on the ALB with the ACM cert, no k8s TLS secret needed
+    tls: []
   grafana.ini:
     server:
       root_url: https://grafana-staging.dalgo.org
   # Admin credentials from a pre-created Secret (do NOT commit a password).
   # Create it first:
-  #   kubectl -n monitoring create secret generic grafana-admin \
+  #   kubectl -n monitoring-staging create secret generic grafana-admin \
   #     --from-literal=admin-user=admin \
   #     --from-literal=admin-password='<a-strong-password>'
   admin:

@@ -6,7 +6,8 @@
         "type": "object",
         "title": "Environment Variables",
         "default": {
-          "PREFECT_DEBUG_MODE": "False"
+          "PREFECT_DEBUG_MODE": "False",
+          "CLIENTDBT_ROOT": "/home/ddp/clientdbts"
         },
         "description": "Environment variables to set when starting a flow run.",
         "additionalProperties": {
@@ -42,7 +43,7 @@
           }
         ],
         "title": "Image",
-        "default": "tech4dev/prefect-eks-job-runner:0.3",
+        "default": "tech4dev/prefect-eks-job-runner:0.4",
         "examples": [
           "docker.io/prefecthq/prefect:3-latest"
         ],
@@ -71,7 +72,7 @@
       "namespace": {
         "type": "string",
         "title": "Namespace",
-        "default": "prefect",
+        "default": "prefect-staging",
         "description": "The Kubernetes namespace to create jobs within."
       },
       "backoff_limit": {
@@ -119,7 +120,7 @@
         ],
         "type": "string",
         "title": "Image Pull Policy",
-        "default": "IfNotPresent",
+        "default": "Always",
         "description": "The Kubernetes image pull policy to use for job containers."
       },
       "service_account_name": {
@@ -214,7 +215,19 @@
                     "cpu": "1",
                     "memory": "1Gi"
                   }
-                }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "clientdbts",
+                    "mountPath": "/home/ddp/clientdbts"
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "clientdbts",
+                "emptyDir": {}
               }
             ],
             "completions": 1,

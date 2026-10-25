@@ -2,7 +2,7 @@ apiVersion: discovery.k8s.io/v1
 kind: EndpointSlice
 metadata:
   name: prefect-server-external-ep
-  namespace: prefect
+  namespace: prefect-staging
   labels:
     kubernetes.io/service-name: prefect-server-external
 addressType: IPv4

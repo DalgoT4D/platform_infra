@@ -1,4 +1,3 @@
-### TEST FOR RELEASE WORKFLOW
 
 
 # Global params that are overwritten with umbrella chart
@@ -76,7 +75,8 @@ global:
     secretName: "airbyte-config-secrets" # e.g. "airbyte-config-secrets"
 
     # -- The database host
-    host: "ddp-staging-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com"
+    # MIGRATION: old account RDS was ddp-staging-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
+    host: "dalgo-staging-rds.chgoiay26kgd.ap-south-1.rds.amazonaws.com"
 
     # -- The database port
     port: 5432
@@ -101,10 +101,11 @@ global:
     secretName: "airbyte-config-secrets"
 
     # S3
+    # Bucket created by hand in the staging account
     bucket: ## S3 bucket names that you've created. We recommend storing the following all in one bucket.
-     log: dalgo-staging2-eks
-     state: dalgo-staging2-eks
-     workloadOutput: dalgo-staging2-eks
+     log: dalgo-staging-airbyte
+     state: dalgo-staging-airbyte
+     workloadOutput: dalgo-staging-airbyte
     s3:
      region: "ap-south-1" ## e.g. us-east-1
      authenticationType: credentials ## Use "credentials" or "instanceProfile"
@@ -662,7 +663,7 @@ server:
   ##   DATABASE_PORT: 5432
   # -- Supply extra env variables to main container using simplified notation
   env_vars: 
-    DATABASE_HOST: ddp-staging-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
+    DATABASE_HOST: dalgo-staging-rds.chgoiay26kgd.ap-south-1.rds.amazonaws.com  # MIGRATION: was ddp-staging-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
     DATABASE_PORT: "5432"
 
 ## @section Worker Parameters
@@ -2046,6 +2047,10 @@ connector-builder-server:
   env_vars: {}
   service:
     port: 80
+    annotations:
+      # the internal ALB checks /health by default (set on the Ingress), but this
+      # service answers health on /v1/health; without this its ALB target shows unhealthy (404)
+      alb.ingress.kubernetes.io/healthcheck-path: /v1/health
 
   # -- Node labels for pod assignment, see https://kubernetes.io/docs/user-guide/node-selection/
   nodeSelector:

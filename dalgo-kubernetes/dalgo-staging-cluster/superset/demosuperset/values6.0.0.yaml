@@ -527,22 +527,30 @@ service:
 
 ingress:
   enabled: true
-  ingressClassName: nginx
+  ingressClassName: alb
   annotations:
-    # kubernetes.io/tls-acme: "true"
-    ## Extend timeout to allow long running queries.
-    cert-manager.io/cluster-issuer: "letsencrypt-staging"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    # Shared internet-facing ALB (same group as grafana)
+    alb.ingress.kubernetes.io/group.name: dalgo-staging-public
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    # Tags on the ALB / target groups / SGs. ALB is shared with grafana: keep these identical on both Ingresses
+    alb.ingress.kubernetes.io/tags: Name=dalgo-staging-public-alb,Product=dalgo,Environment=staging,Subset=shared
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    # ACM wildcard cert: `terraform output acm_certificate_arn` in cluster/terraform
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:323443472031:certificate/33cfb0f1-f5ac-417e-a2cd-85fa4347ddd9
+    ## Extend timeout to allow long running queries. Applies to the whole ALB,
+    ## keep the same value on every Ingress in the group.
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=300
+    # "/" redirects to login (302); ALB needs a 200
+    alb.ingress.kubernetes.io/healthcheck-path: /health
   path: /
-  pathType: ImplementationSpecific
+  # ALB treats ImplementationSpecific "/" as an exact match; Prefix matches everything
+  pathType: Prefix
   hosts:
     - demosuperset.dalgo.org
-  tls:
-    - hosts:
-        - demosuperset.dalgo.org
-      secretName: demosuperset-tls
+  # TLS is terminated on the ALB with the ACM cert, no k8s TLS secret needed
+  tls: []
   extraHostsRaw: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -1118,7 +1126,7 @@ init:
       effect: NoSchedule
   ## NodeSelector to be added to init job pods
   nodeSelector:
-    workload: superset
+    type: superset
   ## Affinity to be added to init job pods
   affinity: {}
   # -- TopologySpreadConstrains to be added to init job
@@ -1206,7 +1214,7 @@ redis:
   master:
     # -- Schedule redis on the dedicated superset node group
     nodeSelector:
-      workload: superset
+      type: superset
     tolerations:
       - key: dedicated
         operator: Equal
@@ -1233,7 +1241,7 @@ redis:
         - ReadWriteOnce
 
 nodeSelector:
-  workload: superset
+  type: superset
 
 tolerations:
   - key: dedicated
