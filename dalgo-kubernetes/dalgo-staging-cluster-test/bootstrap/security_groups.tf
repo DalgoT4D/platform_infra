@@ -26,7 +26,7 @@ resource "aws_vpc_security_group_ingress_rule" "staging_ec2_ssh" {
   cidr_ipv4         = each.value
 
   tags = {
-    Name = "${local.name}-ec2-ssh-${each.value}"
+    Name = "${local.name}-ec2-ssh"
   }
 }
 
@@ -105,7 +105,7 @@ resource "aws_vpc_security_group_ingress_rule" "cloudflare_https_v4" {
   cidr_ipv4         = each.value
 
   tags = {
-    Name = "${local.name}-cloudflare-https-${each.value}"
+    Name = "${local.name}-cloudflare-https"
   }
 }
 
@@ -120,6 +120,6 @@ resource "aws_vpc_security_group_ingress_rule" "cloudflare_https_v6" {
   cidr_ipv6         = each.value
 
   tags = {
-    Name = "${local.name}-cloudflare-https-${each.value}"
+    Name = "${local.name}-cloudflare-https"
   }
 }

@@ -38,7 +38,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags = merge(
-    { Name = "${local.name}-public-subnet-${each.key}" },
+    { Name = "${local.name}-public-subnet" },
     contains(var.alb_azs, each.key) ? { "kubernetes.io/role/elb" = "1" } : {}, # internet-facing ALBs (Superset, Grafana)
   )
 }
@@ -51,7 +51,7 @@ resource "aws_subnet" "private" {
   cidr_block        = each.value
 
   tags = merge(
-    { Name = "${local.name}-private-subnet-${each.key}" },
+    { Name = "${local.name}-private-subnet" },
     contains(var.alb_azs, each.key) ? { "kubernetes.io/role/internal-elb" = "1" } : {}, # internal ALBs (Airbyte)
   )
 }
