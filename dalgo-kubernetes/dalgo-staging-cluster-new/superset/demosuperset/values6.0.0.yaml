@@ -1124,7 +1124,7 @@ init:
       effect: NoSchedule
   ## NodeSelector to be added to init job pods
   nodeSelector:
-    workload: superset
+    type: superset
   ## Affinity to be added to init job pods
   affinity: {}
   # -- TopologySpreadConstrains to be added to init job
@@ -1212,7 +1212,7 @@ redis:
   master:
     # -- Schedule redis on the dedicated superset node group
     nodeSelector:
-      workload: superset
+      type: superset
     tolerations:
       - key: dedicated
         operator: Equal
@@ -1239,7 +1239,7 @@ redis:
         - ReadWriteOnce
 
 nodeSelector:
-  workload: superset
+  type: superset
 
 tolerations:
   - key: dedicated

@@ -152,8 +152,9 @@ variable "node_groups" {
       max_size       = 3
       desired_size   = 1
       disk_size      = 50
-      labels         = { workload = "superset" }                                           ## CHECK this, can we make it type.  
-      taints         = [{ key = "dedicated", value = "superset", effect = "NO_SCHEDULE" }] # if we have lables then why we need taint ? 
+      labels         = { type = "superset" }
+      # label pulls Superset pods here; taint keeps every other pod off these nodes
+      taints = [{ key = "dedicated", value = "superset", effect = "NO_SCHEDULE" }]
     }
   }
 }
