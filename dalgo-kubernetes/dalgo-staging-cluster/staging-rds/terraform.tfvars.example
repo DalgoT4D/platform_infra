@@ -1,0 +1,15 @@
+# Set any variable from variables.tf here to override its default (e.g. availability_zone = "ap-south-1b"). Unset ones keep their default.
+
+aws_region     = "ap-south-1"
+aws_profile    = "dalgo-staging-admin"
+aws_account_id = ""
+
+# postgres master password: same value as in the team vault (min 8 chars; no / " @ or spaces)
+master_password = ""
+
+# Restore from a snapshot instead of creating an empty DB (leave unset for a new DB).
+# Match the snapshot: engine_version (major), allocated_storage >= snapshot size.
+# snapshot_identifier = "dalgo-staging-rds-pre-migration"
+
+# Everything else defaults to the current dalgo-staging-rds (variables.tf). Override only what differs, e.g.:
+# instance_class = "db.t4g.small"

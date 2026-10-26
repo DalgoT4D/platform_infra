@@ -1,0 +1,10 @@
+# Set any variable from variables.tf here to override its default (e.g. nat_az = "ap-south-1b"). Unset ones keep their default.
+
+aws_region     = "ap-south-1"
+aws_profile    = "dalgo-staging-admin"
+aws_account_id = ""
+
+# Everything else defaults to the current staging layout (variables.tf).
+# Override only what differs, e.g.:
+# vpc_cidr          = "172.31.0.0/16"
+# ssh_ingress_cidrs = ["<office-ip>/32"]

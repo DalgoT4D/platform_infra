@@ -1,43 +1,28 @@
-helm uninstall airbyte -n airbyte
+helm repo add airbyte https://airbytehq.github.io/helm-charts
+helm repo update airbyte
 
-helm upgrade --install airbyte airbyte/airbyte --namespace airbyte --values values1.7.0.yaml --version 1.7.0
+# namespace first: the secret below goes into it
+kubectl create namespace airbyte-staging
 
-helm upgrade --install airbyte airbyte/airbyte --namespace airbyte --values values1.8.3.yaml --version 1.8.3
+# secrets (copy the example, fill in, never commit the filled file)
+kubectl apply -n airbyte-staging -f airbyte-config-secrets.yaml
 
+helm upgrade --install airbyte airbyte/airbyte --namespace airbyte-staging --create-namespace --values values1.8.3.yaml --version 1.8.3
 
-## setting up aws load balancer controller
+helm uninstall airbyte -n airbyte-staging
 
-https://docs.aws.amazon.com/eks/latest/userguide/lbc-helm.html
+## Before the first install (new account)
 
-1. Create AWSLoadBalancerControllerIAMPolicy with the permissions aws_loadbalancer_controller_iam_policy.json
+- `values1.8.3.yaml`: replace `<new-account-rds-endpoint>` (2 places) and `<new-account-bucket>` (lines marked `# MIGRATION`).
+- `airbyte-internal-ingress.yaml`: replace `<acm_certificate_arn>` with `terraform output acm_certificate_arn` (cluster/terraform).
 
-2. eksctl create iamserviceaccount \
-    --cluster=<cluster-name> \
-    --namespace=kube-system \
-    --name=aws-load-balancer-controller \
-    --attach-policy-arn=arn:aws:iam::<AWS_ACCOUNT_ID>:policy/AWSLoadBalancerControllerIAMPolicy \
-    --override-existing-serviceaccounts \
-    --region <aws-region-code> \
-    --approve
+## Internal ALB
 
-3. helm repo add eks https://aws.github.io/eks-charts
+The AWS Load Balancer Controller is installed once per cluster: see
+`../../cluster/ingress/aws-load-balancer-controller.md`. Its IAM role and Pod Identity
+association come from terraform, so the old eksctl / IAM policy steps are no longer needed.
 
-4. helm repo update eks
+kubectl apply -f airbyte-internal-ingress.yaml
 
-5. helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
-  -n kube-system \
-  --set clusterName=my-cluster \
-  --set serviceAccount.create=false \
-  --set serviceAccount.name=aws-load-balancer-controller \
-  --set vpcId=$VPC_ID \
-  --version 1.13.0
-
-helm upgrade aws-load-balancer-controller eks/aws-load-balancer-controller \
-  -n kube-system \
-  --set clusterName=my-cluster \
-  --set serviceAccount.create=false \
-  --set serviceAccount.name=aws-load-balancer-controller \
-  --set region=ap-south-1 \
-  --set vpcId=$VPC_ID \
-  --version 1.13.0
-
+Then point the private Route53 zone `airbyte-staging-internal.dalgo.org`
+(`terraform output airbyte_internal_zone_id`) at the ALB with an alias record.
