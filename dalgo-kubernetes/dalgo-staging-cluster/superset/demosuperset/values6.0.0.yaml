@@ -285,10 +285,32 @@ configOverrides:
                 "task": "reports.scheduler",
                 "schedule": crontab(minute="*", hour="*"),
             },
+            "logs.cleanup": {
+                "task": "logs.cleanup",
+                "schedule": crontab(hour=2, minute=0),
+            },
         }
 
 
     CELERY_CONFIG = CeleryConfig  # pylint: disable=invalid-name
+
+    LOG_RETENTION_DAYS = int(os.environ.get("LOG_RETENTION_DAYS", "365"))
+
+    from superset.tasks.celery_app import app as celery_app
+
+    @celery_app.task(name="logs.cleanup")
+    def cleanup_logs():
+        from superset.extensions import db
+        from sqlalchemy import text
+        from datetime import datetime, timedelta
+        cutoff = datetime.utcnow() - timedelta(days=LOG_RETENTION_DAYS)
+        result = db.session.execute(
+            text("DELETE FROM logs WHERE dttm < :cutoff"),
+            {"cutoff": cutoff}
+        )
+        db.session.commit()
+        db.session.remove()
+        return f"Deleted {result.rowcount} log entries older than {LOG_RETENTION_DAYS} days"
 
 
     RESULTS_BACKEND = RedisCache(
