@@ -395,7 +395,7 @@ configOverrides:
         "force_https": False,  # because enabling this will break automated reports
         "content_security_policy": {
             "style-src": ["'self'", app_host, "'unsafe-inline'","https://fonts.googleapis.com"],
-            "img-src": ["'self'", app_host, "data:", "https://client-superset-assets.s3.ap-south-1.amazonaws.com"],
+            "img-src": ["'self'", app_host, "data:", "https://client-superset-assets.s3.ap-south-1.amazonaws.com", "https://goonj.org", "https://*.goonj.org"],
             "worker-src": ["'self'", app_host, "blob:"],
             "connect-src": [
                 "'self'",
@@ -408,6 +408,7 @@ configOverrides:
                 "http://localhost:3000",
                 "https://staging.dalgo.org",
                 "https://dashboard.dalgo.org",
+                "https://goonj.dalgo.org"
             ],
         },
     }
