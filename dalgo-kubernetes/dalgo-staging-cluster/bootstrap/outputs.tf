@@ -41,3 +41,8 @@ output "rds_sg_id" {
 output "cloudflare_https_sg_id" {
   value = aws_security_group.cloudflare_https.id
 }
+
+output "ecr_docker_hub_registry" {
+  description = "Set as global.image.registry in airbyte/helm/values*.yaml"
+  value       = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.ecr_docker_hub_prefix}"
+}

@@ -158,3 +158,13 @@ variable "node_groups" {
     }
   }
 }
+
+########################################
+# ECR pull-through cache (cache rule lives in bootstrap/ecr.tf)
+########################################
+
+variable "ecr_docker_hub_prefix" {
+  description = "ECR repo prefix of the Docker Hub cache; must match bootstrap's ecr_docker_hub_prefix"
+  type        = string
+  default     = "docker-hub"
+}

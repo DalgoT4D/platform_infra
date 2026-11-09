@@ -119,3 +119,25 @@ variable "cloudflare_ipv6_ranges" {
     "2c0f:f248::/32",
   ]
 }
+
+########################################
+# ECR pull-through cache (ecr.tf)
+########################################
+
+variable "ecr_docker_hub_prefix" {
+  description = "ECR repo prefix for the Docker Hub cache (<account>.dkr.ecr.<region>.amazonaws.com/<prefix>/...). Keep in sync with cluster/terraform."
+  type        = string
+  default     = "docker-hub"
+}
+
+variable "ecr_docker_hub_secret_name" {
+  description = "Secrets Manager secret with Docker Hub username/accessToken (created by hand; must start with ecr-pullthroughcache/)"
+  type        = string
+  default     = "ecr-pullthroughcache/docker-hub"
+}
+
+variable "ecr_cache_max_age_days" {
+  description = "Cached images older than this expire (re-fetched from Docker Hub on next pull)"
+  type        = number
+  default     = 90
+}
