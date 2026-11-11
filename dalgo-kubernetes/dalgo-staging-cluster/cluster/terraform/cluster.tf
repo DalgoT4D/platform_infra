@@ -110,6 +110,26 @@ resource "aws_iam_role_policy_attachment" "eks_node_policies" {
   policy_arn = each.value
 }
 
+# ECR pull-through cache (bootstrap/ecr.tf): ReadOnly can pull, but a cache miss also creates
+# the repo and imports the image from Docker Hub, which runs as the pulling node.
+data "aws_iam_policy_document" "ecr_pull_through" {
+  statement {
+    actions = [
+      "ecr:CreateRepository",
+      "ecr:BatchImportUpstreamImage",
+    ]
+    resources = [
+      "arn:aws:ecr:${var.aws_region}:${var.aws_account_id}:repository/${var.ecr_docker_hub_prefix}/*",
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "node_ecr_pull_through" {
+  name   = "${local.iam_prefix}-ecr-pull-through"
+  role   = aws_iam_role.eks_node_group_role.id
+  policy = data.aws_iam_policy_document.ecr_pull_through.json
+}
+
 ########################################
 # EKS cluster
 ########################################

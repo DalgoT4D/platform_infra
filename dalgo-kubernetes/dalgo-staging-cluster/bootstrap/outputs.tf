@@ -23,6 +23,11 @@ output "nat_public_ip" {
   value       = aws_eip.nat.public_ip
 }
 
+output "s3_endpoint_id" {
+  description = "S3 gateway endpoint (S3 traffic from both route tables bypasses the NAT)"
+  value       = aws_vpc_endpoint.s3.id
+}
+
 output "staging_ec2_sg_id" {
   description = "cluster/terraform: staging_ec2_sg_id and api_whitelist_security_group_ids"
   value       = aws_security_group.staging_ec2.id
@@ -35,4 +40,9 @@ output "rds_sg_id" {
 
 output "cloudflare_https_sg_id" {
   value = aws_security_group.cloudflare_https.id
+}
+
+output "ecr_docker_hub_registry" {
+  description = "Set as global.image.registry in airbyte/helm/values*.yaml"
+  value       = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.ecr_docker_hub_prefix}"
 }
