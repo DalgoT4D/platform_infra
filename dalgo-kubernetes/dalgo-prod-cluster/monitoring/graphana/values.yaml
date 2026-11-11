@@ -522,7 +522,7 @@ grafana:
   image:
     pullPolicy: IfNotPresent
     pullSecrets: []
-    registry: docker.io
+    registry: 024209611402.dkr.ecr.ap-south-1.amazonaws.com/docker-hub  # ECR pull-through cache of Docker Hub (rollback: docker.io)
     repository: grafana/grafana
     sha: ""
     tag: ""
