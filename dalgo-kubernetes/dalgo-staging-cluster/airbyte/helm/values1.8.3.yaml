@@ -110,7 +110,8 @@ global:
      workloadOutput: dalgo-staging-airbyte
     s3:
      region: "ap-south-1" ## e.g. us-east-1
-     authenticationType: credentials ## Use "credentials" or "instanceProfile"
+     # Pod Identity role dalgo-staging-eks-airbyte-s3 (cluster/terraform) grants bucket access; no static keys
+     authenticationType: instanceProfile ## Use "credentials" or "instanceProfile"
     # GCS
     #bucket: ## GCS bucket names that you've created. We recommend storing the following all in one bucket.
     #  log: airbyte-bucket
@@ -589,16 +590,6 @@ server:
   # -- Additional init containers for server pods
   extraInitContainers: []
   extraEnv:
-    - name: STATE_STORAGE_S3_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: AWS_ACCESS_KEY_ID
-    - name: STATE_STORAGE_S3_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: AWS_SECRET_ACCESS_KEY
     - name: STATE_STORAGE_S3_BUCKET_NAME
       valueFrom:
         secretKeyRef:
@@ -775,26 +766,6 @@ worker:
   ##   value: "key=airbyte-server,operator=Equals,value=true,effect=NoSchedule"
   # -- Additional env vars for worker pods
   extraEnv:
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: s3-access-key-id
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: s3-secret-access-key
-    - name: STATE_STORAGE_S3_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: AWS_ACCESS_KEY_ID
-    - name: STATE_STORAGE_S3_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: AWS_SECRET_ACCESS_KEY
     - name: STATE_STORAGE_S3_BUCKET_NAME
       valueFrom:
         secretKeyRef:
@@ -954,16 +925,6 @@ workload-launcher:
   ##   value: "key=airbyte-server,operator=Equals,value=true,effect=NoSchedule"
   # -- Additional env vars for workload launcher pods
   extraEnv: 
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          key: s3-access-key-id
-          name: airbyte-config-secrets
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          key: s3-secret-access-key
-          name: airbyte-config-secrets
     - name: STORAGE_BUCKET_ACTIVITY_PAYLOAD
       valueFrom:
         secretKeyRef:

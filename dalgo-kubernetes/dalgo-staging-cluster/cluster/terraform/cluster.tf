@@ -429,15 +429,21 @@ data "aws_iam_policy_document" "pod_identity_assume_role" {
 
 locals {
   pod_role_service_accounts = {
-    ebs_csi            = "ebs-csi-controller-sa"
-    cluster_autoscaler = "cluster-autoscaler"
-    lb_controller      = "aws-load-balancer-controller"
+    ebs_csi            = { namespace = "kube-system", service_account = "ebs-csi-controller-sa" }
+    cluster_autoscaler = { namespace = "kube-system", service_account = "cluster-autoscaler" }
+    lb_controller      = { namespace = "kube-system", service_account = "aws-load-balancer-controller" }
+    # Airbyte server, worker, launcher and job pods all run as global.serviceAccountName
+    airbyte_s3 = { namespace = "airbyte-staging", service_account = "airbyte-admin" }
+    # Prefect flow-run pods: job template leaves service_account_name unset -> namespace "default" SA
+    prefect_s3 = { namespace = "prefect-staging", service_account = "default" }
   }
 
   pod_role_arns = {
     ebs_csi            = aws_iam_role.ebs_csi.arn
     cluster_autoscaler = aws_iam_role.cluster_autoscaler.arn
     lb_controller      = aws_iam_role.lb_controller.arn
+    airbyte_s3         = aws_iam_role.app_s3["airbyte"].arn
+    prefect_s3         = aws_iam_role.app_s3["prefect"].arn
   }
 }
 
@@ -445,13 +451,63 @@ resource "aws_eks_pod_identity_association" "pod_roles" {
   for_each = local.pod_role_service_accounts
 
   cluster_name    = aws_eks_cluster.eks_cluster.name
-  namespace       = "kube-system"
-  service_account = each.value
+  namespace       = each.value.namespace
+  service_account = each.value.service_account
   role_arn        = local.pod_role_arns[each.key]
 
   tags = {
-    Name = "${var.cluster_name}-${each.value}"
+    Name = "${var.cluster_name}-${each.value.service_account}"
   }
+}
+
+########################################
+# App S3 roles (no static keys); linked to service accounts in pod_role_service_accounts.
+# Pod Identity, not the node role: nodes run IMDSv2 with hop limit 1, so pods can't reach
+# instance metadata. New associations apply to pods started after them: restart once.
+########################################
+
+locals {
+  app_s3_pod_roles = {
+    # Airbyte logs / state / workload output (helm storage.s3.authenticationType: instanceProfile)
+    airbyte = { buckets = ["dalgo-staging-airbyte"] }
+    # Prefect RDS backups. Bucket not created yet; rename here if it differs.
+    prefect = { buckets = ["dalgo-staging-backups"] }
+  }
+}
+
+resource "aws_iam_role" "app_s3" {
+  for_each = local.app_s3_pod_roles
+
+  name               = "${local.iam_prefix}-${each.key}-s3"
+  assume_role_policy = data.aws_iam_policy_document.pod_identity_assume_role.json
+
+  tags = {
+    Name = "${local.iam_prefix}-${each.key}-s3"
+  }
+}
+
+data "aws_iam_policy_document" "app_s3" {
+  for_each = local.app_s3_pod_roles
+
+  statement {
+    sid       = "ObjectReadWriteDelete"
+    actions   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
+    resources = [for b in each.value.buckets : "arn:aws:s3:::${b}/*"]
+  }
+
+  statement {
+    sid       = "ListBuckets"
+    actions   = ["s3:ListBucket", "s3:GetBucketLocation"]
+    resources = [for b in each.value.buckets : "arn:aws:s3:::${b}"]
+  }
+}
+
+resource "aws_iam_role_policy" "app_s3" {
+  for_each = local.app_s3_pod_roles
+
+  name   = "s3-buckets"
+  role   = aws_iam_role.app_s3[each.key].id
+  policy = data.aws_iam_policy_document.app_s3[each.key].json
 }
 
 # EBS CSI driver
