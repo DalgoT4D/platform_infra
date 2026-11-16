@@ -66,7 +66,8 @@ worker:
 
   image:
     # -- worker image repository
-    repository: prefecthq/prefect
+    # ECR pull-through cache of Docker Hub (rollback: prefecthq/prefect)
+    repository: 024209611402.dkr.ecr.ap-south-1.amazonaws.com/docker-hub/prefecthq/prefect
     ## prefect tag is pinned to the latest available image tag at packaging time.  Update the value here to
     ## override pinned tag
     # -- prefect image tag (immutable tags are recommended)
