@@ -1,0 +1,21 @@
+# PROD AFRICA: points the in-cluster Service prefect-server-external (prefect-external-service.yaml, same as
+# Mumbai prod) at the Prefect server on the Mumbai prod EC2 dalgo-production-arm, reached over the VPC peering.
+# Copy to prefect-external-service-endpoint.yaml (gitignored by name, like Mumbai) and apply.
+# EC2 replaced (new private IP) -> update the address and re-apply (terraform output mumbai_ec2_private_ip in ../../peering).
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: prefect-server-external-ep
+  namespace: prefect
+  labels:
+    kubernetes.io/service-name: prefect-server-external
+addressType: IPv4
+ports:
+  - name: http
+    protocol: TCP
+    port: 4200
+endpoints:
+  - addresses:
+      - 172.31.2.21 # dalgo-production-arm (i-031701d000d249f91)
+    conditions:
+      ready: true

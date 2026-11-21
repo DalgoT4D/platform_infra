@@ -1,0 +1,8 @@
+aws_profile    = "dalgo-prod-admin"
+aws_account_id = "024209611402"
+
+# false on the first apply. true once the peering is accepted in Mumbai (adds the Africa -> Mumbai routes).
+peering_accepted = false
+
+# Mumbai prod values default to what exists today (variables.tf). Override only if they change, e.g.:
+# mumbai_ec2_private_ip = "172.31.2.21"

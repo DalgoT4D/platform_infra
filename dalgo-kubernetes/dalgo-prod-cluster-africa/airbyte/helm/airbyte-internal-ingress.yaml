@@ -1,0 +1,61 @@
+# PROD AFRICA internal ALB for Airbyte. Copy of dalgo-staging-cluster-africa/airbyte/helm/airbyte-internal-ingress.yaml.
+# Changed: namespace airbyte, group.name + tags (prod-af), host airbyte-prod-af-internal.dalgo.org,
+# inbound-cidrs = Mumbai prod EC2 dalgo-production-arm /32 (over peering) + the Africa prod VPC (flow pods use the same host).
+# Placeholders:
+#   <AFRICA_ACM_CERT_ARN>   = terraform output -raw acm_certificate_arn in ../../cluster/terraform
+# After the ALB exists: alias A record airbyte-prod-af-internal.dalgo.org -> this ALB in the private zone
+# (terraform output airbyte_internal_zone_id in ../../cluster/terraform), by hand.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: airbyte-internal-ingress
+  namespace: airbyte
+  annotations:
+    # Own ALB group (Africa prod cluster only)
+    alb.ingress.kubernetes.io/group.name: dalgo-prod-af-internal
+    # INTERNAL load balancer; private subnets auto-discovered via kubernetes.io/role/internal-elb=1 (af-south-1a, 1b)
+    alb.ingress.kubernetes.io/scheme: internal
+    # Tags on the ALB, its target groups and SGs
+    alb.ingress.kubernetes.io/tags: Name=dalgo-prod-af-airbyte-internal-alb,Product=dalgo,Environment=production,Subset=airbyte,Region=af-south-1
+    # IP targets: ALB -> pod IPs directly
+    alb.ingress.kubernetes.io/target-type: ip
+    # Connection timeout (30 minutes), same as Mumbai prod
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=1800
+    # HTTPS - listen on both HTTP and HTTPS, redirect HTTP to HTTPS (same as Mumbai prod)
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    # Africa prod ACM wildcard cert (af-south-1; the Mumbai cert ARN won't work here)
+    alb.ingress.kubernetes.io/certificate-arn: <AFRICA_ACM_CERT_ARN>
+    # ONLY the Mumbai prod backend EC2 (dalgo-production-arm: Django + Celery) and the Africa prod VPC.
+    # The controller writes this into the ALB's SG. EC2 replaced (new private IP) -> update + re-apply.
+    alb.ingress.kubernetes.io/inbound-cidrs: 172.31.2.21/32,10.30.0.0/16
+    # Health check settings (same as Mumbai prod)
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '30'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '3'
+spec:
+  # Use AWS Load Balancer Controller (not nginx)
+  ingressClassName: alb
+  rules:
+    - host: airbyte-prod-af-internal.dalgo.org
+      http:
+        paths:
+          # Route /api/v1/connector_builder/ to connector-builder-server
+          - path: /api/v1/connector_builder/
+            pathType: Prefix
+            backend:
+              service:
+                name: airbyte-airbyte-connector-builder-server-svc
+                port:
+                  number: 80
+          # Route everything else to server
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: airbyte-airbyte-server-svc
+                port:
+                  number: 8001

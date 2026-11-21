@@ -1,0 +1,58 @@
+# Africa Airbyte RDS (Postgres) + its subnet group and parameter group. Only Airbyte's DBs live here
+# (airbyte + the temporal DBs Airbyte creates itself). Master password: fixed, from tfvars.
+# Needs ../bootstrap applied first. Holds data: deletion protection is on.
+
+terraform {
+  required_version = ">= 1.11"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.80"
+    }
+  }
+
+  # Prod state bucket (prod account), NEW key under dalgo-prod-af/. Bucket region is ap-south-1, where the bucket lives.
+  backend "s3" {
+    bucket       = "production-eks-terraform-state"
+    key          = "dalgo-prod-af/prod-rds/terraform.tfstate"
+    region       = "ap-south-1"
+    profile      = "dalgo-prod-admin"
+    encrypt      = true
+    use_lockfile = true
+  }
+}
+
+provider "aws" {
+  region  = var.aws_region
+  profile = var.aws_profile
+
+  # refuse to run against any other account
+  allowed_account_ids = [var.aws_account_id]
+
+  default_tags {
+    tags = {
+      Product     = "dalgo"
+      Environment = "production"
+      Region      = "af-south-1"
+      Subset      = "airbyte"
+      ManagedBy   = "terraform"
+    }
+  }
+}
+
+# VPC, subnet and SG IDs from the AFRICA bootstrap (not Mumbai's)
+data "terraform_remote_state" "bootstrap" {
+  backend = "s3"
+
+  config = {
+    bucket  = "production-eks-terraform-state"
+    key     = "dalgo-prod-af/bootstrap/terraform.tfstate"
+    region  = "ap-south-1"
+    profile = "dalgo-prod-admin"
+  }
+}
+
+locals {
+  bootstrap = data.terraform_remote_state.bootstrap.outputs
+}

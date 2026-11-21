@@ -1,0 +1,7 @@
+# Set any variable from variables.tf here to override its default (e.g. nat_az = "af-south-1b"). Unset ones keep their default.
+
+aws_region     = "af-south-1"
+aws_profile    = "dalgo-prod-admin"
+aws_account_id = "024209611402"
+
+# Everything else defaults to the prod Africa layout (variables.tf): VPC 10.30.0.0/16, data path in af-south-1a.
