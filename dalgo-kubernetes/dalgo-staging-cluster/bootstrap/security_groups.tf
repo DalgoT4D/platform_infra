@@ -1,5 +1,6 @@
 # Rules are separate resources (not inline blocks) on purpose: other stacks add rules to these SGs
-# (cluster/terraform adds "4200 from cluster SG" to the staging EC2 SG). Inline blocks would delete them.
+# (cluster/terraform adds "4200 from cluster SG" to the staging EC2 SG; dalgo-staging-cluster-africa/peering adds
+# "4200 from 10.20.0.0/16"). Inline blocks would delete them.
 
 ########################################
 # Staging EC2 (backend, webapp, Prefect server box)

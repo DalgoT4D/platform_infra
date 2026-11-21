@@ -1,0 +1,22 @@
+# AFRICA: same EndpointSlice as Mumbai, pointing the in-cluster Service prefect-server-external
+# (../../../dalgo-staging-cluster/prefect/prefect-workers/prefect-external-service.yaml, reused as-is)
+# at the Mumbai staging EC2, reached over the VPC peering.
+# Copy to prefect-external-service-endpoint.yaml (gitignored by name, like Mumbai) and fill:
+#   <MUMBAI_EC2_PRIVATE_IP> = terraform output mumbai_ec2_private_ip in ../../peering (a 172.31.x.x address)
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: prefect-server-external-ep
+  namespace: prefect-staging
+  labels:
+    kubernetes.io/service-name: prefect-server-external
+addressType: IPv4
+ports:
+  - name: http
+    protocol: TCP
+    port: 4200
+endpoints:
+  - addresses:
+      - <MUMBAI_EC2_PRIVATE_IP>
+    conditions:
+      ready: true

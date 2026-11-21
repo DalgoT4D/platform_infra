@@ -1,0 +1,8 @@
+# Set any variable from variables.tf here to override its default. Unset ones keep their default.
+
+aws_region     = "af-south-1"
+aws_profile    = "dalgo-staging-admin"
+aws_account_id = ""
+
+# postgres master password for the AFRICA Airbyte RDS: new value, store in the team vault (min 8 chars; no / " @ or spaces)
+master_password = ""

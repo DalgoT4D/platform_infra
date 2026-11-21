@@ -1,0 +1,21 @@
+# Set any variable from variables.tf here to override its default (e.g. node_subnet_azs = ["af-south-1b"]). Unset ones keep their default.
+
+aws_region     = "af-south-1"
+aws_profile    = "dalgo-staging-admin"
+aws_account_id = ""
+
+cluster_name    = "dalgo-staging-af-cluster"
+cluster_version = "1.36"
+
+# SSO PowerUserAccess role (NOT the admin role running terraform: it already gets cluster-admin)
+# aws iam list-roles --query "Roles[?contains(RoleName,'PowerUserAccess')].Arn" --output text
+# [] = none. Never [""] (fails at plan).
+admin_principal_arns = []
+
+# EC2 key pair in af-south-1 (create in the console first). SSH only from the Mumbai staging EC2 over peering.
+# null = no SSH. Changing it after the node groups exist replaces the nodes.
+ssh_key_name = "dalgo-staging-af-eks-rsa-key-pair"
+
+# VPC and subnet IDs come from the Africa ../../bootstrap state. AZ choices (defaults in variables.tf):
+# cluster_subnet_azs = ["af-south-1a", "af-south-1b"]
+# node_subnet_azs    = ["af-south-1a"]

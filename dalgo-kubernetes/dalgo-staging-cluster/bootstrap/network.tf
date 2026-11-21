@@ -83,18 +83,25 @@ resource "aws_nat_gateway" "main" {
 # Route tables
 ########################################
 
-# public: 0.0.0.0/0 -> IGW
+# Routes are ONLY separate aws_route resources, never inline route {} blocks.
+# Inline blocks are authoritative: Terraform would delete any route it didn't declare, including
+# the peering routes that dalgo-staging-cluster-africa/peering adds to these tables.
+# With no route argument at all, aws_route_table leaves routes alone, so both styles never mix.
+# To add a route: add another aws_route below (or in another folder, like peering does).
+
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main.id
-  }
 
   tags = {
     Name = "${local.name}-public-route-table"
   }
+}
+
+# public: 0.0.0.0/0 -> IGW
+resource "aws_route" "public_default" {
+  route_table_id         = aws_route_table.public.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.main.id
 }
 
 resource "aws_route_table_association" "public" {
@@ -104,18 +111,32 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# private: 0.0.0.0/0 -> NAT
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.main.id
-  }
 
   tags = {
     Name = "${local.name}-private-route-table"
   }
+}
+
+# private: 0.0.0.0/0 -> NAT
+resource "aws_route" "private_default" {
+  route_table_id         = aws_route_table.private.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.main.id
+}
+
+# One-time adoption of the default routes that used to be inline route {} blocks.
+# The plan must show "2 to import, 0 to add, 0 to change, 0 to destroy". Safe to delete these
+# two import blocks after that apply.
+import {
+  to = aws_route.public_default
+  id = "${aws_route_table.public.id}_0.0.0.0/0"
+}
+
+import {
+  to = aws_route.private_default
+  id = "${aws_route_table.private.id}_0.0.0.0/0"
 }
 
 resource "aws_route_table_association" "private" {

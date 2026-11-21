@@ -1,0 +1,2 @@
+aws_profile    = "dalgo-staging-admin"
+aws_account_id = ""

@@ -157,6 +157,23 @@ resource "aws_iam_role_policy" "secretsmanager" {
   })
 }
 
+# Airbyte region connection details (one secret per region, all stored in Mumbai:
+# dalgoAirbyteRegion-staging-in, dalgoAirbyteRegion-staging-af, ...). Read-only.
+# Kept here (not in dalgo-staging-cluster-africa/peering) so destroying a region's link never cuts Mumbai's own creds.
+resource "aws_iam_role_policy" "secretsmanager_airbyte_regions" {
+  name = "secretsmanager-airbyte-region-read"
+  role = aws_iam_role.staging_ec2.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
+      Resource = "arn:aws:secretsmanager:${var.aws_region}:${var.aws_account_id}:secret:dalgoAirbyteRegion-staging-*"
+    }]
+  })
+}
+
 ########################################
 # Instance
 ########################################

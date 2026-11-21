@@ -46,3 +46,13 @@ output "ecr_docker_hub_registry" {
   description = "Set as global.image.registry in airbyte/helm/values*.yaml"
   value       = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.ecr_docker_hub_prefix}"
 }
+
+# Read by dalgo-staging-cluster-africa/peering to add peering routes.
+output "public_route_table_id" {
+  description = "Public route table (the staging EC2 lives here)"
+  value       = aws_route_table.public.id
+}
+
+output "private_route_table_id" {
+  value = aws_route_table.private.id
+}
