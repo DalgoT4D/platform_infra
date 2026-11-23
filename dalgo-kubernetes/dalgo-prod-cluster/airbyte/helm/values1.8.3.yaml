@@ -109,12 +109,17 @@ global:
 
     # S3
     bucket: ## S3 bucket names that you've created. We recommend storing the following all in one bucket.
+     # Single source of truth for buckets. Do NOT re-add STORAGE_BUCKET_* in component extraEnv:
+     # duplicate env names break `helm upgrade` (strategic merge patch keys env by name).
+     # log/state stay in staging2 for now (existing logs live there); moving them is a separate change.
      log: dalgo-staging2-eks
      state: dalgo-staging2-eks
-     workloadOutput: dalgo-staging2-eks
+     workloadOutput: dalgo-prod-airbyte-eks
+     activityPayload: dalgo-prod-airbyte-eks
     s3:
      region: "ap-south-1" ## e.g. us-east-1
-     authenticationType: credentials ## Use "credentials" or "instanceProfile"
+     # IRSA role app-dalgo-prod-airbyte-s3 (annotation on SA airbyte-admin) grants bucket access; no static keys
+     authenticationType: instanceProfile ## Use "credentials" or "instanceProfile"
   # GCS
     #bucket: ## GCS bucket names that you've created. We recommend storing the following all in one bucket.
     #  log: airbyte-bucket
@@ -219,7 +224,9 @@ serviceAccount:
   # -- Specifies whether a ServiceAccount should be created
   create: true
   # -- Annotations for service account. Evaluated as a template. Only used if `create` is `true`.
-  annotations: {}
+  # IRSA: role trusts system:serviceaccount:airbyte:airbyte-admin via prod cluster OIDC provider
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::024209611402:role/app-dalgo-prod-airbyte-s3
   # -- Name of the service account to use. If not set and create is true, a name is generated using the fullname template.
   name: *service-account-name
 
@@ -593,16 +600,6 @@ server:
   # -- Additional init containers for server pods
   extraInitContainers: []
   extraEnv:
-    - name: STATE_STORAGE_S3_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: AWS_ACCESS_KEY_ID
-    - name: STATE_STORAGE_S3_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: AWS_SECRET_ACCESS_KEY
     - name: STATE_STORAGE_S3_BUCKET_NAME
       valueFrom:
         secretKeyRef:
@@ -613,17 +610,7 @@ server:
         secretKeyRef:
           name: airbyte-config-secrets
           key: S3_LOG_BUCKET_REGION
-    - name: STORAGE_BUCKET_ACTIVITY_PAYLOAD
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: S3_LOG_BUCKET
-    - name: STORAGE_BUCKET_WORKLOAD_OUTPUT
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: S3_LOG_BUCKET
-    - name: HTTP_IDLE_TIMEOUT  
+    - name: HTTP_IDLE_TIMEOUT
       value: 20m  
     - name: READ_TIMEOUT  
       value: 30m
@@ -668,9 +655,8 @@ server:
   ##   DATABASE_HOST: airbyte-db
   ##   DATABASE_PORT: 5432
   # -- Supply extra env variables to main container using simplified notation
-  env_vars: 
-    DATABASE_HOST: airbyte-prod-2.c4hvhyuxrcet.ap-south-1.rds.amazonaws.com
-    DATABASE_PORT: "5432"
+  # DATABASE_HOST/PORT already come from global.database (configmap); setting here duplicates them
+  env_vars: {}
 
 ## @section Worker Parameters
 
@@ -783,26 +769,6 @@ worker:
   ##   value: "key=airbyte-server,operator=Equals,value=true,effect=NoSchedule"
   # -- Additional env vars for worker pods
   extraEnv:
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: s3-access-key-id
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: s3-secret-access-key
-    - name: STATE_STORAGE_S3_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: AWS_ACCESS_KEY_ID
-    - name: STATE_STORAGE_S3_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: AWS_SECRET_ACCESS_KEY
     - name: STATE_STORAGE_S3_BUCKET_NAME
       valueFrom:
         secretKeyRef:
@@ -813,16 +779,6 @@ worker:
         secretKeyRef:
           name: airbyte-config-secrets
           key: S3_LOG_BUCKET_REGION
-    - name: STORAGE_BUCKET_ACTIVITY_PAYLOAD
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: S3_LOG_BUCKET
-    - name: STORAGE_BUCKET_WORKLOAD_OUTPUT
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: S3_LOG_BUCKET
     - name: SYNC_JOB_RETRIES_COMPLETE_FAILURES_MAX_TOTAL
       value: "1"
     - name: SYNC_JOB_RETRIES_PARTIAL_FAILURES_MAX_TOTAL
@@ -961,29 +917,8 @@ workload-launcher:
   ## - name: JOB_KUBE_TOLERATIONS
   ##   value: "key=airbyte-server,operator=Equals,value=true,effect=NoSchedule"
   # -- Additional env vars for workload launcher pods
-  extraEnv: 
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          key: s3-access-key-id
-          name: airbyte-config-secrets
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          key: s3-secret-access-key
-          name: airbyte-config-secrets
-    - name: STORAGE_BUCKET_ACTIVITY_PAYLOAD
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: S3_LOG_BUCKET
-    - name: STORAGE_BUCKET_WORKLOAD_OUTPUT
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: S3_LOG_BUCKET
-    - name: JOB_KUBE_NODE_SELECTORS
-      value: type=jobs
+  # JOB_KUBE_NODE_SELECTORS comes from global.jobs.kube.nodeSelector (configmap); not repeated here
+  extraEnv:
     - name: SPEC_JOB_KUBE_NODE_SELECTORS
       value: type=jobs
     - name: CHECK_JOB_KUBE_NODE_SELECTORS
@@ -1523,30 +1458,8 @@ temporal:
       value: "0.0.0.0"
     - name: TEMPORAL_BROADCAST_ADDRESS
       value: "0.0.0.0"
-    - name: POSTGRES_USER
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: database-user
-    - name: POSTGRES_PWD
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: database-password
-    - name: DYNAMIC_CONFIG_FILE_PATH
-      value: "config/dynamicconfig/development.yaml"
-    - name: DB
-      value: "postgres12"
-    - name: DB_PORT
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: database-port
-    - name: POSTGRES_SEEDS
-      valueFrom:
-        secretKeyRef:
-          name: airbyte-config-secrets
-          key: database-host
+    # DB, DB_PORT, POSTGRES_SEEDS/USER/PWD, DYNAMIC_CONFIG_FILE_PATH are set by the chart itself
+    # with identical values; repeating them here creates duplicate env names that break helm upgrade
 
   ## Examples (when using `temporal.containerSecurityContext.readOnlyRootFilesystem=true`):
   ## extraVolumeMounts:
